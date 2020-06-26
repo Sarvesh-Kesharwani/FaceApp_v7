@@ -161,12 +161,12 @@ public class Register extends AppCompatActivity {
                     pw8.write("1");
                     pw8.flush();
 
-                    String ACK = mBufferIn.readLine();
+                    /*String ACK = mBufferIn.readLine();
                     if(ACK.equals("?ACK"))
                     {
                         displayLongToast(String.valueOf(mBufferIn.readLine()));
 
-                    }
+                    }*/
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {
@@ -298,6 +298,7 @@ public class Register extends AppCompatActivity {
             }
             return null;
         }
+
         void SendOP() throws IOException {
             while(s90 == null)
             {
@@ -324,6 +325,7 @@ public class Register extends AppCompatActivity {
                 }
             }
         }
+
         void sendName() throws IOException {
             //prepration
             while(s23 == null)
@@ -359,6 +361,7 @@ public class Register extends AppCompatActivity {
                 }
             }
         }
+
        /* byte[] EncodeToUTF8(String string) {
                 //encoding delimeter string to utf-8 encoding
                 ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(string);
@@ -366,6 +369,7 @@ public class Register extends AppCompatActivity {
                 byteBuffer.get(buff, 0, buff.length);
                 return buff;
         }*/
+
         void sendFile() {
 
             while(s1 == null)

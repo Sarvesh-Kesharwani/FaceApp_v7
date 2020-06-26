@@ -13,6 +13,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import static java.lang.Boolean.TRUE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -137,13 +140,17 @@ public class MainActivity extends AppCompatActivity {
 
                     pw8.write("1");
                     pw8.flush();
-
-                    String ACK = mBufferIn.readLine();
-                    if(ACK.equals("?ACK"))
+                    Log.d("try","send op code");
+                    /*while(TRUE)
                     {
-                        displayLongToast(String.valueOf(mBufferIn.readLine()));
-
-                    }
+                        String ACK = mBufferIn.readLine();
+                        Log.d("try","Read Line...");
+                        if(ACK.equals("?ACK"))
+                        {
+                            displayLongToast(String.valueOf(mBufferIn.readLine()));
+                            break;
+                        }
+                    }*/
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {
