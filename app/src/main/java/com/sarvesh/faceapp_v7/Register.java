@@ -62,7 +62,8 @@ public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         ///////////////////////////////////////////////
         setContentView(R.layout.activity_register);
@@ -113,6 +114,8 @@ public class Register extends AppCompatActivity {
                     case R.id.nav_register:
                         Intent intent1 = new Intent(Register.this, Register.class);
                         startActivity(intent1);
+                        SendOperation sendop = new SendOperation();
+                        sendop.execute();
                         break;
                     case R.id.nav_permissions:
                         Intent intent2= new Intent(Register.this, Permissions.class);
@@ -131,13 +134,37 @@ public class Register extends AppCompatActivity {
                 }
             });
 
+        //Create a connection to server for selected operation bytes which is this operation(ADDING new person)
+
     }
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        actionBarDrawerToggle.syncState();
+
+
+    class SendOperation extends AsyncTask<Void, Void, Void>
+    {
+        Socket s8;
+        PrintWriter pw8;
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            while(s8 == null)
+            {
+                try {
+                    s8 = new Socket(HOST, Port);
+                    pw8 = new PrintWriter(s8.getOutputStream());
+
+                    pw8.write("1");
+                    pw8.close();
+                    s8.close();
+                } catch (IOException e) {
+                    System.out.println("Fail");
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
