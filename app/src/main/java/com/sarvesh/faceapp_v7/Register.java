@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
@@ -56,6 +57,8 @@ public class Register extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
+    private Toolbar toolbar;
+
     //////////////////////////////////////////////////
 
     @Override
@@ -63,9 +66,14 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ///////////////////////////////////////////////
         setContentView(R.layout.activity_register);
+
+        toolbar = findViewById(R.id.register_toolBar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         final EditText nameText = findViewById(R.id.nameText);
         final Button sendButton = findViewById(R.id.sendButton);
-        photoImage = findViewById(R.id.photoImage);
+        photoImage = findViewById(R.id.poi);
         sendButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
                 if(photoBitmap != null)
@@ -91,11 +99,11 @@ public class Register extends AppCompatActivity {
         ///////////////////////////////////////////////
 
         //Navigation Coding Start
-        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.register_drawer_layout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(Register.this,drawerLayout,R.string.drawer_open,R.string.drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        navigationView = findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.register_navigation_view);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -129,6 +137,15 @@ public class Register extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         actionBarDrawerToggle.syncState();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
