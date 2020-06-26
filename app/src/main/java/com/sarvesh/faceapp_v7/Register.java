@@ -43,6 +43,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -156,17 +157,8 @@ public class Register extends AppCompatActivity {
                 try {
                     s8 = new Socket(HOST, Port);
                     pw8 = new PrintWriter(s8.getOutputStream());
-                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s8.getInputStream()));
-
                     pw8.write("1");
                     pw8.flush();
-
-                    /*String ACK = mBufferIn.readLine();
-                    if(ACK.equals("?ACK"))
-                    {
-                        displayLongToast(String.valueOf(mBufferIn.readLine()));
-
-                    }*/
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {
@@ -194,16 +186,8 @@ public class Register extends AppCompatActivity {
                 try {
                     s9 = new Socket(HOST, Port);
                     pw9 = new PrintWriter(s9.getOutputStream());
-                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s9.getInputStream()));
-
                     pw9.write("2");
                     pw9.flush();
-
-                    String ACK = mBufferIn.readLine();
-                    if(ACK.equals("?ACK"))
-                    {
-                        displayLongToast(String.valueOf(mBufferIn.readLine()));
-                    }
                     pw9.close();
                     pw9.flush();
                     s9.close();
@@ -274,6 +258,8 @@ public class Register extends AppCompatActivity {
         Socket s90;
         PrintWriter pw90;
 
+        Socket Sack;
+
         @Override
         protected Void doInBackground(Void... params) {
             //send OP to continue or return back to server function in SERVER
@@ -291,11 +277,12 @@ public class Register extends AppCompatActivity {
             }
             //send photo
             sendFile();
-            try {
+            receiveACK();
+           /* try {
               recieveFile();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
             return null;
         }
 
@@ -419,6 +406,34 @@ public class Register extends AppCompatActivity {
 
                 } catch (IOException ioe) {
                     Log.d("Exception Caught", ioe.getMessage());
+                }
+            }
+        }
+
+        void receiveACK() {
+            while (Sack == null) {
+                try {
+                    Sack = new Socket(HOST, Port);
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(Sack.getInputStream()));
+                    Log.d("try","send op code");
+
+                    if (Sack != null)
+                    {
+                        String ACK = mBufferIn.readLine();
+                        if (ACK != null)
+                        {
+                            Log.d("try","Read Line...");
+                            if(ACK.equals("?ACK"))
+                            {
+                                displayLongToast(String.valueOf(mBufferIn.readLine()));
+                                break;
+                            }
+                        }
+                    }
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }

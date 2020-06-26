@@ -136,21 +136,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     s8 = new Socket(HOST, Port);
                     pw8 = new PrintWriter(s8.getOutputStream());
-                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s8.getInputStream()));
-
                     pw8.write("1");
                     pw8.flush();
-                    Log.d("try","send op code");
-                    /*while(TRUE)
-                    {
-                        String ACK = mBufferIn.readLine();
-                        Log.d("try","Read Line...");
-                        if(ACK.equals("?ACK"))
-                        {
-                            displayLongToast(String.valueOf(mBufferIn.readLine()));
-                            break;
-                        }
-                    }*/
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {
