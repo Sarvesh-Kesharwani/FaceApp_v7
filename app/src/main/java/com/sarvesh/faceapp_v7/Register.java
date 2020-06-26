@@ -114,8 +114,8 @@ public class Register extends AppCompatActivity {
                     case R.id.nav_register:
                         Intent intent1 = new Intent(Register.this, Register.class);
                         startActivity(intent1);
-                        SendOperation sendop = new SendOperation();
-                        sendop.execute();
+                        ReadyAppend readyAppend = new ReadyAppend();
+                        readyAppend.execute();
                         break;
                     case R.id.nav_permissions:
                         Intent intent2= new Intent(Register.this, Permissions.class);
@@ -139,14 +139,21 @@ public class Register extends AppCompatActivity {
     }
 
 
-    class SendOperation extends AsyncTask<Void, Void, Void>
+    class ReadyAppend extends AsyncTask<Void, Void, Void>
     {
         Socket s8;
         PrintWriter pw8;
+        Socket s9;
+        PrintWriter pw9;
 
         @Override
         protected Void doInBackground(Void... voids) {
+            ReadyAppend();
+            return null;
+        }
 
+        void ReadyAppend()
+        {
             while(s8 == null)
             {
                 try {
@@ -154,6 +161,7 @@ public class Register extends AppCompatActivity {
                     pw8 = new PrintWriter(s8.getOutputStream());
 
                     pw8.write("1");
+                    pw8.flush();
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {
@@ -161,7 +169,38 @@ public class Register extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    class ReadyDelete extends AsyncTask<Void, Void, Void>
+    {
+        Socket s8;
+        PrintWriter pw8;
+        Socket s9;
+        PrintWriter pw9;
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ReadyDelete();
             return null;
+        }
+        void ReadyDelete()
+        {
+            while(s9 == null)
+            {
+                try {
+                    s9 = new Socket(HOST, Port);
+                    pw9 = new PrintWriter(s9.getOutputStream());
+
+                    pw9.write("2");
+                    pw9.close();
+                    pw9.flush();
+                    s9.close();
+                } catch (IOException e) {
+                    System.out.println("Fail");
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -217,12 +256,20 @@ public class Register extends AppCompatActivity {
         Socket s2;
         Socket s4;
         Socket s5;
+        Socket s90;
+        PrintWriter pw90;
 
         @Override
         protected Void doInBackground(Void... params) {
             //send name
             try {
                 sendName();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //send OP to continue or return back to server function in SERVER
+            try {
+                SendOP();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -235,7 +282,32 @@ public class Register extends AppCompatActivity {
             }
             return null;
         }
+        void SendOP() throws IOException {
+            while(s90 == null)
+            {
+                try {
+                    s90 = new Socket(HOST, Port);
+                    pw90 = new PrintWriter(s90.getOutputStream());
+                } catch (IOException e) {
+                    System.out.println("Fail");
+                    e.printStackTrace();
+                }
+                //preparing to send OP byte
 
+                //send name_length
+                if (s90 != null) {
+
+                    pw90.write("0");
+                    pw23.flush();
+                    pw23.close();
+                    s23.close();
+                }
+                else
+                {
+                    Log.d("errort","s23 is null!");
+                }
+            }
+        }
         void sendName() throws IOException {
             //prepration
             while(s23 == null)
