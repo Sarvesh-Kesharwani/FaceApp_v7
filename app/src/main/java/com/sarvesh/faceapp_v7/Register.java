@@ -253,6 +253,7 @@ public class Register extends AppCompatActivity {
         Socket s1;
         PrintWriter pw1;
         Socket s2;
+        PrintWriter pw47;
         Socket s4;
         Socket s5;
         Socket s90;
@@ -387,11 +388,16 @@ public class Register extends AppCompatActivity {
                     //making 3rd connection with pyjnius for sending photo
                     try {
                         s2 = new Socket(HOST, Port);
+                        pw47 = new PrintWriter(s2.getOutputStream());
                     } catch (IOException e) {
                         System.out.println("Fail");
                         e.printStackTrace();
                     }
                     if (s2 != null) {
+                        pw47.write("?image");
+                        pw47.flush();
+                        pw47.close();
+
                         DataOutputStream dos = new DataOutputStream(s2.getOutputStream());
                         dos.write(byteArray, 0, byteArray.length);
                         //Log.d("image", Arrays.toString(byteArray));
@@ -425,6 +431,7 @@ public class Register extends AppCompatActivity {
                             Log.d("try","Read Line...");
                             if(ACK.equals("?ACK"))
                             {
+                                Log.d("try","ACK recieved....");
                                 displayLongToast(String.valueOf(mBufferIn.readLine()));
                                 break;
                             }
