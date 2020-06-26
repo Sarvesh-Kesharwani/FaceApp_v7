@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">FaceApp</string>
+    <string name="drawer_open">Drawer Open</string>
+    <string name="drawer_close">Drawer Close</string>
+    <string name="home">Home</string>
+    <string name="permissions">Permissions</string>
+    <string name="register">Register</string>
+    <string name="unknown_activity">UnknownActivites</string>
+    <string name="EmergencyOpen">EmergencyOpen</string>
+</resources>

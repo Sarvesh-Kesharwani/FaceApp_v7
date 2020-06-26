@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_register"
+        android:icon="@drawable/ic_face_black_24dp"
+        android:title="@string/register"/>
+
+    <item
+        android:id="@+id/nav_permissions"
+        android:icon="@drawable/ic_block_black_24dp"
+        android:title="@string/permissions"/>
+
+    <item
+        android:id="@+id/nav_unknown_activity"
+        android:icon="@drawable/ic_bug_report_black_24dp"
+        android:title="@string/unknown_activity"/>
+
+    <item
+        android:id="@+id/nav_emergency_toggle"
+        android:icon="@drawable/ic_lock_open_black_24dp"
+        android:title="@string/EmergencyOpen"/>
+</menu>

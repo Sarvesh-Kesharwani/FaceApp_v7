@@ -1,0 +1,2 @@
+rootProject.name='FaceApp_v7'
+include ':app'
