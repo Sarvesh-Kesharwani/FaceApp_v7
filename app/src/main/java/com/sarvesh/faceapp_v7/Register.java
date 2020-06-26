@@ -48,7 +48,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
-    public String HOST = "192.168.0.100";//RPI3 eth0 ip 192.168.0.100
+    public String HOST = "192.168.43.205";//RPI3 eth0 ip 192.168.0.100
     public int Port = 1998;
     public String name;
     public int SELECT_PHOTO = 1;
@@ -138,14 +138,10 @@ public class Register extends AppCompatActivity {
 
     }
 
-
-
     class ReadyAppend extends AsyncTask<Void, Void, Void>
     {
         Socket s8;
         PrintWriter pw8;
-        Socket s9;
-        PrintWriter pw9;
 
         @Override
         protected Void doInBackground(Void... voids) {
@@ -160,9 +156,17 @@ public class Register extends AppCompatActivity {
                 try {
                     s8 = new Socket(HOST, Port);
                     pw8 = new PrintWriter(s8.getOutputStream());
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s8.getInputStream()));
 
                     pw8.write("1");
                     pw8.flush();
+
+                    String ACK = mBufferIn.readLine();
+                    if(ACK.equals("?ACK"))
+                    {
+                        displayLongToast(String.valueOf(mBufferIn.readLine()));
+
+                    }
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {
@@ -175,8 +179,6 @@ public class Register extends AppCompatActivity {
 
     class ReadyDelete extends AsyncTask<Void, Void, Void>
     {
-        Socket s8;
-        PrintWriter pw8;
         Socket s9;
         PrintWriter pw9;
 
@@ -192,8 +194,16 @@ public class Register extends AppCompatActivity {
                 try {
                     s9 = new Socket(HOST, Port);
                     pw9 = new PrintWriter(s9.getOutputStream());
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s9.getInputStream()));
 
                     pw9.write("2");
+                    pw9.flush();
+
+                    String ACK = mBufferIn.readLine();
+                    if(ACK.equals("?ACK"))
+                    {
+                        displayLongToast(String.valueOf(mBufferIn.readLine()));
+                    }
                     pw9.close();
                     pw9.flush();
                     s9.close();
@@ -246,6 +256,10 @@ public class Register extends AppCompatActivity {
     private void displayToast(String ToastMessage)
     {
         Toast.makeText(Register.this,ToastMessage,Toast.LENGTH_SHORT).show();
+    }
+    private void displayLongToast(String ToastMessage)
+    {
+        Toast.makeText(Register.this,ToastMessage,Toast.LENGTH_LONG).show();
     }
 
 
@@ -345,16 +359,13 @@ public class Register extends AppCompatActivity {
                 }
             }
         }
-
-
-        byte[] EncodeToUTF8(String string) {
-            //encoding delimeter string to utf-8 encoding
-            ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(string);
-            byte[] buff = new byte[byteBuffer.remaining()];
-            byteBuffer.get(buff, 0, buff.length);
-            return buff;
-        }
-
+       /* byte[] EncodeToUTF8(String string) {
+                //encoding delimeter string to utf-8 encoding
+                ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(string);
+                byte[] buff = new byte[byteBuffer.remaining()];
+                byteBuffer.get(buff, 0, buff.length);
+                return buff;
+        }*/
         void sendFile() {
 
             while(s1 == null)
