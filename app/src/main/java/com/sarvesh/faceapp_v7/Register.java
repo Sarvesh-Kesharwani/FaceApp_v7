@@ -1,9 +1,13 @@
 package com.sarvesh.faceapp_v7;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -43,9 +47,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class Register extends AppCompatActivity {
-
     //////////////////////////////////////////////////
-    public String HOST = "192.168.43.205";
+    public String HOST = "192.168.0.100";//RPI3 eth0 ip 192.168.0.100
     public int Port = 1998;
     public String name;
     public int SELECT_PHOTO = 1;
@@ -58,7 +61,6 @@ public class Register extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
     private Toolbar toolbar;
-
     //////////////////////////////////////////////////
 
     @Override
@@ -134,9 +136,8 @@ public class Register extends AppCompatActivity {
                 }
             });
 
-        //Create a connection to server for selected operation bytes which is this operation(ADDING new person)
-
     }
+
 
 
     class ReadyAppend extends AsyncTask<Void, Void, Void>
@@ -261,22 +262,23 @@ public class Register extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            //send name
-            try {
-                sendName();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             //send OP to continue or return back to server function in SERVER
             try {
                 SendOP();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            //send name
+            try {
+                sendName();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             //send photo
             sendFile();
             try {
-                recieveFile();
+              recieveFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -298,9 +300,9 @@ public class Register extends AppCompatActivity {
                 if (s90 != null) {
 
                     pw90.write("0");
-                    pw23.flush();
-                    pw23.close();
-                    s23.close();
+                    pw90.flush();
+                    pw90.close();
+                    s90.close();
                 }
                 else
                 {

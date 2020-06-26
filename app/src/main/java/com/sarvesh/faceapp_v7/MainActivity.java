@@ -6,10 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -22,11 +27,13 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
-    public String HOST = "192.168.43.205";
+    public String HOST = "192.168.0.100";
     public int Port = 1998;
+    private WifiManager wifiManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -71,6 +78,39 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ConnectToRPI3();
+    }
+
+    public void ConnectToRPI3()
+    {
+        //chekcing if wifi RPI3 is connected.
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        if(!wifiManager.isWifiEnabled())
+        {
+            Toast.makeText(getApplicationContext(),"Connecting WIFI to RPI3",Toast.LENGTH_LONG).show();
+            wifiManager.setWifiEnabled(true);
+        }
+
+        String networkSSID = "RPI3";
+        String networkPass = "12345678";
+
+        WifiConfiguration conf = new WifiConfiguration();
+        conf.SSID = "\"" + networkSSID + "\"";
+        conf.wepKeys[0] = "\"" + networkPass + "\"";
+        conf.wepTxKeyIndex = 0;
+        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+        conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+        conf.preSharedKey = "\""+ networkPass +"\"";
+
+        int networkId = wifiManager.addNetwork(conf);
+        WifiInfo wifi_inf = wifiManager.getConnectionInfo();
+
+/////important!!!
+        wifiManager.disableNetwork(wifi_inf.getNetworkId());
+/////////////////
+
+        wifiManager.enableNetwork(networkId, true);
     }
 
     class SendOperation extends AsyncTask<Void, Void, Void>
