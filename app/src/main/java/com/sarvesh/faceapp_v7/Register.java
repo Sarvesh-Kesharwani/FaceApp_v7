@@ -1,5 +1,6 @@
 package com.sarvesh.faceapp_v7;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -141,6 +142,32 @@ public class Register extends AppCompatActivity {
     }
 
 
+    class MyAndroidThread implements Runnable
+    {
+        Activity activity;
+        String command;
+        public MyAndroidThread(Activity activity,String Command)
+        {
+            this.activity = activity;
+            command = Command;
+        }
+
+        @Override
+        public void run()
+        {
+
+            //perform heavy task here and finally update the UI with result this way -
+            activity.runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Toast.makeText(getApplicationContext(),command,Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
     class ReadyAppend extends AsyncTask<Void, Void, Void>
     {
         Socket s8;
@@ -152,6 +179,7 @@ public class Register extends AppCompatActivity {
             return null;
         }
 
+
         void ReadyAppend()
         {
             while(s8 == null)
@@ -161,10 +189,18 @@ public class Register extends AppCompatActivity {
                     pw8 = new PrintWriter(s8.getOutputStream());
                     BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s8.getInputStream()));
                     pw8.write("?OPE");
-                    //displayLongToast(String.valueOf(mBufferIn.readLine()));
-
                     pw8.write("1");
                     pw8.flush();
+
+                    String command = String.valueOf(mBufferIn.readLine());
+                    Log.d("uh","Commandi: "+command);
+
+                    //*********Display Toast using threads***************************************//
+                    MyAndroidThread myTask = new MyAndroidThread(Register.this,command);
+                    Thread t1 = new Thread(myTask, "Sarvesh");
+                    t1.start();
+                    //****************************************************************************//
+
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {

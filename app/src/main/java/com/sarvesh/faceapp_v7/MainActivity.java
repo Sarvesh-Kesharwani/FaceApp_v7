@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
@@ -26,6 +27,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import static java.lang.Boolean.TRUE;
+import static java.lang.Boolean.compare;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -129,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+
         void ReadyAppend()
         {
             while(s8 == null)
@@ -143,7 +146,13 @@ public class MainActivity extends AppCompatActivity {
 
                     String command = String.valueOf(mBufferIn.readLine());
                     Log.d("uh","Commandi: "+command);
-                    //displayLongToast(command);
+
+                    //*********Display Toast using threads***************************************//
+                    MyAndroidThread myTask = new MyAndroidThread(MainActivity.this,command);
+                    Thread t1 = new Thread(myTask, "Sarvesh");
+                    t1.start();
+                    //****************************************************************************//
+
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {
@@ -151,6 +160,32 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    class MyAndroidThread implements Runnable
+    {
+        Activity activity;
+        String command;
+        public MyAndroidThread(Activity activity,String Command)
+        {
+            this.activity = activity;
+            command = Command;
+        }
+
+        @Override
+        public void run()
+        {
+
+            //perform heavy task here and finally update the UI with result this way -
+            activity.runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Toast.makeText(getApplicationContext(),command,Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -208,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void displayLongToast(String ToastMessage)
     {
-        Toast.makeText(MainActivity.this,ToastMessage,Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(),ToastMessage,Toast.LENGTH_LONG).show();
     }
 
 }
