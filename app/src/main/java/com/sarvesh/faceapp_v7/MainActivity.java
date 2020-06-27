@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
-    public String HOST = "192.168.43.205";
+    public String HOST = "192.168.0.100";
     public int Port = 1998;
     private WifiManager wifiManager;
 
@@ -136,8 +136,14 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     s8 = new Socket(HOST, Port);
                     pw8 = new PrintWriter(s8.getOutputStream());
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s8.getInputStream()));
+                    pw8.write("?OPE");
                     pw8.write("1");
                     pw8.flush();
+
+                    String command = String.valueOf(mBufferIn.readLine());
+                    Log.d("uh","Commandi: "+command);
+                    //displayLongToast(command);
                     pw8.close();
                     s8.close();
                 } catch (IOException e) {

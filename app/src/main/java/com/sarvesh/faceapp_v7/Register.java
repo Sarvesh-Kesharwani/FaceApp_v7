@@ -46,10 +46,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
-    public String HOST = "192.168.43.205";//RPI3 eth0 ip 192.168.0.100
+    public String HOST = "192.168.0.100";//RPI3 eth0 ip 192.168.0.100
     public int Port = 1998;
     public String name;
     public int SELECT_PHOTO = 1;
@@ -139,6 +140,7 @@ public class Register extends AppCompatActivity {
 
     }
 
+
     class ReadyAppend extends AsyncTask<Void, Void, Void>
     {
         Socket s8;
@@ -157,6 +159,10 @@ public class Register extends AppCompatActivity {
                 try {
                     s8 = new Socket(HOST, Port);
                     pw8 = new PrintWriter(s8.getOutputStream());
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(s8.getInputStream()));
+                    pw8.write("?OPE");
+                    //displayLongToast(String.valueOf(mBufferIn.readLine()));
+
                     pw8.write("1");
                     pw8.flush();
                     pw8.close();
@@ -345,10 +351,11 @@ public class Register extends AppCompatActivity {
                     byte[] byteArray = stream.toByteArray();
                     InputStream inn = new ByteArrayInputStream(byteArray);
 
-                    //send photo delimeter
-                    pw1.write("?IMAGE");
-                    //sending bytearray_length or image_length
                     if (pw1 != null) {
+                        //send photo delimeter
+                        pw1.write("?IMAGE");
+
+                        //sending bytearray_length or image_length
                         pw1.write(String.valueOf(byteArray.length) + '$');
                         Log.d("finally", String.valueOf(byteArray.length));
                         pw1.flush();
@@ -360,28 +367,29 @@ public class Register extends AppCompatActivity {
                     try {
                         s2 = new Socket(HOST, Port);
                         pw47 = new PrintWriter(s2.getOutputStream());
+                        DataOutputStream dos = new DataOutputStream(s2.getOutputStream());
+                        if (s2 != null)
+                        {
+                            pw47.write("?image");
+                            pw47.flush();
+
+                            Log.d("photo", "writing image in stream............");
+                            dos.write(byteArray, 0, byteArray.length);
+                            Log.d("image", Arrays.toString(byteArray));
+                            Log.d("photo", "photo was wrote in dos");
+
+                            dos.flush();
+                            pw47.close();
+                            stream.close();
+                            inn.close();
+                            dos.close();
+                            s2.close();
+                        }
                     } catch (IOException e) {
                         System.out.println("Fail");
                         e.printStackTrace();
                     }
-                    if (s2 != null) {
-                        pw47.write("?image");
-                        pw47.flush();
-                        pw47.close();
-
-                        DataOutputStream dos = new DataOutputStream(s2.getOutputStream());
-                        dos.write(byteArray, 0, byteArray.length);
-                        //Log.d("image", Arrays.toString(byteArray));
-                        Log.d("photo", "photo was wrote in dos");
-
-                        dos.flush();
-                        stream.close();
-                        inn.close();
-                        dos.close();
-                        s2.close();
-                    }
-
-                } catch (IOException ioe) {
+                }catch (IOException ioe) {
                     Log.d("Exception Caught", ioe.getMessage());
                 }
             }
