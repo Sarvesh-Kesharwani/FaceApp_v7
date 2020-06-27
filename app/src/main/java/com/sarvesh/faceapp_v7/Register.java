@@ -263,13 +263,6 @@ public class Register extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            //send OP to continue or return back to server function in SERVER
-            try {
-                SendOP();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             //send name
             try {
                 sendName();
@@ -285,33 +278,6 @@ public class Register extends AppCompatActivity {
                 e.printStackTrace();
             }*/
             return null;
-        }
-
-        void SendOP() throws IOException {
-            while(s90 == null)
-            {
-                try {
-                    s90 = new Socket(HOST, Port);
-                    pw90 = new PrintWriter(s90.getOutputStream());
-                } catch (IOException e) {
-                    System.out.println("Fail");
-                    e.printStackTrace();
-                }
-                //preparing to send OP byte
-
-                //send name_length
-                if (s90 != null) {
-
-                    pw90.write("0");
-                    pw90.flush();
-                    pw90.close();
-                    s90.close();
-                }
-                else
-                {
-                    Log.d("errort","s23 is null!");
-                }
-            }
         }
 
         void sendName() throws IOException {
@@ -330,8 +296,11 @@ public class Register extends AppCompatActivity {
                 int nameBytesLength = nameBytes.length;//no of charaters in the name
                 String nameBytesLengthString = Integer.toString(nameBytesLength);
 
-                //send name_length
-                if (s23 != null) {
+                if (s23 != null)
+                {
+                    //send name delimeter
+                    pw23.write("?NAME");
+                    //send name_length
                     if (nameBytesLength < 100) {
                         if (nameBytesLength <= 9)
                             pw23.write('0' + nameBytesLengthString);
@@ -376,6 +345,8 @@ public class Register extends AppCompatActivity {
                     byte[] byteArray = stream.toByteArray();
                     InputStream inn = new ByteArrayInputStream(byteArray);
 
+                    //send photo delimeter
+                    pw1.write("?IMAGE");
                     //sending bytearray_length or image_length
                     if (pw1 != null) {
                         pw1.write(String.valueOf(byteArray.length) + '$');
