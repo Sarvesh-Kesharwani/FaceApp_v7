@@ -199,6 +199,15 @@ public class Register extends AppCompatActivity {
                     MyAndroidThread myTask = new MyAndroidThread(Register.this,command);
                     Thread t1 = new Thread(myTask, "Sarvesh");
                     t1.start();
+
+                    try {
+                        Thread.sleep(1);
+                        t1.interrupt();
+                        Thread.sleep(5);
+                    }
+                    catch (InterruptedException e) {
+                        System.out.println("Caught:" + e);
+                    }
                     //****************************************************************************//
 
                     pw8.close();
@@ -447,6 +456,20 @@ public class Register extends AppCompatActivity {
                             if(ACK.equals("?ACK"))
                             {
                                 Log.d("try","ACK recieved....");
+                                //*********Display Toast using threads***************************************//
+                                MyAndroidThread myTask = new MyAndroidThread(Register.this,String.valueOf(mBufferIn.readLine()));
+                                Thread t1 = new Thread(myTask, "Sarvesh");
+                                t1.start();
+
+                                try {
+                                    Thread.sleep(1);
+                                    t1.interrupt();
+                                    Thread.sleep(5);
+                                }
+                                catch (InterruptedException e) {
+                                    System.out.println("Caught:" + e);
+                                }
+                                //****************************************************************************//
                                 displayLongToast(String.valueOf(mBufferIn.readLine()));
                                 break;
                             }

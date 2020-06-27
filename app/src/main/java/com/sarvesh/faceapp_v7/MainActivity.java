@@ -151,6 +151,15 @@ public class MainActivity extends AppCompatActivity {
                     MyAndroidThread myTask = new MyAndroidThread(MainActivity.this,command);
                     Thread t1 = new Thread(myTask, "Sarvesh");
                     t1.start();
+
+                    try {
+                        Thread.sleep(1);
+                        t1.interrupt();
+                        Thread.sleep(5);
+                    }
+                    catch (InterruptedException e) {
+                        System.out.println("Caught:" + e);
+                    }
                     //****************************************************************************//
 
                     pw8.close();
