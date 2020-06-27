@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
-    public String HOST = "192.168.0.100";
+    public String HOST = "192.168.0.101";
     public int Port = 1998;
     private WifiManager wifiManager;
 

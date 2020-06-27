@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -51,7 +52,7 @@ import java.util.Arrays;
 
 public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
-    public String HOST = "192.168.0.100";//RPI3 eth0 ip 192.168.0.100
+    public String HOST = "192.168.0.101";//RPI3 eth0 ip 192.168.0.100
     public int Port = 1998;
     public String name;
     public int SELECT_PHOTO = 1;
@@ -72,8 +73,8 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ///////////////////////////////////////////////
         setContentView(R.layout.activity_register);
-
         toolbar = findViewById(R.id.register_toolBar);
+        navigationView = findViewById(R.id.register_navigation_view);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -84,14 +85,19 @@ public class Register extends AppCompatActivity {
             public void onClick(View v) {
                 if(photoBitmap != null)
                 {
+                    //disable navigationBar
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                     send sendcode = new send();
                     name = nameText.getText().toString();
                     sendcode.execute();
                 }
                 else
                     displayToast("Select Photo!");
+
             }
         });
+
+
 
         final Button uploadPhotoButton = findViewById(R.id.uploadPhotoButton);
         uploadPhotoButton.setOnClickListener(new View.OnClickListener(){
@@ -140,7 +146,6 @@ public class Register extends AppCompatActivity {
             });
 
     }
-
 
     class MyAndroidThread implements Runnable
     {
@@ -470,6 +475,8 @@ public class Register extends AppCompatActivity {
                                     System.out.println("Caught:" + e);
                                 }
                                 //****************************************************************************//
+                                //enable navigationBar
+                                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                                 displayLongToast(String.valueOf(mBufferIn.readLine()));
                                 break;
                             }
