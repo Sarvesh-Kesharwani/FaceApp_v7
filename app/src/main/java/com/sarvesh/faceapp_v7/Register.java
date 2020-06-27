@@ -52,7 +52,7 @@ import java.util.Arrays;
 
 public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
-    public String HOST = "192.168.0.101";//RPI3 eth0 ip 192.168.0.100
+    public String HOST = "192.168.0.100";//RPI3 eth0 ip 192.168.0.100
     public int Port = 1998;
     public String name;
     public int SELECT_PHOTO = 1;

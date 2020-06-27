@@ -25,20 +25,20 @@
 
             <ImageView
                 android:id="@+id/poi"
-                android:layout_width="255dp"
-                android:layout_height="235dp"
+                android:layout_width="213dp"
+                android:layout_height="267dp"
                 android:src="@drawable/avatar"
                 app:layout_constraintBottom_toTopOf="@+id/uploadPhotoButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.836" />
+                app:layout_constraintVertical_bias="0.735" />
 
             <Button
                 android:id="@+id/uploadPhotoButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="40dp"
+                android:layout_marginBottom="28dp"
                 android:text="Upload Photo"
                 app:layout_constraintBottom_toTopOf="@+id/nameText"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -49,7 +49,7 @@
                 android:id="@+id/nameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="56dp"
+                android:layout_marginBottom="36dp"
                 android:ems="10"
                 android:hint="Member Name"
                 android:inputType="textPersonName"
@@ -61,7 +61,7 @@
                 android:id="@+id/sendButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="100dp"
+                android:layout_marginBottom="92dp"
                 android:text="ADD"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
