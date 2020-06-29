@@ -1,12 +1,5 @@
 package com.sarvesh.faceapp_v7;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
@@ -18,6 +11,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
@@ -26,15 +25,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import static java.lang.Boolean.TRUE;
-import static java.lang.Boolean.compare;
-
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
-    public String HOST = "192.168.0.100";
+    public String HOST = "192.168.0.102";
     public int Port = 1998;
     private WifiManager wifiManager;
 
@@ -174,9 +170,9 @@ public class MainActivity extends AppCompatActivity {
 
     class MyAndroidThread implements Runnable
     {
-        Activity activity;
+        AppCompatActivity activity;
         String command;
-        public MyAndroidThread(Activity activity,String Command)
+        public MyAndroidThread(AppCompatActivity activity, String Command)
         {
             this.activity = activity;
             command = Command;

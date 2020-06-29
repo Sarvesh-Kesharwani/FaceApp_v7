@@ -1,6 +1,5 @@
 package com.sarvesh.faceapp_v7;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -48,7 +47,7 @@ import java.util.Arrays;
 
 public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
-    public String HOST = "192.168.0.100";//RPI3 eth0 ip 192.168.0.100
+    public String HOST = "192.168.0.102";//RPI3 eth0 ip 192.168.0.100
     public int Port = 1998;
     public String name;
     public int SELECT_PHOTO = 1;
@@ -174,8 +173,8 @@ public class Register extends AppCompatActivity {
             rotatedWidth = dbo.outWidth;
             rotatedHeight = dbo.outHeight;
         }
-        int MAX_IMAGE_WIDTH = 3500;
-        int MAX_IMAGE_HEIGHT = 4500;
+        int MAX_IMAGE_WIDTH = 720;
+        int MAX_IMAGE_HEIGHT = 1280;
         Bitmap srcBitmap;
         is = context.getContentResolver().openInputStream(photoUri);
         if (rotatedWidth > MAX_IMAGE_WIDTH || rotatedHeight > MAX_IMAGE_HEIGHT) {
@@ -209,9 +208,9 @@ public class Register extends AppCompatActivity {
 
     class MyAndroidThread implements Runnable
     {
-        Activity activity;
+        AppCompatActivity activity;
         String command;
-        public MyAndroidThread(Activity activity,String Command)
+        public MyAndroidThread(AppCompatActivity activity, String Command)
         {
             this.activity = activity;
             command = Command;
