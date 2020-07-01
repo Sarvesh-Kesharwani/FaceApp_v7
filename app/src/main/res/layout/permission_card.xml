@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="105dp">
+
+
+    <TextView
+        android:layout_width="200dp"
+        android:id="@+id/examName"
+        android:textSize="16sp"
+        android:layout_marginStart="20dp"
+        android:text="First Exam"
+        android:textColor="@color/green"
+        android:layout_marginEnd="20dp"
+        android:maxLines="1"
+        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:id="@+id/examPic"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/examName"
+        android:tint="#808080"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="7dp"
+        app:srcCompat="@drawable/line"/>
+
+    <TextView
+        android:id="@+id/examDate"
+        android:layout_toEndOf="@+id/examPic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/examName"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center"
+        android:text="May 23, 2015"
+        android:textSize="16sp"/>
+
+
+
+    <ImageView
+        android:id="@+id/examPic2"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/examDate"
+        android:tint="#808080"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="7dp"
+        app:srcCompat="@drawable/line"/>
+
+    <TextView
+        android:id="@+id/examMessage"
+        android:layout_toEndOf="@+id/examPic2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/examDate"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center"
+        android:text="Best Of Luck"
+        android:textSize="16sp"/>
+
+
+    <TextView
+        android:id="@+id/border2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_alignParentBottom="true"
+        android:background="#808080"/>
+
+
+</RelativeLayout>

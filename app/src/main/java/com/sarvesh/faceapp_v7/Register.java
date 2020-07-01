@@ -47,7 +47,7 @@ import java.util.Arrays;
 
 public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
-    public String HOST = "192.168.0.102";//RPI3 eth0 ip 192.168.0.100
+    public String HOST = "serveousercontent.com";//RPI3 eth0 ip 192.168.0.100  //2.tcp.ngrok.io
     public int Port = 1998;
     public String name;
     public int SELECT_PHOTO = 1;
