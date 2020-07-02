@@ -40,8 +40,11 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         viewHolder.PersonPhotoImageView.setImageBitmap(list.get(position).PersonPhoto);
         viewHolder.PersonNameTextView.setText(list.get(position).PersonName);
         viewHolder.PersonPermissionStatusSwitch.setChecked(list.get(position).PersonPermissionStatus);
-        viewHolder.PermissionSyncButton.setEnabled(list.get(position).PermissionDataSynced);
 
+        if(list.get(position).PermissionDataSynced)
+            viewHolder.PermissionSyncButton.setVisibility(View.GONE);
+        else
+            viewHolder.PermissionSyncButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -56,18 +59,20 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    // Sample data for RecyclerView
+    //this is sample data to know how to pass data items & not to use.
+   /* // Sample data for RecyclerView
     private List<CardData> getData()
     {
         List<CardData> list = new ArrayList<>();
         list.add(new CardData(Register.photoBitmap, Register.name,true, false));
-        /*list.add(new CardData("Second Exam",
+        list.add(new CardData("Second Exam",
                 "June 09, 2015",
                 "b of l"));
         list.add(new CardData("My Test Exam",
                 "April 27, 2017",
-                "This is testing exam .."));*/
+                "This is testing exam .."));
 
         return list;
     }
+    */
 }

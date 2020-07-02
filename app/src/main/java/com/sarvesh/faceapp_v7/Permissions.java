@@ -93,13 +93,8 @@ public class Permissions extends AppCompatActivity{
     private List<CardData> getData()
     {
         List<CardData> list = new ArrayList<>();
-        list.add(new CardData(Register.photoBitmap,Register.name,true,false));
-       /* list.add(new CardData("Second Exam",
-                "June 09, 2015",
-                "b of l"));
-        list.add(new CardData("My Test Exam",
-                "April 27, 2017",
-                "This is testing exam .."));*/
+        //find person data from LocalDB using his name and add to list and pass to recycler view.
+        list.add(new CardData(null,"name surname",true,false));
 
         return list;
     }

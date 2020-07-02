@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.DiscretePathEffect;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -65,10 +66,16 @@ public class Register extends AppCompatActivity {
     private Toolbar toolbar;
     //////////////////////////////////////////////////
 
+    DatabaseHandler mDatabaseHandler;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        //Local Database
+        mDatabaseHandler = new DatabaseHandler(this);
         ///////////////////////////////////////////////
         setContentView(R.layout.activity_register);
         toolbar = findViewById(R.id.register_toolBar);
@@ -85,8 +92,16 @@ public class Register extends AppCompatActivity {
                 {
                     //disable navigationBar
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                    send sendcode = new send();
                     name = nameText.getText().toString();
+                    nameText.setText("");//reset text
+                    photoImage.setImageResource(R.drawable.avatar);//reset imageview
+
+                    //save person data to localDB
+                    String image_path = uri.getPath();
+                    AddData(name,null,true,image_path );
+
+                    //send data to server
+                    send sendcode = new send();
                     sendcode.execute();
                 }
                 else
@@ -98,9 +113,9 @@ public class Register extends AppCompatActivity {
         final Button uploadPhotoButton = findViewById(R.id.uploadPhotoButton);
         uploadPhotoButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-                Intent intent = new Intent (Intent.ACTION_PICK);
+                Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
-                startActivityForResult(intent,SELECT_PHOTO);
+                startActivityForResult(intent, SELECT_PHOTO);
             }
         });
 
@@ -362,7 +377,6 @@ public class Register extends AppCompatActivity {
     {
         Toast.makeText(Register.this,ToastMessage,Toast.LENGTH_LONG).show();
     }
-
 
     class send extends AsyncTask<Void, Void, Void> {
         Socket s23;
@@ -653,6 +667,18 @@ public class Register extends AppCompatActivity {
                 }
             }
 
+        }
+    }
+
+    public void AddData(String name, String surname, boolean status, String photo_path)
+    {
+        boolean insertData = mDatabaseHandler.addData(name, surname, status, photo_path);
+
+        if(insertData){
+            displayLongToast("Data Successfully Inserted Locally.");
+        }
+        else{
+            displayLongToast("Something went wrong with Local DB!");
         }
     }
 }
