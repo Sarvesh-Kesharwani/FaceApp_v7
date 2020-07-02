@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,13 +50,15 @@ public class Register extends AppCompatActivity {
     //////////////////////////////////////////////////
     public String HOST = "serveousercontent.com";//RPI3 eth0 ip 192.168.0.100  //2.tcp.ngrok.io
     public int Port = 1998;
-    public String name;
     public int SELECT_PHOTO = 1;
     public Uri uri;
     public ImageView photoImage;
-    public Bitmap photoBitmap;
-    String PersonName;
 
+    // data received by input
+    public static Bitmap photoBitmap;
+    public static String name;
+
+    public String PersonName;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
@@ -91,8 +94,6 @@ public class Register extends AppCompatActivity {
 
             }
         });
-
-
 
         final Button uploadPhotoButton = findViewById(R.id.uploadPhotoButton);
         uploadPhotoButton.setOnClickListener(new View.OnClickListener(){

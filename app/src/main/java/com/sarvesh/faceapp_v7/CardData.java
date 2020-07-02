@@ -1,16 +1,22 @@
 package com.sarvesh.faceapp_v7;
 
-public class CardData {
-    String name;
-    String date;
-    String message;
+import android.graphics.Bitmap;
+import android.graphics.drawable.AnimatedImageDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
+import android.media.Image;
+import android.widget.ImageView;
+import android.widget.Switch;
 
-    CardData(String name,
-             String date,
-             String message)
+public class CardData {
+    ImageView PersonPhoto;
+    String PersonName;
+    Switch PersonPermissionStatus;
+
+    CardData(Bitmap personPhoto, String personName, boolean personPermissionSwitch)
     {
-        this.name = name;
-        this.date = date;
-        this.message = message;
+        this.PersonPhoto.setImageBitmap(personPhoto);
+        this.PersonName = personName;
+        this.PersonPermissionStatus.setChecked(personPermissionSwitch);
     }
 }

@@ -1,6 +1,7 @@
 package com.sarvesh.faceapp_v7;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -92,15 +93,13 @@ public class Permissions extends AppCompatActivity{
     private List<CardData> getData()
     {
         List<CardData> list = new ArrayList<>();
-        list.add(new CardData("First Exam",
-                "May 23, 2015",
-                "Best Of Luck"));
-        list.add(new CardData("Second Exam",
+        list.add(new CardData(Register.photoBitmap,Register.name,true));
+       /* list.add(new CardData("Second Exam",
                 "June 09, 2015",
                 "b of l"));
         list.add(new CardData("My Test Exam",
                 "April 27, 2017",
-                "This is testing exam .."));
+                "This is testing exam .."));*/
 
         return list;
     }

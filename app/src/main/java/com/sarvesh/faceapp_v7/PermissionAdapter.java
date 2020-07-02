@@ -36,9 +36,9 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     @Override
     public void onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
     {
-        viewHolder.examName.setText(list.get(position).name);
-        viewHolder.examDate.setText(list.get(position).date);
-        viewHolder.examMessage.setText(list.get(position).message);
+        viewHolder.PersonPhoto.set(list.get(position).name);
+        viewHolder.PersonName.setText(list.get(position).date);
+        viewHolder.PersonPermissionStatus.setText(list.get(position).message);
     }
 
     @Override
