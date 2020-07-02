@@ -7,12 +7,12 @@ import android.widget.Switch;
 
 public class CardData {
 
-    Bitmap PersonPhoto;
+    byte [] PersonPhoto;
     String PersonName;
     boolean PersonPermissionStatus;
     boolean PermissionDataSynced;
 
-    CardData(Bitmap personPhoto, String personName, boolean personPermissionStatus, boolean PermissionDataSynced)
+    CardData(byte [] personPhoto, String personName, boolean personPermissionStatus, boolean PermissionDataSynced)
     {
         this.PersonPhoto = personPhoto;
         this.PersonName = personName;

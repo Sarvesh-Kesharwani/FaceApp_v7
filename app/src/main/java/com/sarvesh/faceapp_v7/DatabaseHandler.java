@@ -2,6 +2,7 @@ package com.sarvesh.faceapp_v7;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -21,9 +22,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     private static final String Col_1 = "ID";
     private static final String Col_2 = "NAME";
-    private static final String Col_3 = "SURNAME";
-    private static final String Col_4 = "PHOTO";
-    private static final String Col_5 = "STATUS";
+    private static final String Col_3 = "PHOTO";
+    private static final String Col_4 = "STATUS";
 
     public DatabaseHandler(@Nullable Context context)
     {
@@ -33,7 +33,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " TEXT, " + Col_4 + " TEXT, " + Col_5 + " TEXT) " );
+        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " TEXT, " + Col_4 + " TEXT )");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         onCreate(db);
     }
 
-    public boolean addData(String name, String surname, boolean status, String photo_path)
+    public boolean addData(String photo_path, String name, boolean status)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -53,11 +53,10 @@ public class DatabaseHandler extends SQLiteOpenHelper
             fs.read(imgbyte);
 
             ContentValues contentValues = new ContentValues();
-            contentValues.put(Col_4,imgbyte);
+            contentValues.put(Col_3,imgbyte);
 
             contentValues.put(Col_2,name);
-            contentValues.put(Col_3,surname);
-            contentValues.put(Col_5,status);
+            contentValues.put(Col_4,status);
             result = db.insert(TABLE_NAME, null, contentValues);
             fs.close();
 
@@ -78,5 +77,13 @@ public class DatabaseHandler extends SQLiteOpenHelper
         {
             return true;
         }
+    }
+
+    public Cursor getData()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME;
+        Cursor data = db.rawQuery(query, null);
+        return data;
     }
 }

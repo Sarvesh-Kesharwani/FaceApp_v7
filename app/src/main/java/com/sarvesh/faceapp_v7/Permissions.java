@@ -1,6 +1,7 @@
 package com.sarvesh.faceapp_v7;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.os.Bundle;
@@ -32,6 +33,9 @@ public class Permissions extends AppCompatActivity{
 
     private PermissionAdapter adapter;
     private RecyclerView recyclerView;
+
+    //Database
+    DatabaseHandler mDatabaseHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,14 +78,17 @@ public class Permissions extends AppCompatActivity{
             }
         });
 
+        mDatabaseHandler = new DatabaseHandler(this);
+
         //RecyclerView Code
         List<CardData> list = new ArrayList<>();
         list = getData();
-
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         adapter = new PermissionAdapter(list, getApplication());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(Permissions.this));
+
+
     }
 
     @Override
@@ -94,8 +101,16 @@ public class Permissions extends AppCompatActivity{
     {
         List<CardData> list = new ArrayList<>();
         //find person data from LocalDB using his name and add to list and pass to recycler view.
-        list.add(new CardData(null,"name surname",true,false));
+        //list.add(new CardData(null,"name surname",true,false));
 
+        ///get data from localDB
+        Cursor data = mDatabaseHandler.getData();
+
+        String name = data.getString(1);
+        byte [] photo_image = data.getBlob(2);
+        boolean status = Boolean.parseBoolean(getString(3));
+
+        list.add(new CardData(photo_image, name, status,false));
         return list;
     }
 

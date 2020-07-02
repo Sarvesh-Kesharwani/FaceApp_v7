@@ -1,6 +1,8 @@
 package com.sarvesh.faceapp_v7;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +39,11 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     @Override
     public void onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
     {
-        viewHolder.PersonPhotoImageView.setImageBitmap(list.get(position).PersonPhoto);
+
+        byte [] imageByteArray = list.get(position).PersonPhoto;
+        Bitmap imageBitmap = BitmapFactory.decodeByteArray(imageByteArray,0,imageByteArray.length);
+        viewHolder.PersonPhotoImageView.setImageBitmap(imageBitmap);
+
         viewHolder.PersonNameTextView.setText(list.get(position).PersonName);
         viewHolder.PersonPermissionStatusSwitch.setChecked(list.get(position).PersonPermissionStatus);
 
