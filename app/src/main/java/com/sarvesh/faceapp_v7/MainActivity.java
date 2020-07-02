@@ -80,41 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-        ConnectToRPI3();
     }
 
-    public void ConnectToRPI3()
-    {
-        //chekcing if wifi RPI3 is connected.
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-        if(!wifiManager.isWifiEnabled())
-        {
-            Toast.makeText(getApplicationContext(),"Connecting WIFI to RPI3",Toast.LENGTH_LONG).show();
-            wifiManager.setWifiEnabled(true);
-        }
-
-        String networkSSID = "RPI3";
-        String networkPass = "12345678";
-
-        WifiConfiguration conf = new WifiConfiguration();
-        conf.SSID = "\"" + networkSSID + "\"";
-        conf.wepKeys[0] = "\"" + networkPass + "\"";
-        conf.wepTxKeyIndex = 0;
-        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-        conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-        conf.preSharedKey = "\""+ networkPass +"\"";
-
-        int networkId = wifiManager.addNetwork(conf);
-        WifiInfo wifi_inf = wifiManager.getConnectionInfo();
-
-    /////important!!!
-        wifiManager.disableNetwork(wifi_inf.getNetworkId());
-    /////////////////
-
-        wifiManager.enableNetwork(networkId, true);
-    }
 
     class ReadyAppend extends AsyncTask<Void, Void, Void>
     {

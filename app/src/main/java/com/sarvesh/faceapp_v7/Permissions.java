@@ -73,11 +73,11 @@ public class Permissions extends AppCompatActivity{
             }
         });
 
-        //ListView Code
+        //RecyclerView Code
         List<CardData> list = new ArrayList<>();
         list = getData();
 
-        recyclerView = (RecyclerView)findViewById(R.id.recyclerView);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         adapter = new PermissionAdapter(list, getApplication());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(Permissions.this));

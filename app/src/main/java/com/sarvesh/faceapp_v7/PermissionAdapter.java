@@ -21,8 +21,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     }
 
     @Override
-    public PermissionViewHolder
-    onCreateViewHolder(ViewGroup parent, int viewType)
+    public PermissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -35,15 +34,11 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     }
 
     @Override
-    public void
-    onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
+    public void onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
     {
-        viewHolder.examName
-                .setText(list.get(position).name);
-        viewHolder.examDate
-                .setText(list.get(position).date);
-        viewHolder.examMessage
-                .setText(list.get(position).message);
+        viewHolder.examName.setText(list.get(position).name);
+        viewHolder.examDate.setText(list.get(position).date);
+        viewHolder.examMessage.setText(list.get(position).message);
     }
 
     @Override
@@ -53,8 +48,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     }
 
     @Override
-    public void onAttachedToRecyclerView(
-            RecyclerView recyclerView)
+    public void onAttachedToRecyclerView(RecyclerView recyclerView)
     {
         super.onAttachedToRecyclerView(recyclerView);
     }

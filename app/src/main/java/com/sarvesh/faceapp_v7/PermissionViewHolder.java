@@ -13,14 +13,8 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder {
     PermissionViewHolder(View itemView)
     {
         super(itemView);
-        examName
-                = (TextView)itemView
-                .findViewById(R.id.examName);
-        examDate
-                = (TextView)itemView
-                .findViewById(R.id.examDate);
-        examMessage
-                = (TextView)itemView
-                .findViewById(R.id.examMessage);
+        examName = itemView.findViewById(R.id.examName);
+        examDate = itemView.findViewById(R.id.examDate);
+        examMessage = itemView.findViewById(R.id.examMessage);
     }
 } 
