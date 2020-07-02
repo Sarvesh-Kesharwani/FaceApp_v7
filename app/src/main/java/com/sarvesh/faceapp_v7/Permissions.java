@@ -93,7 +93,7 @@ public class Permissions extends AppCompatActivity{
     private List<CardData> getData()
     {
         List<CardData> list = new ArrayList<>();
-        list.add(new CardData(Register.photoBitmap,Register.name,true));
+        list.add(new CardData(Register.photoBitmap,Register.name,true,false));
        /* list.add(new CardData("Second Exam",
                 "June 09, 2015",
                 "b of l"));

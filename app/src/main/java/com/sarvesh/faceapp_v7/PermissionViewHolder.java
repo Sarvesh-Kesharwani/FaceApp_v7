@@ -1,21 +1,24 @@
-// ViewHolder code for RecyclerView 
 package com.sarvesh.faceapp_v7;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
-import com.sarvesh.faceapp_v7.R;
 
 public class PermissionViewHolder extends RecyclerView.ViewHolder {
 
-    TextView PersonPhoto;
-    TextView PersonName;
-    TextView PersonPermissionStatus;
+    ImageView PersonPhotoImageView;
+    TextView PersonNameTextView;
+    Switch PersonPermissionStatusSwitch;
+    ImageButton PermissionSyncButton;
 
     PermissionViewHolder(View itemView)
     {
         super(itemView);
-        PersonPhoto = itemView.findViewById(R.id.Person_image);
-        PersonName = itemView.findViewById(R.id.Person_name);
-        PersonPermissionStatus = itemView.findViewById(R.id.Permission_Sync_button);
+        PersonPhotoImageView = itemView.findViewById(R.id.Person_image);
+        PersonNameTextView = itemView.findViewById(R.id.Person_name);
+        PersonPermissionStatusSwitch = itemView.findViewById(R.id.Permission_Status_switch);
+        PermissionSyncButton = itemView.findViewById(R.id.Permission_Data_Synced);
     }
 } 
