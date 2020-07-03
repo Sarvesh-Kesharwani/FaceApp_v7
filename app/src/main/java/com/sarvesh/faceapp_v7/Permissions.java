@@ -5,10 +5,12 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -105,13 +107,23 @@ public class Permissions extends AppCompatActivity{
 
         ///get data from localDB
         Cursor data = mDatabaseHandler.getData();
+        data.moveToFirst();
 
-        String name = data.getString(1);
-        byte [] photo_image = data.getBlob(2);
-        boolean status = Boolean.parseBoolean(getString(3));
+        if(data == null)
+        {   displayLongToast("database ref is empty!");
+            return null;}
+        if(data.getCount() == 0)
+        {   displayLongToast("database is empty!");
+            return null;}
 
+        String name = data.getString(data.getColumnIndex("NAME"));
+        byte [] photo_image = data.getBlob(data.getColumnIndex("PHOTO"));
+        boolean status = true;
+
+        displayLongToast("data retrieved successfully from db.");
         list.add(new CardData(photo_image, name, status,false));
         return list;
+
     }
 
     @Override
@@ -121,5 +133,10 @@ public class Permissions extends AppCompatActivity{
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void displayLongToast(String ToastMessage)
+    {
+        Toast.makeText(Permissions.this,ToastMessage,Toast.LENGTH_LONG).show();
     }
 }

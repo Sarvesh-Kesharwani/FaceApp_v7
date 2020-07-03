@@ -1,5 +1,6 @@
 package com.sarvesh.faceapp_v7;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -44,6 +45,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
@@ -91,18 +93,21 @@ public class Register extends AppCompatActivity {
                 if(photoBitmap != null)
                 {
                     //disable navigationBar
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    //drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                     name = nameText.getText().toString();
                     nameText.setText("");//reset text
                     photoImage.setImageResource(R.drawable.avatar);//reset imageview
 
                     //save person data to localDB
-                    String image_path = uri.getPath();
-                    AddData(name,null,true,image_path );
+                    if(uri == null)
+                        Log.d("uri","uri is null!!!!!!");
+
+                    //String image_path = uri.getPath();
+                    AddData(uri,name,true,getApplicationContext());
 
                     //send data to server
                     send sendcode = new send();
-                    sendcode.execute();
+                    //sendcode.execute();
                 }
                 else
                     displayToast("Select Photo!");
@@ -670,9 +675,9 @@ public class Register extends AppCompatActivity {
         }
     }
 
-    public void AddData(String name, String surname, boolean status, String photo_path)
+    public void AddData(Uri photo_uri, String name, boolean status, Context context)
     {
-        boolean insertData = mDatabaseHandler.addData(photo_path, name, status);
+        boolean insertData = mDatabaseHandler.addData(photo_uri, name, status,context);
 
         if(insertData){
             displayLongToast("Data Successfully Inserted Locally.");
