@@ -3,28 +3,27 @@ package com.sarvesh.faceapp_v7;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
 
     List<CardData> list;
     Context context;
+    private RecyclerViewClickInterface mOnSyncListener;
 
-    private PermissionViewHolder.OnSyncListener mOnSyncListener;
-
-    public PermissionAdapter(List<CardData> list, Context context, PermissionViewHolder.OnSyncListener onSyncListener)
+    public PermissionAdapter(List<CardData> list, Context context, RecyclerViewClickInterface mOnSyncListener)
     {
         this.list = list;
         this.context = context;
-        this.mOnSyncListener = onSyncListener;
+        this.mOnSyncListener = mOnSyncListener;
     }
 
     @Override
@@ -36,7 +35,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         // Inflate the layout
         View photoView = inflater.inflate(R.layout.permission_card,parent, false);//converted xml file into a view buy inflating it.
 
-        PermissionViewHolder viewHolder = new PermissionViewHolder(photoView, mOnSyncListener);//giving inflated view to viewHolder
+        PermissionViewHolder viewHolder = new PermissionViewHolder(photoView,mOnSyncListener);//giving inflated view to viewHolder
         return viewHolder;
     }
 
@@ -61,8 +60,9 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     @Override
     public int getItemCount()
     {
-        return list.size();
+        return list == null ? 0 : list.size();
     }
+
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView)

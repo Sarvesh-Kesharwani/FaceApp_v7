@@ -99,7 +99,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         }
     }
 
-    public boolean updateData(int id, byte[] photoBlob, String name, int status, Context context)
+    public boolean updateData(int id, byte[] photoBlob, String name, int status)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -119,6 +119,19 @@ public class DatabaseHandler extends SQLiteOpenHelper
         {
             return true;
         }
+    }
+
+    public boolean deleteData(int id)
+    {
+        long result = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+        result = db.delete(TABLE_NAME,"ID = ?", new String[] { String.valueOf(id) });
+
+        if(result == -1)
+        { Log.d("mdatabase","result is -1");
+            return false;}
+        else
+        { return true;}
     }
 
     public Cursor getData()
