@@ -36,7 +36,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " BLOB, " + Col_4 + " TEXT )");
+        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " BLOB, " + Col_4 + " INTEGER )");
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return byteBuffer.toByteArray();
     }
 
-    public boolean addData(Uri photo_path, String name, boolean status,Context context)
+    public boolean addData(Uri photo_path, String name, int status,Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -77,7 +77,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
             contentValues.put(Col_3,imgbyte);
 
             contentValues.put(Col_2,name);
-            contentValues.put(Col_4,String.valueOf(status));
+            contentValues.put(Col_4,status);
             result = db.insert(TABLE_NAME, null, contentValues);
             //fs.close();
 

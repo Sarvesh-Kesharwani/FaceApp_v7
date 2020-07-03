@@ -677,7 +677,13 @@ public class Register extends AppCompatActivity {
 
     public void AddData(Uri photo_uri, String name, boolean status, Context context)
     {
-        boolean insertData = mDatabaseHandler.addData(photo_uri, name, status,context);
+        int statusInt;
+        if(status)
+            statusInt = 1;
+        else
+            statusInt = 0;
+
+        boolean insertData = mDatabaseHandler.addData(photo_uri, name, statusInt,context);
 
         if(insertData){
             displayLongToast("Data Successfully Inserted Locally.");

@@ -107,7 +107,7 @@ public class Permissions extends AppCompatActivity{
 
         ///get data from localDB
         Cursor data = mDatabaseHandler.getData();
-        data.moveToFirst();
+        //data.moveToFirst();
 
         if(data == null)
         {   displayLongToast("database ref is empty!");
@@ -116,14 +116,24 @@ public class Permissions extends AppCompatActivity{
         {   displayLongToast("database is empty!");
             return null;}
 
-        String name = data.getString(data.getColumnIndex("NAME"));
-        byte [] photo_image = data.getBlob(data.getColumnIndex("PHOTO"));
-        boolean status = true;
+        //storing each data of a card.
+        while(data.moveToNext())
+        {
+            String name = data.getString(data.getColumnIndex("NAME"));
+            byte [] photo_image = data.getBlob(data.getColumnIndex("PHOTO"));
 
-        displayLongToast("data retrieved successfully from db.");
-        list.add(new CardData(photo_image, name, status,false));
+            boolean status = false;
+            if(data.getInt(data.getColumnIndex("STATUS")) == 1)
+                status = true;
+            else if(data.getInt(data.getColumnIndex("STATUS")) == 0)
+                status = false;
+            else
+                Log.d("status","INvalid status input!");
+
+            displayLongToast("data retrieved successfully from db.");
+            list.add(new CardData(photo_image, name, status,false));
+        }
         return list;
-
     }
 
     @Override
