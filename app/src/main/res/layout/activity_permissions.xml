@@ -16,7 +16,16 @@
             android:id="@+id/permission_toolBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary" />
+            android:background="@color/colorPrimary" >
+
+            <Button
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="right"
+                android:paddingRight="90dp"
+                android:id="@+id/refreshButton"
+                />
+        </androidx.appcompat.widget.Toolbar>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -30,17 +39,23 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
 
-                <androidx.recyclerview.widget.RecyclerView
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/recycler_view"/>
+                    android:layout_height="wrap_content" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+
+                </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
 
         </ScrollView>
 
     </RelativeLayout>
-
-
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/permission_navigation_view"

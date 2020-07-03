@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +43,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     private NavigationView navigationView;
     private Toolbar toolbar;
 
+    //progress bar
+    ProgressBar progressBar;
+
     //representing data
     private PermissionAdapter adapter;
     private RecyclerView recyclerView;
     List<CardData> CardList = new ArrayList<>();
+
+    //Refresh with swip down
+    //SwipeRefreshLayout swipeRefreshLayout;
 
     //Database
     DatabaseHandler mDatabaseHandler;
@@ -98,6 +109,19 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         new ItemTouchHelper(itemTouchSimpleCallback).attachToRecyclerView(recyclerView);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(Permissions.this));
+        /*swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // add items to database
+                //add dabase entries to list
+                //notify recyclerview to update those adds
+                adapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });*/
+
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
     @Override
@@ -215,19 +239,55 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     }
     */
 
-   private class SyncApp extends AsyncTask<Integer, Void, Void>
+   private class SyncApp extends AsyncTask<Integer, Integer, Integer>
     {
         Socket skt;
         PrintWriter printWriter;
+        String ToastMessage;
+
+        boolean Error = false;
+        String ErrorMessage;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setMax(100);
+        }
 
         @Override
-        protected Void doInBackground(Integer... Params) {
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            progressBar.setProgress(values[0]);
+            if(Error)
+                displayLongToast(ErrorMessage);
+        }
+
+        @Override
+        protected Integer doInBackground(Integer... Params) {
             Integer param1 = Params[0];
             int mCardPosition = param1.intValue();
 
             Log.d("status","syncapp called.");
-            SyncApp(mCardPosition);
+            try{
+                SyncApp(mCardPosition);
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            displayLongToast(ToastMessage);
+        }
+
+        byte[] EncodeToUTF8(String string) {
+            //encoding delimeter string to utf-8 encoding
+            ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(string);
+            byte[] buff = new byte[byteBuffer.remaining()];
+            byteBuffer.get(buff, 0, buff.length);
+            return buff;
         }
 
         void SyncApp(int CardPosition)
@@ -250,11 +310,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     byte[] PhotobyteArray = Localdb.getBlob(Localdb.getColumnIndex("PHOTO"));
 
                     //if person is allowed
-                    if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 1)
-                    {
+                    if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 1)//////////////////////**************
+                    {Log.d("status","person is allowed sending name&photo.");
                         DataOutputStream dos = new DataOutputStream(skt.getOutputStream());
                         //sending update delimiter
-                        printWriter.write("?UPDATE");
+                        byte[] Opcode = EncodeToUTF8("?UPDATE");
+                        printWriter.write(String.valueOf(Opcode));
 
 
                         //sending name_length and name
@@ -274,7 +335,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             printWriter.write(PersonName);
                         }
                         else
-                            displayLongToast("Name is too long!");
+                            ToastMessage = "Name is too long!";
 
 
 
@@ -295,8 +356,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     }
 
                     //if person is not allowed
-                    else if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 0)
-                    {
+                    else if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 0)///////////////////**************
+                    {Log.d("status","person not allowed sending name only ");
                         printWriter.write("?DELETE");
 
                         //sending name_length and name
@@ -317,6 +378,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             printWriter.write(PersonName);
                         }
                         else
+                            Log.d("status","name is too long");
                             displayLongToast("Name is too long!");
 
                         printWriter.close();
@@ -397,7 +459,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-    ItemTouchHelper .SimpleCallback itemTouchSimpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+    ItemTouchHelper.SimpleCallback itemTouchSimpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;

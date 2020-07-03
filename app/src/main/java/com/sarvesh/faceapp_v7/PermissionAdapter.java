@@ -43,7 +43,6 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     @Override
     public void onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
     {
-
         byte [] imageByteArray = list.get(position).PersonPhoto;
         Bitmap imageBitmap = BitmapFactory.decodeByteArray(imageByteArray,0,imageByteArray.length);
         viewHolder.PersonPhotoImageView.setImageBitmap(imageBitmap);
