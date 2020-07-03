@@ -1,6 +1,5 @@
 package com.sarvesh.faceapp_v7;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -26,16 +25,19 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder implements Vie
         this.onSyncListener = onSyncListener;
 
         PermissionSyncButton.setOnClickListener(this);
+        PersonPermissionStatusSwitch.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view)
     {
         onSyncListener.onSyncClick(getAdapterPosition());
+        onSyncListener.onPermissionSwitch(getAdapterPosition());
     }
 
     public interface OnSyncListener
     {
         void onSyncClick(int position);
+        void onPermissionSwitch(int position);
     }
 }

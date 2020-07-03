@@ -15,6 +15,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
 
 
 public class DatabaseHandler extends SQLiteOpenHelper
@@ -58,17 +60,13 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return byteBuffer.toByteArray();
     }
 
-    public boolean addData(Uri photo_path, String name, int status,Context context)
+    public boolean addData(Uri photo_path, String name, int status, Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
         try{
 
             Log.d("mdatabase","uri path is:"+photo_path);
-
-            /*FileInputStream fs = new FileInputStream(photo_path);
-            byte [] imgbyte = new byte[fs.available()];
-            fs.read(imgbyte);*/
 
             InputStream iStream =   context.getContentResolver().openInputStream(photo_path);
             byte[] imgbyte = getBytes(iStream);
@@ -79,7 +77,6 @@ public class DatabaseHandler extends SQLiteOpenHelper
             contentValues.put(Col_2,name);
             contentValues.put(Col_4,status);
             result = db.insert(TABLE_NAME, null, contentValues);
-            //fs.close();
 
             if(result == -1)
             {
@@ -99,6 +96,28 @@ public class DatabaseHandler extends SQLiteOpenHelper
             e.printStackTrace();
             Log.d("mdatabase","io error");
             return false;
+        }
+    }
+
+    public boolean updateData(int id, byte[] photoBlob, String name, int status, Context context)
+    {
+        long result = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Col_1,id);
+        contentValues.put(Col_2,name);
+        contentValues.put(Col_3,photoBlob);
+        contentValues.put(Col_4,status);
+        result = db.update(TABLE_NAME, contentValues, "ID = ?", new String[] { String.valueOf(id) });
+
+        if(result == -1)
+        {
+            Log.d("mdatabase","result is -1");
+            return false;
+        }
+        else
+        {
+            return true;
         }
     }
 

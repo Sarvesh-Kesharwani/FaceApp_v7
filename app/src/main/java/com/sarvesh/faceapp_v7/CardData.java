@@ -1,10 +1,5 @@
 package com.sarvesh.faceapp_v7;
 
-import android.graphics.Bitmap;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.Switch;
-
 public class CardData {
 
     byte [] PersonPhoto;

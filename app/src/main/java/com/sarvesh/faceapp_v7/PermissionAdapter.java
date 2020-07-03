@@ -69,21 +69,4 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     {
         super.onAttachedToRecyclerView(recyclerView);
     }
-
-    //this is sample data to know how to pass data items & not to use.
-   /* // Sample data for RecyclerView
-    private List<CardData> getData()
-    {
-        List<CardData> list = new ArrayList<>();
-        list.add(new CardData(Register.photoBitmap, Register.name,true, false));
-        list.add(new CardData("Second Exam",
-                "June 09, 2015",
-                "b of l"));
-        list.add(new CardData("My Test Exam",
-                "April 27, 2017",
-                "This is testing exam .."));
-
-        return list;
-    }
-    */
 }
