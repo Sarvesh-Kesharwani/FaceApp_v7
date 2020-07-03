@@ -26,7 +26,7 @@ import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Permissions extends AppCompatActivity{
+public class Permissions extends AppCompatActivity implements PermissionViewHolder.OnSyncListener {
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -35,6 +35,7 @@ public class Permissions extends AppCompatActivity{
 
     private PermissionAdapter adapter;
     private RecyclerView recyclerView;
+    List<CardData> list = new ArrayList<>();
 
     //Database
     DatabaseHandler mDatabaseHandler;
@@ -45,7 +46,7 @@ public class Permissions extends AppCompatActivity{
         setContentView(R.layout.activity_permissions);
 
         toolbar = findViewById(R.id.permission_toolBar);
-        toolbar.setTitle("Permission");
+        toolbar.setTitle("Permissions");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -83,10 +84,9 @@ public class Permissions extends AppCompatActivity{
         mDatabaseHandler = new DatabaseHandler(this);
 
         //RecyclerView Code
-        List<CardData> list = new ArrayList<>();
         list = getData();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adapter = new PermissionAdapter(list, getApplication());
+        adapter = new PermissionAdapter(list, getApplicationContext(), this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(Permissions.this));
 
@@ -148,5 +148,10 @@ public class Permissions extends AppCompatActivity{
     private void displayLongToast(String ToastMessage)
     {
         Toast.makeText(Permissions.this,ToastMessage,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onSyncClick(int position) {
+        Log.d("syncupdate","working!");
     }
 }

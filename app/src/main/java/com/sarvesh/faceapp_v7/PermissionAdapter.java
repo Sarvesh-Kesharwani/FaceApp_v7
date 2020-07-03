@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -16,10 +18,13 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     List<CardData> list;
     Context context;
 
-    public PermissionAdapter(List<CardData> list, Context context)
+    private PermissionViewHolder.OnSyncListener mOnSyncListener;
+
+    public PermissionAdapter(List<CardData> list, Context context, PermissionViewHolder.OnSyncListener onSyncListener)
     {
         this.list = list;
         this.context = context;
+        this.mOnSyncListener = onSyncListener;
     }
 
     @Override
@@ -31,7 +36,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         // Inflate the layout
         View photoView = inflater.inflate(R.layout.permission_card,parent, false);//converted xml file into a view buy inflating it.
 
-        PermissionViewHolder viewHolder = new PermissionViewHolder(photoView);//giving inflated view to viewHolder
+        PermissionViewHolder viewHolder = new PermissionViewHolder(photoView, mOnSyncListener);//giving inflated view to viewHolder
         return viewHolder;
     }
 
