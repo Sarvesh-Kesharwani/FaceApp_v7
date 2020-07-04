@@ -59,7 +59,7 @@ public class ServerDatabaseHandler extends SQLiteOpenHelper
     }
 
 
-    public boolean addData(byte[] photo, String name, int status, int synced)
+    public boolean addServerData(byte[] photo, String name, int status, int synced)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();

@@ -370,10 +370,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
                             //store name and image data to localServerDB
                              Log.d("receve","adding person to db.");
-                             AddServerData(PersonPhotoBytes, PersonName, true, 1);
+                             //AddServerData(PersonPhotoBytes, PersonName, true, 1);
                              Log.d("receve","adding Complete.");
                              i++;
                              Log.d("receve","loop:"+i);
+                             AddServerData(PersonPhotoBytes, PersonName, true, 1);
+
                          }
                          Log.d("receve","All person_data recieved sucessfullly.");
                     } catch (UnknownHostException e) {
@@ -692,7 +694,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         else
             statusInt = 0;
 
-        boolean insertData = ServerDatabaseHandler.addData(photo, name, statusInt, synced);
+        boolean insertData = ServerDatabaseHandler.addServerData(photo, name, statusInt, synced);
 
         if(insertData){
             displayLongToast("Server Data Successfully Inserted Locally.");
