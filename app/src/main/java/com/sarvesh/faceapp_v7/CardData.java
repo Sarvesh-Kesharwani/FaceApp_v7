@@ -5,9 +5,9 @@ public class CardData {
     byte [] PersonPhoto;
     String PersonName;
     boolean PersonPermissionStatus;
-    boolean PermissionDataSynced;
+    int PermissionDataSynced;
 
-    CardData(byte [] personPhoto, String personName, boolean personPermissionStatus, boolean PermissionDataSynced)
+    CardData(byte [] personPhoto, String personName, boolean personPermissionStatus, int PermissionDataSynced)
     {
         this.PersonPhoto = personPhoto;
         this.PersonName = personName;

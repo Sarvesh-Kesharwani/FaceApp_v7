@@ -1,4 +1,5 @@
 package com.sarvesh.faceapp_v7;
+import android.bluetooth.le.PeriodicAdvertisingParameters;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -26,12 +27,10 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder{
         PermissionSyncButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                recyclerViewClickInterface.onSyncClick(getAdapterPosition());
-                PermissionSyncButton.setEnabled(false);
 
-                //reEnable and hide synButton just to show
-                PermissionSyncButton.setEnabled(true);
-                PermissionSyncButton.setVisibility(View.INVISIBLE);
+                //PermissionSyncButton.setVisibility(View.INVISIBLE);
+                recyclerViewClickInterface.onSyncClick(getAdapterPosition());
+
             }
         });
 

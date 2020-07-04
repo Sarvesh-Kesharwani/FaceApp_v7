@@ -1,7 +1,10 @@
 package com.sarvesh.faceapp_v7;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,6 +49,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     //progress bar
     ProgressBar progressBar;
     public boolean ProgressComplete = false;
+
+    //intenet
+    boolean connected=false;
 
     //representing data
     private PermissionAdapter adapter;
@@ -98,6 +104,17 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             }
         });
 
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            {connected = true;}
+        }
+        else
+        {connected = false;}
+
+
+
         mDatabaseHandler = new DatabaseHandler(this);
         //RecyclerView Code
         try{
@@ -125,6 +142,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         });*/
 
 
+
     }
 
     @Override
@@ -140,10 +158,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         Cursor data = mDatabaseHandler.getData();
 
         if(data == null)
-        {   displayLongToast("database ref is empty!");
+        {   displayShortToast("database ref is empty!");
             return null;}
         if(data.getCount() == 0)
-        {   displayLongToast("No Members Found!");
+        {   displayShortToast("No Members Found!");
             return null;}
 
         //converting .db file into list, which will be passed to recycler view in OnCreate().
@@ -159,9 +177,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 status = false;
             else
                 Log.d("status","INvalid status input!");
+            int Synced = data.getInt(data.getColumnIndex("SYNCED"));
 
-            displayShortToast("Data Retreived Successfully From LocalDB.");
-            list.add(new CardData(photo_image, name, status,false));
+            //displayShortToast("Data Retreived Successfully From LocalDB.");
+            list.add(new CardData(photo_image, name, status, Synced));
         }
         return list;
     }
@@ -185,20 +204,25 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     }
 
     @Override
-    public void onSyncClick(int position) {
-        Log.d("status","working! Position is:"+ position);
-        displayLongToast("Updating to server.");
+    public boolean onSyncClick(int position) {
+        //displayLongToast("Updating to server.");
         //send data to server
-        SyncApp syncApp = new SyncApp(position);
-        syncApp.execute(new Integer(position));
-
-
+        if(connected)
+        {
+            SyncApp syncApp = new SyncApp(position);
+            syncApp.execute(new Integer(position));
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     @Override
     public void onPermissionSwitch(int position) {
         Log.d("syncupdate","switching permission.");
-        displayShortToast("Updating to LocalDB.");
+        //displayShortToast("Updating to LocalDB.");
 
         Cursor Localdb = mDatabaseHandler.getData();
         Localdb.moveToPosition(position);
@@ -303,18 +327,20 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
             //update databse to hide sync_button
             Log.d("status","setting sync button to 0");
-            if(ProgressComplete)
+            if(ProgressComplete == true)
             {
                 Cursor Localdb = mDatabaseHandler.getData();
                 Localdb.moveToPosition(mPosition);
-                if(Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 1)
+
+                Log.d("status","SYNCED value in db is:"+String.valueOf(Localdb.getInt(Localdb.getColumnIndex("SYNCED"))));
+                if(Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0)
                 {
+                    Log.d("status","SYNCED was 0");
                     UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                             false,
                             Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
                             Localdb.getString(Localdb.getColumnIndex("NAME")),
-                            0);
-                    adapter.notifyDataSetChanged();
+                            1);
                 }
             }
         }
@@ -400,12 +426,13 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             if(skt.isOutputShutdown())
                             {
                                 ACK  = mBufferIn.readLine();
-                                ResultMessage = mBufferIn.readLine();
-                                Log.d("status","ACK is:"+ACK);
-                                Log.d("status","ResultMessage is:"+ResultMessage);
-                                ToastMessage = ACK;
-                                ToastMessage = ResultMessage;
-                                publishProgress(100);
+                                if(ACK.equals("?SYNC_DONE"))
+                                {
+                                    publishProgress(100);
+                                    ResultMessage = mBufferIn.readLine();
+                                    ToastMessage = ResultMessage;
+                                }
+
                             }
                             else
                                 Log.d("status","Output isn't down!");
@@ -469,7 +496,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             ResultMessage = mBufferIn.readLine();
                             Log.d("status","ACK is:"+ACK);
                             Log.d("status","DeleteResult is:"+ResultMessage);
-                            ToastMessage = ACK;
+                            //ToastMessage = ACK;
+                            ToastMessage = ResultMessage;
                         }
                         else
                         {Log.d("status","Output isn't down!");}
@@ -498,10 +526,11 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         boolean updateData = mDatabaseHandler.updateData(id, photoBlob, name, statusInt, synced);
 
         if(updateData){
-            displayLongToast("Data Successfully Updated Locally.");
+            //displayShortToast("Data Successfully Updated Locally.");
+            Log.d("status","Data Successfully Updated Locally.");
         }
         else{
-            displayLongToast("Something went wrong with updating local DB!");
+            displayShortToast("Something went wrong with updating local DB!");
         }
     }
 

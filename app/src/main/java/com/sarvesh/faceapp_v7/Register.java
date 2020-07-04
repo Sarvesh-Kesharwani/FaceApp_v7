@@ -276,7 +276,7 @@ public class Register extends AppCompatActivity {
         else
             statusInt = 0;
 
-        boolean insertData = mDatabaseHandler.addData(photo_uri, name, synced, statusInt,context);
+        boolean insertData = mDatabaseHandler.addData(photo_uri, name, statusInt, synced,context);
 
         if(insertData){
             displayLongToast("Data Successfully Inserted Locally.");
