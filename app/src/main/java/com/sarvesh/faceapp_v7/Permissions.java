@@ -158,7 +158,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             else
                 Log.d("status","INvalid status input!");
 
-            displayLongToast("data retrieved successfully from db.");
+            displayShortToast("Data Retreived Successfully From LocalDB.");
             list.add(new CardData(photo_image, name, status,false));
         }
         return list;
@@ -177,6 +177,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     {
         Toast.makeText(Permissions.this,ToastMessage,Toast.LENGTH_LONG).show();
     }
+    private void displayShortToast(String ToastMessage)
+    {
+        Toast.makeText(Permissions.this,ToastMessage,Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onSyncClick(int position) {
@@ -191,7 +195,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     @Override
     public void onPermissionSwitch(int position) {
         Log.d("syncupdate","switching permission.");
-        displayLongToast("Updating to LocalDB.");
+        displayShortToast("Updating to LocalDB.");
 
         Cursor Localdb = mDatabaseHandler.getData();
         Localdb.moveToPosition(position);
@@ -243,7 +247,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     {
         Socket skt;
         PrintWriter printWriter;
-        String ToastMessage = "Sync Is Complete.";
+        String ToastMessage;
 
         boolean Error = false;
         String ErrorMessage;
@@ -258,7 +262,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             super.onProgressUpdate(values);
             progressBar.setProgress(values[0]);
             if(Error)
-                displayLongToast(ErrorMessage);
+                displayShortToast(ErrorMessage);
         }
 
         @Override
@@ -279,15 +283,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         @Override
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
-            Log.d("status",ToastMessage);
-        }
-
-        byte[] EncodeToUTF8(String string) {
-            //encoding delimeter string to utf-8 encoding
-            ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(string);
-            byte[] buff = new byte[byteBuffer.remaining()];
-            byteBuffer.get(buff, 0, buff.length);
-            return buff;
+            displayShortToast(ToastMessage);
         }
 
         void SyncApp(int CardPosition)
@@ -300,7 +296,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     BufferedReader mBufferIn;
 
                     Cursor Localdb = mDatabaseHandler.getData();
-                    Log.d("status","Card Position is: "+String.valueOf(CardPosition));
                     Localdb.moveToPosition(CardPosition);
 
                     //retreving name from LocalDB
@@ -314,9 +309,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         {
                             Log.d("status","person is allowed sending name&photo.");
                             DataOutputStream dos = new DataOutputStream(skt.getOutputStream());
-                            //sending update delimiter
-                            printWriter.write("?UPDATE");
-                            printWriter.flush();
 
                             //sending name_length and name
                             //retreving bytes from personName
@@ -327,6 +319,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             //sending name length
                             if (nameBytesLength < 100)
                             {
+                                //sending update delimiter
+                                printWriter.write("?UPDATE");
+                                printWriter.flush();
+
                                 if (nameBytesLength <= 9)
                                     {
                                          printWriter.write('0' + nameBytesLengthString);
@@ -343,7 +339,11 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                 printWriter.flush();
                             }
                             else
+                            {
                                 ToastMessage = "Name is too long!";
+                                continue;
+                            }
+
 
 
 
@@ -365,7 +365,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             {
                                 ACK  = mBufferIn.readLine();
                                 Log.d("status","ACK is:"+ACK);
-                                displayLongToast(ACK);
+                                displayShortToast(ACK);
                             }
                             else
                                 Log.d("status","Output isn't down!");
@@ -376,8 +376,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     else if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 0)///////////////////**************
                     {
                         Log.d("status","person not allowed sending name only");
-                        printWriter.write("?DELETE");
-                        printWriter.flush();
+
                         //sending name_length and name
                         //retreving bytes from personName
                         byte[] nameBytes = PersonName.getBytes();
@@ -387,6 +386,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         //sending name length
                         if (nameBytesLength < 100)
                         {
+                            printWriter.write("?DELETE");
+                            printWriter.flush();
+
                             if (nameBytesLength <= 9)
                             {
                                 printWriter.write('0' + nameBytesLengthString);
@@ -404,24 +406,31 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         else
                         {
                             Log.d("status","name is too long");
-                            displayLongToast("Name is too long!");
+                            displayShortToast("Name is too long!");
                         }
 
-                        //receving name received ACK.
+                        //shuting down outputStream
                         Log.d("status","buffer input stream");
                         mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
                         Log.d("status","shutting down output");
                         skt.shutdownOutput();
+
+                        //receving name received ACK.
                         Log.d("status","recieving ACK");
                         String ACK;
+                        String ResultMessage;
                         if(skt.isOutputShutdown())
                         {
                             ACK  = mBufferIn.readLine();
+                            //receving delete result.
+                            ResultMessage = mBufferIn.readLine();
                             Log.d("status","ACK is:"+ACK);
-                            displayLongToast(ACK);
+                            Log.d("status","DeleteResult is:"+ResultMessage);
+                            ToastMessage = ACK;
                         }
                         else
-                            Log.d("status","Output isn't down!");
+                        {Log.d("status","Output isn't down!");}
+
                         skt.close();
                     }
                     else
