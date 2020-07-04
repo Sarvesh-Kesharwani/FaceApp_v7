@@ -1,7 +1,9 @@
 package com.sarvesh.faceapp_v7;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -117,9 +119,10 @@ public class Register extends AppCompatActivity {
         final Button uploadPhotoButton = findViewById(R.id.uploadPhotoButton);
         uploadPhotoButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
+                /*Intent intent = new Intent(MediaStore.ACTION_PICK);
                 intent.setType("image/*");
-                startActivityForResult(intent, SELECT_PHOTO);
+                startActivityForResult(intent, SELECT_PHOTO);*/
+                selectImage(Register.this);
             }
         });
 
@@ -156,6 +159,88 @@ public class Register extends AppCompatActivity {
                 }
             });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode != RESULT_CANCELED)
+        {
+            if(data.getData() != null)
+                uri = data.getData();
+            else
+                Log.d("photo","uri is null");
+
+            switch (requestCode) {
+                case 0:
+                    Log.d("photo","camera");
+                    if (resultCode == RESULT_OK && data != null)
+                    {
+                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
+                        photoImage.setImageBitmap(selectedImage);
+
+                        uri = getImageUri(getApplicationContext(), selectedImage);
+                    }
+
+                    break;
+                case 1:
+                    Log.d("photo","gallery");
+                    //this try catch toasts "Select Photo!" if user taps upload photo but selects nothing.
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri);
+                        if(bitmap != null)
+                        {
+                            Bitmap RotatedBitmap = getCorrectlyOrientedImage(Register.this,uri);
+                            photoImage.setImageBitmap(RotatedBitmap);
+                        }
+                        else
+                        {
+                            displayToast("Select Photo!");
+                        }
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    private void selectImage(Context context) {
+        final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Choose your profile picture");
+
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+
+                if (options[item].equals("Take Photo")) {
+                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(takePicture, 0);
+
+                } else if (options[item].equals("Choose from Gallery")) {
+                    Intent pickPhoto = new Intent(Intent.ACTION_PICK);
+                    pickPhoto.setType("image/*");
+                    startActivityForResult(pickPhoto , 1);
+
+                } else if (options[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
     }
 
     public static int getOrientation(Context context, Uri photoUri) {
@@ -232,10 +317,12 @@ public class Register extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+   /* @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SELECT_PHOTO && resultCode == RESULT_OK && data.getData() != null){
+        if (requestCode == SELECT_PHOTO && resultCode == RESULT_OK && data.getData() != null)
+        {
             uri = data.getData();
 
             //this try catch toasts "Select Photo!" if user taps upload photo but selects nothing.
@@ -257,7 +344,7 @@ public class Register extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 
     private void displayToast(String ToastMessage)
     {
