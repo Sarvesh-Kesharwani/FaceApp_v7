@@ -51,12 +51,11 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         viewHolder.PersonNameTextView.setText(list.get(position).PersonName);
         viewHolder.PersonPermissionStatusSwitch.setChecked(list.get(position).PersonPermissionStatus);
 
-        Log.d("status","thatswhy it is "+String.valueOf(list.get(position).PermissionDataSynced));
         if(list.get(position).PermissionDataSynced == 1)
+
             viewHolder.PermissionSyncButton.setVisibility(View.GONE);
         else
             viewHolder.PermissionSyncButton.setVisibility(View.VISIBLE);
-            Log.d("status","cant set invisible");
     }
 
     @Override

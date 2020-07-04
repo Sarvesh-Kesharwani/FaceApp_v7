@@ -51,11 +51,11 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     public boolean ProgressComplete = false;
 
     //intenet
-    boolean connected=false;
+    boolean connected = false;
 
     //representing data
-    private PermissionAdapter adapter;
-    private RecyclerView recyclerView;
+    public PermissionAdapter adapter;
+    public RecyclerView recyclerView;
     List<CardData> CardList = new ArrayList<>();
 
     //Refresh with swip down
@@ -114,7 +114,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         {connected = false;}
 
 
-
         mDatabaseHandler = new DatabaseHandler(this);
         //RecyclerView Code
         try{
@@ -154,7 +153,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     private List<CardData> getData()
     {
         List<CardData> list = new ArrayList<>();
-        ///get data from localDB
+        //get data from localDB
         Cursor data = mDatabaseHandler.getData();
 
         if(data == null)
@@ -230,7 +229,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                 false,
                                       Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
                                       Localdb.getString(Localdb.getColumnIndex("NAME")),
-                                      Localdb.getInt(Localdb.getColumnIndex("SYNCED")));
+                                      0);
         }
         else
         {
@@ -238,11 +237,11 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     true,
                     Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
                     Localdb.getString(Localdb.getColumnIndex("NAME")),
-                    Localdb.getInt(Localdb.getColumnIndex("SYNCED")));
+                    0);
         }
     }
 
-    /* class MyAndroidThread implements Runnable
+     class MyAndroidThread implements Runnable
     {
         AppCompatActivity activity;
         String command;
@@ -267,7 +266,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             });
         }
     }
-    */
+
 
    private class SyncApp extends AsyncTask<Integer, Integer, Integer>
     {
@@ -327,19 +326,37 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             Log.d("status","setting sync button to 0");
             if(ProgressComplete == true)
             {
-                Cursor Localdb = mDatabaseHandler.getData();
-                Localdb.moveToPosition(mPosition);
+                //RefreshRecyclerView
+                    new Thread() {
+                        public void run() {
+                                try
+                                {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Cursor Localdb = mDatabaseHandler.getData();
+                                            Localdb.moveToPosition(mPosition);
 
-                Log.d("status","SYNCED value in db is:"+String.valueOf(Localdb.getInt(Localdb.getColumnIndex("SYNCED"))));
-                if(Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0)
-                {
-                    Log.d("status","SYNCED was 0");
-                    UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
-                            false,
-                            Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
-                            Localdb.getString(Localdb.getColumnIndex("NAME")),
-                            1);
-                }
+                                            if(Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0)
+                                            {
+                                                Log.d("status", "SYNCED was 0");
+                                                UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
+                                                        false,
+                                                        Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
+                                                        Localdb.getString(Localdb.getColumnIndex("NAME")),
+                                                        1);
+                                            }
+
+                                            adapter.notifyItemChanged(mPosition);
+                                        }
+                                    });
+                                    Thread.sleep(300);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                    }
+                        }
+                    }.start();
+
             }
         }
 
@@ -352,6 +369,14 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     printWriter = new PrintWriter(skt.getOutputStream());
                     BufferedReader mBufferIn;
 
+                    if(!skt.isConnected())
+                    {
+                        displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
+                        if(!isCancelled())
+                        {
+                            cancel(true);
+                        }
+                    }
                     Cursor Localdb = mDatabaseHandler.getData();
                     Localdb.moveToPosition(CardPosition);
                     publishProgress(10);
@@ -522,7 +547,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         boolean updateData = mDatabaseHandler.updateData(id, photoBlob, name, statusInt, synced);
 
         if(updateData){
-            //displayShortToast("Data Successfully Updated Locally.");
+            displayShortToast("Data Successfully Updated Locally.");
             Log.d("status","Data Successfully Updated Locally.");
         }
         else{
