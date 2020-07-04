@@ -45,6 +45,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
     //progress bar
     ProgressBar progressBar;
+    public boolean ProgressComplete = false;
 
     //representing data
     private PermissionAdapter adapter;
@@ -104,6 +105,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         } catch (Exception e) {
             e.printStackTrace();
         }
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         adapter = new PermissionAdapter(CardList, getApplicationContext(), this);
         new ItemTouchHelper(itemTouchSimpleCallback).attachToRecyclerView(recyclerView);
@@ -121,7 +124,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             }
         });*/
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
     }
 
     @Override
@@ -135,7 +138,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         List<CardData> list = new ArrayList<>();
         ///get data from localDB
         Cursor data = mDatabaseHandler.getData();
-        //data.moveToFirst();
 
         if(data == null)
         {   displayLongToast("database ref is empty!");
@@ -187,8 +189,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         Log.d("status","working! Position is:"+ position);
         displayLongToast("Updating to server.");
         //send data to server
-        SyncApp syncApp = new SyncApp();
+        SyncApp syncApp = new SyncApp(position);
         syncApp.execute(new Integer(position));
+
 
     }
 
@@ -205,14 +208,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                                 false,
                                       Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
-                                      Localdb.getString(Localdb.getColumnIndex("NAME")));
+                                      Localdb.getString(Localdb.getColumnIndex("NAME")),
+                                      Localdb.getInt(Localdb.getColumnIndex("SYNCED")));
         }
         else
         {
             UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                     true,
                     Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
-                    Localdb.getString(Localdb.getColumnIndex("NAME")));
+                    Localdb.getString(Localdb.getColumnIndex("NAME")),
+                    Localdb.getInt(Localdb.getColumnIndex("SYNCED")));
         }
     }
 
@@ -251,15 +256,23 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
         boolean Error = false;
         String ErrorMessage;
+        int mPosition;
+        public SyncApp(int position) {
+            mPosition = position;
+        }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressBar.setMax(100);
+            progressBar.setProgress(0);
+            ProgressComplete = false;
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
+            Log.d("status","Progress is:"+String.valueOf(values[0]));
             progressBar.setProgress(values[0]);
             if(Error)
                 displayShortToast(ErrorMessage);
@@ -270,12 +283,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             Integer param1 = Params[0];
             int mCardPosition = param1.intValue();
 
-            Log.d("status","syncapp called.");
             try{
-                SyncApp(mCardPosition);
+                SyncAppfun(mCardPosition);
             } catch (Exception e) {
                 e.printStackTrace();
-
             }
             return null;
         }
@@ -284,9 +295,31 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             displayShortToast(ToastMessage);
+            if(progressBar.getProgress() == 100)
+            {
+                Log.d("status","postexecute Progress is compelete.");
+                ProgressComplete = true;
+            }
+
+            //update databse to hide sync_button
+            Log.d("status","setting sync button to 0");
+            if(ProgressComplete)
+            {
+                Cursor Localdb = mDatabaseHandler.getData();
+                Localdb.moveToPosition(mPosition);
+                if(Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 1)
+                {
+                    UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
+                            false,
+                            Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
+                            Localdb.getString(Localdb.getColumnIndex("NAME")),
+                            0);
+                    adapter.notifyDataSetChanged();
+                }
+            }
         }
 
-        void SyncApp(int CardPosition)
+        void SyncAppfun(int CardPosition)
         {
             while(skt == null)
             {
@@ -297,12 +330,14 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
                     Cursor Localdb = mDatabaseHandler.getData();
                     Localdb.moveToPosition(CardPosition);
+                    publishProgress(10);
 
                     //retreving name from LocalDB
                     String PersonName = Localdb.getString(Localdb.getColumnIndex("NAME"));
                     Log.d("status","PersonName is:"+PersonName);
                     //retreving photoByteArray from LocalDB
                     byte[] PhotobyteArray = Localdb.getBlob(Localdb.getColumnIndex("PHOTO"));
+                    publishProgress(20);
 
                     //if person is allowed
                     if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 1)//////////////////////**************
@@ -315,6 +350,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             byte[] nameBytes = PersonName.getBytes();
                             int nameBytesLength = nameBytes.length;//no of charaters in the name
                             String nameBytesLengthString = Integer.toString(nameBytesLength);
+                            publishProgress(30);
 
                             //sending name length
                             if (nameBytesLength < 100)
@@ -343,6 +379,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                 ToastMessage = "Name is too long!";
                                 continue;
                             }
+                            publishProgress(60);
 
                             //sending photo_length and photo_file
                             //sending photo size
@@ -351,7 +388,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             //sending photo file
                             dos.write(PhotobyteArray, 0, PhotobyteArray.length);
                             dos.flush();
-
+                            publishProgress(70);
                             //receving name& photo received ACK.
                             mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
                             Log.d("status","shutting down output");
@@ -359,6 +396,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             Log.d("status","recieving ACK");
                             String ACK;
                             String ResultMessage;
+                            publishProgress(80);
                             if(skt.isOutputShutdown())
                             {
                                 ACK  = mBufferIn.readLine();
@@ -367,7 +405,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                 Log.d("status","ResultMessage is:"+ResultMessage);
                                 ToastMessage = ACK;
                                 ToastMessage = ResultMessage;
-
+                                publishProgress(100);
                             }
                             else
                                 Log.d("status","Output isn't down!");
@@ -384,6 +422,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         byte[] nameBytes = PersonName.getBytes();
                         int nameBytesLength = nameBytes.length;//no of charaters in the name
                         String nameBytesLengthString = Integer.toString(nameBytesLength);
+                        publishProgress(30);
 
                         //sending name length
                         if (nameBytesLength < 100)
@@ -404,19 +443,21 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             //sending name
                             printWriter.write(PersonName);
                             printWriter.flush();
+                            publishProgress(50);
                         }
                         else
                         {
                             Log.d("status","name is too long");
                             displayShortToast("Name is too long!");
                         }
+                        publishProgress(60);
 
                         //shuting down outputStream
                         Log.d("status","buffer input stream");
                         mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
                         Log.d("status","shutting down output");
                         skt.shutdownOutput();
-
+                        publishProgress(80);
                         //receving name received ACK.
                         Log.d("status","recieving ACK");
                         String ACK;
@@ -432,7 +473,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         }
                         else
                         {Log.d("status","Output isn't down!");}
-
+                        publishProgress(100);
                         skt.close();
                     }
                     else
@@ -445,7 +486,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-    public void UpdateData(int id, boolean status, byte[] photoBlob, String name)
+    public void UpdateData(int id, boolean status, byte[] photoBlob, String name, int synced)
     {
         int statusInt;
         if(status)
@@ -453,7 +494,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         else
             statusInt = 0;
 
-        boolean updateData = mDatabaseHandler.updateData(id, photoBlob, name, statusInt);
+
+        boolean updateData = mDatabaseHandler.updateData(id, photoBlob, name, statusInt, synced);
 
         if(updateData){
             displayLongToast("Data Successfully Updated Locally.");
@@ -472,36 +514,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
         else{
             displayLongToast("Something went wrong with updating local DB!");
-        }
-    }
-
-    class ReadyDelete extends AsyncTask<Void, Void, Void>
-    {
-        Socket s9;
-        PrintWriter pw9;
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            ReadyDelete();
-            return null;
-        }
-        void ReadyDelete()
-        {
-            while(s9 == null)
-            {
-                try {
-                    s9 = new Socket(HOST, Port);
-                    pw9 = new PrintWriter(s9.getOutputStream());
-                    pw9.write("2");
-                    pw9.flush();
-                    pw9.close();
-                    pw9.flush();
-                    s9.close();
-                } catch (IOException e) {
-                    System.out.println("Fail");
-                    e.printStackTrace();
-                }
-            }
         }
     }
 

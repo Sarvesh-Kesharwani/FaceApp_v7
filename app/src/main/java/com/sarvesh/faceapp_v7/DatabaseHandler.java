@@ -29,6 +29,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     private static final String Col_2 = "NAME";
     private static final String Col_3 = "PHOTO";
     private static final String Col_4 = "STATUS";
+    private static final String Col_5 = "SYNCED";
 
     public DatabaseHandler(@Nullable Context context)
     {
@@ -38,7 +39,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " BLOB, " + Col_4 + " INTEGER )");
+        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " BLOB, " + Col_4 + " INTEGER ," + Col_5 + " INTEGER )");
     }
 
     @Override
@@ -60,7 +61,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return byteBuffer.toByteArray();
     }
 
-    public boolean addData(Uri photo_path, String name, int status, Context context)
+    public boolean addData(Uri photo_path, String name, int status, int synced, Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -76,6 +77,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
             contentValues.put(Col_2,name);
             contentValues.put(Col_4,status);
+            contentValues.put(Col_5,synced);
             result = db.insert(TABLE_NAME, null, contentValues);
 
             if(result == -1)
@@ -99,7 +101,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         }
     }
 
-    public boolean updateData(int id, byte[] photoBlob, String name, int status)
+    public boolean updateData(int id, byte[] photoBlob, String name, int status, int synced)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -108,6 +110,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         contentValues.put(Col_2,name);
         contentValues.put(Col_3,photoBlob);
         contentValues.put(Col_4,status);
+        contentValues.put(Col_5,synced);
         result = db.update(TABLE_NAME, contentValues, "ID = ?", new String[] { String.valueOf(id) });
 
         if(result == -1)

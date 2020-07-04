@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,7 +36,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         // Inflate the layout
         View photoView = inflater.inflate(R.layout.permission_card,parent, false);//converted xml file into a view buy inflating it.
 
-        PermissionViewHolder viewHolder = new PermissionViewHolder(photoView,mOnSyncListener);//giving inflated view to viewHolder
+        PermissionViewHolder viewHolder = new PermissionViewHolder(photoView, mOnSyncListener);//giving inflated view to viewHolder
         return viewHolder;
     }
 
@@ -54,6 +55,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
             viewHolder.PermissionSyncButton.setVisibility(View.GONE);
         else
             viewHolder.PermissionSyncButton.setVisibility(View.VISIBLE);
+            Log.d("status","cant set invisible");
     }
 
     @Override

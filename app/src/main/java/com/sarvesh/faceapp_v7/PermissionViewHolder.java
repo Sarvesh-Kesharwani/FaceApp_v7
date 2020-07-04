@@ -1,7 +1,9 @@
 package com.sarvesh.faceapp_v7;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +27,11 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder{
             @Override
             public void onClick(View view) {
                 recyclerViewClickInterface.onSyncClick(getAdapterPosition());
+                PermissionSyncButton.setEnabled(false);
+
+                //reEnable and hide synButton just to show
+                PermissionSyncButton.setEnabled(true);
+                PermissionSyncButton.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -35,6 +42,5 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder{
             }
         });
     }
-
 
 }

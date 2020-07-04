@@ -100,7 +100,7 @@ public class Register extends AppCompatActivity {
                             //save person data to localDB
                             if(uri == null)
                                 Log.d("uri","uri is null!!!!!!");
-                            AddData(uri,name,true,getApplicationContext());
+                            AddData(uri,name,true, 0,getApplicationContext());
                         }
                         else
                         {displayToast("Name is too long!");}
@@ -268,7 +268,7 @@ public class Register extends AppCompatActivity {
         Toast.makeText(Register.this,ToastMessage,Toast.LENGTH_LONG).show();
     }
 
-    public void AddData(Uri photo_uri, String name, boolean status, Context context)
+    public void AddData(Uri photo_uri, String name, boolean status, int synced, Context context)
     {
         int statusInt;
         if(status)
@@ -276,7 +276,7 @@ public class Register extends AppCompatActivity {
         else
             statusInt = 0;
 
-        boolean insertData = mDatabaseHandler.addData(photo_uri, name, statusInt,context);
+        boolean insertData = mDatabaseHandler.addData(photo_uri, name, synced, statusInt,context);
 
         if(insertData){
             displayLongToast("Data Successfully Inserted Locally.");
