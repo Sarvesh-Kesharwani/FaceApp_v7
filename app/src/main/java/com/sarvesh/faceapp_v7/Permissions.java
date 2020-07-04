@@ -3,6 +3,8 @@ package com.sarvesh.faceapp_v7;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -33,6 +35,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -65,8 +68,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     //intenet
     boolean connected = false;
 
-    //DownlodCould
-    boolean CloudSyncComplete = false;
     //representing data
     public PermissionAdapter adapter;
     public RecyclerView recyclerView;
@@ -77,7 +78,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
     //Database
     DatabaseHandler mDatabaseHandler;
-    DatabaseHandler ServerDatabaseHandler;
+    ServerDatabaseHandler ServerDatabaseHandler;
+    //DownlodCould
+    boolean CloudSyncComplete = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +133,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
 
         mDatabaseHandler = new DatabaseHandler(this);
-        ServerDatabaseHandler = new DatabaseHandler(this);
+        ServerDatabaseHandler = new ServerDatabaseHandler(this);
         //RecyclerView Code
         try{
             CardList = getData();
@@ -351,20 +354,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                      printWriter.write("?RETREV");
                      printWriter.flush();
 
+
                      //Prepare data to enter in to ServerDB
                     //reciving name&photo oneByone
-                    String name = String.valueOf(mBufferIn.readLine());
-                    int PhotoSize = Integer.parseInt(mBufferIn.readLine());
-                    File myDir = new File(Environment.getExternalStorageDirectory()+"/FaceAppData");
-                    if(!myDir.exists())
-                    {
-                        myDir.mkdirs();
-                        Log.d("receve", "Directory not found!");
-                        Log.d("receve", "Making Directory...");
-                    }
-                     Cursor ServerDB = mDatabaseHandler.getData();
+                    String PersonName = String.valueOf(mBufferIn.readLine());
+                    int PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
+                    byte[] PersonPhotoBytes = new byte[PersonPhotoSize];
+                    dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
 
-                     AddServerData();
+                    //store name and image data to localServerDB
+                     AddServerData(PersonPhotoBytes, PersonName, true, 1);
 
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
@@ -674,7 +673,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-    public void AddServerData(Image photo, String name, boolean status, int synced, Context context)
+    public void AddServerData(byte[] photo, String name, boolean status, int synced)
     {
         int statusInt;
         if(status)
@@ -682,7 +681,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         else
             statusInt = 0;
 
-        boolean insertData = ServerDatabaseHandler.addData(photo_uri, name, statusInt, synced,context);
+        boolean insertData = ServerDatabaseHandler.addData(photo, name, statusInt, synced);
 
         if(insertData){
             displayLongToast("Server Data Successfully Inserted Locally.");

@@ -98,6 +98,29 @@ public class ServerDatabaseHandler extends SQLiteOpenHelper
         }
     }
 
+    public boolean addData(byte[] photo, String name, int status, int synced)
+    {
+        long result = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Col_3,photo);
+        contentValues.put(Col_2,name);
+        contentValues.put(Col_4,status);
+        contentValues.put(Col_5,synced);
+        result = db.insert(TABLE_NAME, null, contentValues);
+
+        if(result == -1)
+        {
+            Log.d("mdatabase","result is -1");
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+
     public boolean updateData(int id, byte[] photoBlob, String name, int status, int synced)
     {
         long result = 0;
