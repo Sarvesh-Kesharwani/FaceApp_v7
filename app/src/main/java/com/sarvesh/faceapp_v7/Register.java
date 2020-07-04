@@ -85,21 +85,31 @@ public class Register extends AppCompatActivity {
         photoImage = findViewById(R.id.poi);
         sendButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-                if(photoImage.getDrawable() != null && !(nameText.getText().equals("")))
+                if(photoImage.getDrawable() != null)
                 {
-                    //disable navigationBar
-                    //drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                    name = nameText.getText().toString();
-                    nameText.setText("");//reset text
-                    photoImage.setImageResource(R.drawable.avatar);//reset imageview
+                    if(!(nameText.getText().equals("")))
+                    {
+                        if(nameText.getText().length() < 100)
+                        {
+                            //disable navigationBar
+                            //drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                            name = nameText.getText().toString();
+                            nameText.setText("");//reset text
+                            photoImage.setImageResource(R.drawable.avatar);//reset imageview
 
-                    //save person data to localDB
-                    if(uri == null)
-                        Log.d("uri","uri is null!!!!!!");
-                    AddData(uri,name,true,getApplicationContext());
+                            //save person data to localDB
+                            if(uri == null)
+                                Log.d("uri","uri is null!!!!!!");
+                            AddData(uri,name,true,getApplicationContext());
+                        }
+                        else
+                        {displayToast("Name is too long!");}
+                    }
+                    else
+                    {displayToast("Enter Name!");}
                 }
                 else
-                    displayToast("Select Photo!");
+                {displayToast("Select Photo!");}
 
             }
         });

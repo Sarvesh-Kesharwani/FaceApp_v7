@@ -344,9 +344,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                 continue;
                             }
 
-
-
-
                             //sending photo_length and photo_file
                             //sending photo size
                             printWriter.write(String.valueOf(PhotobyteArray.length) + '$');
@@ -361,11 +358,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             skt.shutdownOutput();
                             Log.d("status","recieving ACK");
                             String ACK;
+                            String ResultMessage;
                             if(skt.isOutputShutdown())
                             {
                                 ACK  = mBufferIn.readLine();
+                                ResultMessage = mBufferIn.readLine();
                                 Log.d("status","ACK is:"+ACK);
-                                displayShortToast(ACK);
+                                Log.d("status","ResultMessage is:"+ResultMessage);
+                                ToastMessage = ACK;
+                                ToastMessage = ResultMessage;
+
                             }
                             else
                                 Log.d("status","Output isn't down!");
