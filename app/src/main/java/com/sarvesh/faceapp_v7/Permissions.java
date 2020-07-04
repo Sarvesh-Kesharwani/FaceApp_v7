@@ -335,43 +335,54 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             while(skt == null)
             {
                 try {
-                    skt = new Socket(HOST, Port);
-                    printWriter = new PrintWriter(skt.getOutputStream());
-                    InputStream sin = skt.getInputStream();
-                    DataInputStream dis = new DataInputStream(sin);
-                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-                    OutputStream sout = skt.getOutputStream();
+                        skt = new Socket(HOST, Port);
+                        printWriter = new PrintWriter(skt.getOutputStream());
+                        InputStream sin = skt.getInputStream();
+                        DataInputStream dis = new DataInputStream(sin);
+                        BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+                        OutputStream sout = skt.getOutputStream();
 
-                    if (!skt.isConnected()) {
-                        displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
-                        if (!isCancelled()) {
-                            cancel(true);
+                        if (!skt.isConnected()) {
+                            displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
+                            if (!isCancelled()) {
+                                cancel(true);
+                            }
                         }
+
+                         //sending delimiter
+                         Log.d("receve","sending delimiter.");
+                         printWriter.write("?RETREV");
+                         printWriter.flush();
+
+                         int NoOfPeople = Integer.parseInt(mBufferIn.readLine());
+                         Log.d("receve","no of people are:"+NoOfPeople);
+                         int i = 1;
+                         while(i<=NoOfPeople)
+                         {
+                            //reciving name&photo oneByone
+                            String PersonName = String.valueOf(mBufferIn.readLine());
+                             Log.d("receve","Person Name is:"+PersonName);
+                            int PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
+                             Log.d("receve","Person photoSize is:"+PersonPhotoSize);
+                            byte[] PersonPhotoBytes = new byte[PersonPhotoSize];
+                            dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+                             Log.d("receve","Person photoBytes are:"+PersonPhotoBytes);
+
+                            //store name and image data to localServerDB
+                             Log.d("receve","adding person to db.");
+                             AddServerData(PersonPhotoBytes, PersonName, true, 1);
+                             Log.d("receve","adding Complete.");
+                             i++;
+                             Log.d("receve","loop:"+i);
+                         }
+                         Log.d("receve","All person_data recieved sucessfullly.");
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                     //sending delimiter
-                     Log.d("receve","sending delimiter.");
-                     printWriter.write("?RETREV");
-                     printWriter.flush();
-
-
-                     //Prepare data to enter in to ServerDB
-                    //reciving name&photo oneByone
-                    String PersonName = String.valueOf(mBufferIn.readLine());
-                    int PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
-                    byte[] PersonPhotoBytes = new byte[PersonPhotoSize];
-                    dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
-
-                    //store name and image data to localServerDB
-                     AddServerData(PersonPhotoBytes, PersonName, true, 1);
-
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
-        }
 
     }
    private class SyncApp extends AsyncTask<Integer, Integer, Integer>
