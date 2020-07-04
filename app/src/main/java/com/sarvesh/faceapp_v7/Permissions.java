@@ -204,19 +204,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     }
 
     @Override
-    public boolean onSyncClick(int position) {
+    public void onSyncClick(int position) {
         //displayLongToast("Updating to server.");
         //send data to server
         if(connected)
         {
             SyncApp syncApp = new SyncApp(position);
             syncApp.execute(new Integer(position));
-            return true;
         }
         else
-        {
-            return false;
-        }
+        {displayLongToast("Connect to Internet...");}
     }
 
     @Override
@@ -316,7 +313,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
 
         @Override
-        protected void onPostExecute(Integer integer) {
+        protected void onPostExecute(Integer integer)
+        {
             super.onPostExecute(integer);
             displayShortToast(ToastMessage);
             if(progressBar.getProgress() == 100)
@@ -428,11 +426,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                 ACK  = mBufferIn.readLine();
                                 if(ACK.equals("?SYNC_DONE"))
                                 {
-                                    publishProgress(100);
+                                    publishProgress(100);//indiacates that process is complete and hide the syncButton otherwise not
                                     ResultMessage = mBufferIn.readLine();
                                     ToastMessage = ResultMessage;
                                 }
-
                             }
                             else
                                 Log.d("status","Output isn't down!");
@@ -492,16 +489,15 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         if(skt.isOutputShutdown())
                         {
                             ACK  = mBufferIn.readLine();
-                            //receving delete result.
-                            ResultMessage = mBufferIn.readLine();
-                            Log.d("status","ACK is:"+ACK);
-                            Log.d("status","DeleteResult is:"+ResultMessage);
-                            //ToastMessage = ACK;
-                            ToastMessage = ResultMessage;
+                            if(ACK.equals("?SYNC_DONE"))
+                            {
+                                publishProgress(100);//indiacates that process is complete and hide the syncButton otherwise not
+                                ResultMessage = mBufferIn.readLine();
+                                ToastMessage = ResultMessage;
+                            }
                         }
                         else
                         {Log.d("status","Output isn't down!");}
-                        publishProgress(100);
                         skt.close();
                     }
                     else

@@ -27,10 +27,7 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder{
         PermissionSyncButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                //PermissionSyncButton.setVisibility(View.INVISIBLE);
                 recyclerViewClickInterface.onSyncClick(getAdapterPosition());
-
             }
         });
 
