@@ -180,7 +180,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
     @Override
     public void onSyncClick(int position) {
-        Log.d("syncupdate","working! Position is:"+ position);
+        Log.d("status","working! Position is:"+ position);
         displayLongToast("Updating to server.");
         //send data to server
         SyncApp syncApp = new SyncApp();
@@ -243,7 +243,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     {
         Socket skt;
         PrintWriter printWriter;
-        String ToastMessage;
+        String ToastMessage = "Sync Is Complete.";
 
         boolean Error = false;
         String ErrorMessage;
@@ -279,7 +279,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         @Override
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
-            displayLongToast(ToastMessage);
+            Log.d("status",ToastMessage);
         }
 
         byte[] EncodeToUTF8(String string) {
@@ -297,7 +297,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 try {
                     skt = new Socket(HOST, Port);
                     printWriter = new PrintWriter(skt.getOutputStream());
-                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+                    BufferedReader mBufferIn;
 
                     Cursor Localdb = mDatabaseHandler.getData();
                     Log.d("status","Card Position is: "+String.valueOf(CardPosition));
@@ -311,55 +311,73 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
                     //if person is allowed
                     if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 1)//////////////////////**************
-                    {Log.d("status","person is allowed sending name&photo.");
-                        DataOutputStream dos = new DataOutputStream(skt.getOutputStream());
-                        //sending update delimiter
-                        byte[] Opcode = EncodeToUTF8("?UPDATE");
-                        printWriter.write(String.valueOf(Opcode));
+                        {
+                            Log.d("status","person is allowed sending name&photo.");
+                            DataOutputStream dos = new DataOutputStream(skt.getOutputStream());
+                            //sending update delimiter
+                            printWriter.write("?UPDATE");
+                            printWriter.flush();
 
+                            //sending name_length and name
+                            //retreving bytes from personName
+                            byte[] nameBytes = PersonName.getBytes();
+                            int nameBytesLength = nameBytes.length;//no of charaters in the name
+                            String nameBytesLengthString = Integer.toString(nameBytesLength);
 
-                        //sending name_length and name
-                        //retreving bytes from personName
-                        byte[] nameBytes = PersonName.getBytes();
-                        int nameBytesLength = nameBytes.length;//no of charaters in the name
-                        String nameBytesLengthString = Integer.toString(nameBytesLength);
+                            //sending name length
+                            if (nameBytesLength < 100)
+                            {
+                                if (nameBytesLength <= 9)
+                                    {
+                                         printWriter.write('0' + nameBytesLengthString);
+                                         printWriter.flush();
+                                    }
+                                else
+                                    {
+                                        printWriter.write(nameBytesLengthString);
+                                        printWriter.flush();
+                                    }
 
-                        //sending name length
-                        if (nameBytesLength < 100) {
-                            if (nameBytesLength <= 9)
-                                printWriter.write('0' + nameBytesLengthString);
+                                //sending name
+                                printWriter.write(PersonName);
+                                printWriter.flush();
+                            }
                             else
-                                printWriter.write(nameBytesLengthString);
+                                ToastMessage = "Name is too long!";
 
-                            //sending name
-                            printWriter.write(PersonName);
+
+
+                            //sending photo_length and photo_file
+                            //sending photo size
+                            printWriter.write(String.valueOf(PhotobyteArray.length) + '$');
+                            printWriter.flush();
+                            //sending photo file
+                            dos.write(PhotobyteArray, 0, PhotobyteArray.length);
+                            dos.flush();
+
+                            //receving name& photo received ACK.
+                            mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+                            Log.d("status","shutting down output");
+                            skt.shutdownOutput();
+                            Log.d("status","recieving ACK");
+                            String ACK;
+                            if(skt.isOutputShutdown())
+                            {
+                                ACK  = mBufferIn.readLine();
+                                Log.d("status","ACK is:"+ACK);
+                                displayLongToast(ACK);
+                            }
+                            else
+                                Log.d("status","Output isn't down!");
+                            skt.close();
                         }
-                        else
-                            ToastMessage = "Name is too long!";
-
-
-
-                        //sending photo_length and photo_file
-                        //sending photo size
-                        printWriter.write(String.valueOf(PhotobyteArray.length) + '$');
-
-                        //sending photo file
-                        dos.write(PhotobyteArray, 0, PhotobyteArray.length);
-
-                        printWriter.close();
-                        dos.close();
-
-                        //receving name& photo received ACK.
-                        String ACK = mBufferIn.readLine();
-                        displayLongToast(ACK);
-                        skt.close();
-                    }
 
                     //if person is not allowed
                     else if(Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 0)///////////////////**************
-                    {Log.d("status","person not allowed sending name only ");
+                    {
+                        Log.d("status","person not allowed sending name only");
                         printWriter.write("?DELETE");
-
+                        printWriter.flush();
                         //sending name_length and name
                         //retreving bytes from personName
                         byte[] nameBytes = PersonName.getBytes();
@@ -370,23 +388,40 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         if (nameBytesLength < 100)
                         {
                             if (nameBytesLength <= 9)
+                            {
                                 printWriter.write('0' + nameBytesLengthString);
+                                printWriter.flush();
+                            }
                             else
+                            {
                                 printWriter.write(nameBytesLengthString);
-
+                                printWriter.flush();
+                            }
                             //sending name
                             printWriter.write(PersonName);
+                            printWriter.flush();
                         }
                         else
+                        {
                             Log.d("status","name is too long");
                             displayLongToast("Name is too long!");
+                        }
 
-                        printWriter.close();
-
-                        //receving ACK
-                        String ACK = mBufferIn.readLine();
-                        displayLongToast(ACK);
-
+                        //receving name received ACK.
+                        Log.d("status","buffer input stream");
+                        mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+                        Log.d("status","shutting down output");
+                        skt.shutdownOutput();
+                        Log.d("status","recieving ACK");
+                        String ACK;
+                        if(skt.isOutputShutdown())
+                        {
+                            ACK  = mBufferIn.readLine();
+                            Log.d("status","ACK is:"+ACK);
+                            displayLongToast(ACK);
+                        }
+                        else
+                            Log.d("status","Output isn't down!");
                         skt.close();
                     }
                     else
@@ -394,7 +429,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 } catch (IOException e) {
                     System.out.println("Fail");
                     e.printStackTrace();
-                }
+                    }
             }
         }
     }
