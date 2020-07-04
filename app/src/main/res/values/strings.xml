@@ -9,4 +9,5 @@
     <string name="EmergencyOpen">EmergencyOpen</string>
     <string name="not_allowed">NA</string>
     <string name="allowed">A</string>
+    <string name="todo">TODO</string>
 </resources>

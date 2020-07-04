@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -23,14 +26,20 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -46,6 +55,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     private NavigationView navigationView;
     private Toolbar toolbar;
 
+    //Refresh to grab data from server
+    ImageButton refreshButton;
+
     //progress bar
     ProgressBar progressBar;
     public boolean ProgressComplete = false;
@@ -53,6 +65,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     //intenet
     boolean connected = false;
 
+    //DownlodCould
+    boolean CloudSyncComplete = false;
     //representing data
     public PermissionAdapter adapter;
     public RecyclerView recyclerView;
@@ -63,6 +77,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
     //Database
     DatabaseHandler mDatabaseHandler;
+    DatabaseHandler ServerDatabaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +130,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
 
         mDatabaseHandler = new DatabaseHandler(this);
+        ServerDatabaseHandler = new DatabaseHandler(this);
         //RecyclerView Code
         try{
             CardList = getData();
@@ -128,19 +144,23 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         new ItemTouchHelper(itemTouchSimpleCallback).attachToRecyclerView(recyclerView);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(Permissions.this));
-        /*swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+        refreshButton = findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onRefresh() {
-                // add items to database
-                //add dabase entries to list
-                //notify recyclerview to update those adds
-                adapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
+            public void onClick(View view) {
+                //displayLongToast("Updating to server.");
+                //send data to server
+                if(connected)
+                {
+                    Log.d("receve","grabcards called.");
+                    GrabCards grabCards = new GrabCards();
+                    grabCards.execute();
+                }
+                else
+                {displayLongToast("Connect to Internet...");}
             }
-        });*/
-
-
+        });
 
     }
 
@@ -267,7 +287,94 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
+    private class GrabCards extends AsyncTask<Integer, Integer, Integer>
+    {
+        Socket skt;
+        PrintWriter printWriter;
+        String ToastMessage;
 
+        boolean Error = false;
+        String ErrorMessage;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setMax(100);
+            progressBar.setProgress(0);
+            CloudSyncComplete = false;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            progressBar.setProgress(values[0]);
+            if(Error)
+                displayShortToast(ErrorMessage);
+        }
+
+        @Override
+        protected Integer doInBackground(Integer... Params) {
+            try{
+                GrabCardsfun();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+
+        }
+
+        void GrabCardsfun()
+        {
+            while(skt == null)
+            {
+                try {
+                    skt = new Socket(HOST, Port);
+                    printWriter = new PrintWriter(skt.getOutputStream());
+                    InputStream sin = skt.getInputStream();
+                    DataInputStream dis = new DataInputStream(sin);
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+                    OutputStream sout = skt.getOutputStream();
+
+                    if (!skt.isConnected()) {
+                        displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
+                        if (!isCancelled()) {
+                            cancel(true);
+                        }
+                    }
+
+                     //sending delimiter
+                     Log.d("receve","sending delimiter.");
+                     printWriter.write("?RETREV");
+                     printWriter.flush();
+
+                     //Prepare data to enter in to ServerDB
+                    //reciving name&photo oneByone
+                    String name = String.valueOf(mBufferIn.readLine());
+                    int PhotoSize = Integer.parseInt(mBufferIn.readLine());
+                    File myDir = new File(Environment.getExternalStorageDirectory()+"/FaceAppData");
+                    if(!myDir.exists())
+                    {
+                        myDir.mkdirs();
+                        Log.d("receve", "Directory not found!");
+                        Log.d("receve", "Making Directory...");
+                    }
+                     Cursor ServerDB = mDatabaseHandler.getData();
+
+                     AddServerData();
+
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
    private class SyncApp extends AsyncTask<Integer, Integer, Integer>
     {
         Socket skt;
@@ -564,6 +671,24 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
         else{
             displayLongToast("Something went wrong with updating local DB!");
+        }
+    }
+
+    public void AddServerData(Image photo, String name, boolean status, int synced, Context context)
+    {
+        int statusInt;
+        if(status)
+            statusInt = 1;
+        else
+            statusInt = 0;
+
+        boolean insertData = ServerDatabaseHandler.addData(photo_uri, name, statusInt, synced,context);
+
+        if(insertData){
+            displayLongToast("Server Data Successfully Inserted Locally.");
+        }
+        else{
+            displayLongToast("Something went wrong with Server-Local-DB!");
         }
     }
 

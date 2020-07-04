@@ -158,7 +158,6 @@ public class Register extends AppCompatActivity {
                     return false;
                 }
             });
-
     }
 
     @Override
