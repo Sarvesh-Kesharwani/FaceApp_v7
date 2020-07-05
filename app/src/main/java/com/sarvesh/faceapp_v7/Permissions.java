@@ -331,86 +331,134 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
         }
 
-        void GrabCardsfun()
-        {
-            while(skt == null)
-            {
+        void GrabCardsfun() {
+            while (skt == null) {
                 try {
-                        skt = new Socket(HOST, Port);
-                        printWriter = new PrintWriter(skt.getOutputStream());
-                        InputStream sin = skt.getInputStream();
-                        DataInputStream dis = new DataInputStream(sin);
-                        BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-                        if (!skt.isConnected()) {
-                            displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
-                            if (!isCancelled()) {
-                                cancel(true);
-                            }
+                    skt = new Socket(HOST, Port);
+                    printWriter = new PrintWriter(skt.getOutputStream());
+                    InputStream sin = skt.getInputStream();
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+
+                    if (!skt.isConnected()) {
+                        displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
+                        if (!isCancelled()) {
+                            cancel(true);
                         }
-                         //sending delimiter
-                         Log.d("receve","sending delimiter.");
-                         printWriter.write("?RETREV");
-                         printWriter.flush();
+                    }
 
-                         int NoOfPeople = Integer.parseInt(mBufferIn.readLine());
-                         Log.d("receve","no of people are:"+NoOfPeople);
-                         int i = 1;
-                          String PersonName = null;
-                          List<String> PersonNames = new ArrayList<>();
+                    //sending delimiter
+                    Log.d("receve", "sending delimiter.");
+                    printWriter.write("?RETREV");
+                    printWriter.flush();
 
-                          byte[] PersonPhotoBytes = null;
-                          List<String> PersonImages = new ArrayList<>();
+                    //recieve no of people
+                    int NoOfPeople = Integer.parseInt(mBufferIn.readLine());
+                    Log.d("receve", "no of people are:" + NoOfPeople);
 
-                         while(i<=NoOfPeople)
-                         {
-                             PersonName = String.valueOf(mBufferIn.readLine());
-                             PersonNames.add(PersonName);
-                             i++;
-                         }
-                         Log.d("receve","Names are:"+PersonNames);
+                    //prepare storage
+                    int i = 1;
+                    String PersonName = null;
+                    List<String> PersonNames = new ArrayList<>();
 
-                         i=1;
-                        while(i<=NoOfPeople)
+                    int PersonPhotoSize = 0;
+                    List<Integer> PersonPhotoSizes = new ArrayList<>();
+
+                    byte[] PersonPhotoBytes = null;
+                    List<String> PersonImages = new ArrayList<>();
+
+                    //recieving person names.
+                    while (i <= NoOfPeople) {
+                        PersonName = String.valueOf(mBufferIn.readLine());
+                        PersonNames.add(PersonName);
+                        i++;
+                    }
+                    Log.d("receve", "Names are:" + PersonNames);
+
+                    //receving photo sizes.
+                    i=1;
+                    while (i <= NoOfPeople) {
+                        PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
+                        PersonPhotoSizes.add(new Integer(PersonPhotoSize));
+                        i++;
+                    }
+                    Log.d("receve", "Person photoSizes are:" + String.valueOf(PersonPhotoSizes));
+                    /*printWriter.close();
+                    sin.close();
+                    mBufferIn.close();
+                    skt.close();*/
+
+                    //reciving photos
+                    DataInputStream dis = new DataInputStream(sin);
+                    Log.d("receve", "Waiting for photo...");
+                    i=1;
+                    while (i <= NoOfPeople)
+                    {
+                        /*skt = new Socket(HOST, Port);
+                        sin = skt.getInputStream();
+                        DataInputStream dis = new DataInputStream(sin);
+                        mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));*/
+
+                        //receving one photo file
+                        Log.d("receve", "Making PhotoBuffer.");
+                        PersonPhotoBytes = new byte[PersonPhotoSizes.get(i-1).intValue()];
+                        Log.d("receve", "Recieving Photo in PhotoBuffer.");
+                        dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+
+                        //making file directory
+                        Log.d("receve", "Checking Directory...");
+                        File myDir = new File(Environment.getExternalStorageDirectory() + "/DCIM");
+                        if (!myDir.exists()) {
+                            Log.d("receve", "Directory not found!");
+                            Log.d("receve", "Making Directory...");
+                            myDir.mkdirs();
+                        }
+                        Log.d("receve", "Directory is already existing.");
+
+                        //making file name
+                        Log.d("receve", "Making FileName.");
+                        String fileName = String.valueOf(PersonNames.get(i - 1)) + ".png";
+                        Log.d("receve", "File Name is: "+fileName);
+
+                        try
                         {
-                             int PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
-                             Log.d("receve","Person photoSize is:"+PersonPhotoSize);
-                            PersonPhotoBytes = new byte[PersonPhotoSize];
-                            dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
-                            Log.d("receve","Person photoBytes are:"+PersonPhotoBytes);
-
-                            File myDir = new File(Environment.getExternalStorageDirectory()+"/DCIM");
-                            if(!myDir.exists())
-                            {
-                                myDir.mkdirs();
-                                Log.d("receve", "Directory not found!");
-                                Log.d("receve", "Making Directory...");
-                            }
-                            String fileName = PersonName +".png";
-                            File imageFile = new File(myDir, fileName);
+                            //making file with fileDir & fileName
                             Log.d("receve", "Making File at Directory...");
+                            File imageFile = new File(myDir, fileName);
+
+                            //putting file in fos
+                            Log.d("receve", "Putting file in FOS.");
                             FileOutputStream out = new FileOutputStream(imageFile);
 
+                            //converting ReceivedPhotoBytes to bitmap
+                            Log.d("receve", "Converting PhotoBytes to PhotoBitmap.");
                             Bitmap data_bitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+
+                            //convert bitmap to file
+                            Log.d("receve", "Compressing PhotoBitmap to File.");
                             data_bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                             out.flush();
-                            //out.close();
-                            Log.d("receve","Image was wrote successfully.");
-                             if(i==NoOfPeople)
-                             {dis.close();}
-                                i++;
-                            Log.d("receve","Iteration:"+i);
+                            Log.d("receve", "Image was wrote successfully.");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            }
 
-                        }
-                        i=1;
-                        while(i<=NoOfPeople)
+                        if (i == NoOfPeople)
                         {
-                            Log.d("receve","Adding...");
-                            //ServerCardList.add(new CardData(PersonImages.get(i - 1), PersonNames.get(i - 1), true, 1));
-                            i++;
+                            dis.close();
+                            skt.close();
                         }
-                     Log.d("receve","Adding to list complete.");
+                        Log.d("receve", "Iteration:" + i);
+                        i++;
+                    }
+                   /* i = 1;
+                    while (i <= NoOfPeople) {
+                        Log.d("receve", "Adding...");
+                        //ServerCardList.add(new CardData(PersonImages.get(i - 1), PersonNames.get(i - 1), true, 1));
+                        i++;
+                    }
+                    Log.d("receve", "Adding to list complete.");
 
-                         /*if(PersonName != null && PersonPhotoBytes != null)
+                         if(PersonName != null && PersonPhotoBytes != null)
                          {
                              Log.d("receve","adding list to database");
                              AddServerData(PersonPhotoBytes, PersonName, true, 1);
@@ -419,12 +467,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                          }*/
 
                 } catch (UnknownHostException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+        }
 
     }
 
