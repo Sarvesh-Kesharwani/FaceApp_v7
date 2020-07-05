@@ -338,7 +338,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     printWriter = new PrintWriter(skt.getOutputStream());
                     InputStream sin = skt.getInputStream();
                     BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-
+                    FileOutputStream fileout;
                     if (!skt.isConnected()) {
                         displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
                         if (!isCancelled()) {
@@ -401,8 +401,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         //receving one photo file
                         Log.d("receve", "Making PhotoBuffer.");
                         PersonPhotoBytes = new byte[PersonPhotoSizes.get(i-1).intValue()];
-                        Log.d("receve", "Recieving Photo in PhotoBuffer.");
-                        dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+
+                        Log.d("receve", "Recieving Photo from Server in PhotoBuffer.");
+                        //dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+                        Log.d("receve", "Photo from Server is: "+PersonPhotoBytes);
+
+                       /* if(PersonPhotoBytes == null)
+                        {
+                            Log.d("receve", "Received PhotoBytes is Empty!");
+                            break;
+                        }*/
 
                         //making file directory
                         Log.d("receve", "Checking Directory...");
@@ -420,23 +428,25 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         Log.d("receve", "File Name is: "+fileName);
 
                         try
-                        {
-                            //making file with fileDir & fileName
+                        { //making file with fileDir & fileName
                             Log.d("receve", "Making File at Directory...");
                             File imageFile = new File(myDir, fileName);
-
+                            if(imageFile == null)
+                            {Log.d("receve", "ImageFile is Null!");
+                            break;}
                             //putting file in fos
                             Log.d("receve", "Putting file in FOS.");
-                            FileOutputStream out = new FileOutputStream(imageFile);
+                            fileout = new FileOutputStream(imageFile);
 
                             //converting ReceivedPhotoBytes to bitmap
                             Log.d("receve", "Converting PhotoBytes to PhotoBitmap.");
-                            Bitmap data_bitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+                            //Bitmap PersonPhotoBitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+                            Bitmap PersonPhotoBitmap = BitmapFactory.decodeStream(dis);
 
                             //convert bitmap to file
                             Log.d("receve", "Compressing PhotoBitmap to File.");
-                            data_bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                            out.flush();
+                            PersonPhotoBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileout);
+                            fileout.flush();
                             Log.d("receve", "Image was wrote successfully.");
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -447,7 +457,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             dis.close();
                             skt.close();
                         }
-                        Log.d("receve", "Iteration:" + i);
+                        Log.d("receve", "Iteration:" + i + "Completed.");
                         i++;
                     }
                    /* i = 1;
