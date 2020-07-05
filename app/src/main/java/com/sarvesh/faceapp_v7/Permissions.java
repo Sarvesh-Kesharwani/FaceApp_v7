@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +47,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
@@ -72,13 +74,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     public PermissionAdapter adapter;
     public RecyclerView recyclerView;
     List<CardData> CardList = new ArrayList<>();
-
+    List<CardData> ServerCardList = new ArrayList<>();
     //Refresh with swip down
     //SwipeRefreshLayout swipeRefreshLayout;
 
     //Database
     DatabaseHandler mDatabaseHandler;
-    ServerDatabaseHandler ServerDatabaseHandler;
     //DownlodCould
     boolean CloudSyncComplete = false;
 
@@ -133,7 +134,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
 
         mDatabaseHandler = new DatabaseHandler(this);
-        ServerDatabaseHandler = new ServerDatabaseHandler(this);
         //RecyclerView Code
         try{
             CardList = getData();
@@ -340,7 +340,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         InputStream sin = skt.getInputStream();
                         DataInputStream dis = new DataInputStream(sin);
                         BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-                        OutputStream sout = skt.getOutputStream();
 
                         if (!skt.isConnected()) {
                             displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
@@ -348,7 +347,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                 cancel(true);
                             }
                         }
-
                          //sending delimiter
                          Log.d("receve","sending delimiter.");
                          printWriter.write("?RETREV");
@@ -357,28 +355,51 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                          int NoOfPeople = Integer.parseInt(mBufferIn.readLine());
                          Log.d("receve","no of people are:"+NoOfPeople);
                          int i = 1;
+                          String PersonName = null;
+                          List<String> PersonNames = new ArrayList<>();
+
+                          byte[] PersonPhotoBytes = null;
+                          List<byte[]> PersonImages = new ArrayList<>();
+
                          while(i<=NoOfPeople)
                          {
-                            //reciving name&photo oneByone
-                            String PersonName = String.valueOf(mBufferIn.readLine());
-                             Log.d("receve","Person Name is:"+PersonName);
-                            int PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
-                             Log.d("receve","Person photoSize is:"+PersonPhotoSize);
-                            byte[] PersonPhotoBytes = new byte[PersonPhotoSize];
-                            dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
-                             Log.d("receve","Person photoBytes are:"+PersonPhotoBytes);
-
-                            //store name and image data to localServerDB
-                             Log.d("receve","adding person to db.");
-                             //AddServerData(PersonPhotoBytes, PersonName, true, 1);
-                             Log.d("receve","adding Complete.");
+                             PersonName = String.valueOf(mBufferIn.readLine());
+                             PersonNames.add(PersonName);
                              i++;
-                             Log.d("receve","loop:"+i);
-                             AddServerData(PersonPhotoBytes, PersonName, true, 1);
-
                          }
-                         Log.d("receve","All person_data recieved sucessfullly.");
-                    } catch (UnknownHostException e) {
+                         Log.d("receve","Names are:"+PersonNames);
+
+                         i=1;
+                        while(i<=NoOfPeople)
+                        {
+                             int PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
+                             Log.d("receve","Person photoSize is:"+PersonPhotoSize);
+                            PersonPhotoBytes = new byte[PersonPhotoSize];
+                            dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+                             Log.d("receve","Person photoBytes are:"+String.valueOf(PersonPhotoBytes));
+                            //PersonImages.add(Base64.getEncoder().encodeToString(PersonPhotoBytes));
+                             if(i==NoOfPeople)
+                             {dis.close();}
+                            i++;
+                        }
+                        i=1;
+                        while(i<=NoOfPeople)
+                        {
+                            ServerCardList.add(new CardData(PersonImages.get(i - 1), PersonNames.get(i - 1), true, 1));
+                            Log.d("receve","Adding...");
+                            i++;
+                        }
+                     Log.d("receve","Adding to list complete.");
+
+                         /*if(PersonName != null && PersonPhotoBytes != null)
+                         {
+                             Log.d("receve","adding list to database");
+                             AddServerData(PersonPhotoBytes, PersonName, true, 1);
+                             Log.d("receve","adding list to database Completed.");
+                             Log.d("receve","All person_data recieved sucessfullly.");
+                         }*/
+
+                } catch (UnknownHostException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -694,7 +715,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         else
             statusInt = 0;
 
-        boolean insertData = ServerDatabaseHandler.addServerData(photo, name, statusInt, synced);
+        boolean insertData = mDatabaseHandler.addServerData(photo, name, statusInt, synced);
 
         if(insertData){
             displayLongToast("Server Data Successfully Inserted Locally.");
