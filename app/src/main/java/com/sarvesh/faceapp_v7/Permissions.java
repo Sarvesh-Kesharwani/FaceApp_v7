@@ -33,6 +33,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -53,7 +54,7 @@ import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "192.168.43.215";//serveousercontent.com
+    public String HOST = "192.168.43.205";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -393,28 +394,20 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     i=1;
                     while (i <= NoOfPeople)
                     {
-                        /*skt = new Socket(HOST, Port);
-                        sin = skt.getInputStream();
-                        DataInputStream dis = new DataInputStream(sin);
-                        mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));*/
 
                         //receving one photo file
                         Log.d("receve", "Making PhotoBuffer.");
                         PersonPhotoBytes = new byte[PersonPhotoSizes.get(i-1).intValue()];
 
                         Log.d("receve", "Recieving Photo from Server in PhotoBuffer.");
-                        //dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
-                        Log.d("receve", "Photo from Server is: "+PersonPhotoBytes);
+                        dis.read(PersonPhotoBytes, 0, PersonPhotoBytes.length);
 
-                       /* if(PersonPhotoBytes == null)
-                        {
-                            Log.d("receve", "Received PhotoBytes is Empty!");
-                            break;
-                        }*/
+                        Log.d("receve", "Photo Stroing in DataBase............");
+                        ServerCardList.add(new CardData(PersonPhotoBytes, PersonNames.get(i - 1), true, 1));
 
-                        //making file directory
+                      //making file directory
                         Log.d("receve", "Checking Directory...");
-                        File myDir = new File(Environment.getExternalStorageDirectory() + "/DCIM");
+                        File myDir = new File(Environment.getDownloadCacheDirectory(),"Person_Photos");//Environment.getExternalStorageDirectory() + "/DCIM"
                         if (!myDir.exists()) {
                             Log.d("receve", "Directory not found!");
                             Log.d("receve", "Making Directory...");
@@ -441,12 +434,11 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                             //converting ReceivedPhotoBytes to bitmap
                             Log.d("receve", "Converting PhotoBytes to PhotoBitmap.");
                             //Bitmap PersonPhotoBitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
-                            Bitmap PersonPhotoBitmap = BitmapFactory.decodeStream(dis);
 
                             //convert bitmap to file
                             Log.d("receve", "Compressing PhotoBitmap to File.");
-                            PersonPhotoBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileout);
-                            fileout.flush();
+                            //PersonPhotoBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileout);
+                            //fileout.flush();
                             Log.d("receve", "Image was wrote successfully.");
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -460,22 +452,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         Log.d("receve", "Iteration:" + i + "Completed.");
                         i++;
                     }
-                   /* i = 1;
-                    while (i <= NoOfPeople) {
-                        Log.d("receve", "Adding...");
-                        //ServerCardList.add(new CardData(PersonImages.get(i - 1), PersonNames.get(i - 1), true, 1));
-                        i++;
-                    }
-                    Log.d("receve", "Adding to list complete.");
-
-                         if(PersonName != null && PersonPhotoBytes != null)
-                         {
-                             Log.d("receve","adding list to database");
-                             AddServerData(PersonPhotoBytes, PersonName, true, 1);
-                             Log.d("receve","adding list to database Completed.");
-                             Log.d("receve","All person_data recieved sucessfullly.");
-                         }*/
-
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

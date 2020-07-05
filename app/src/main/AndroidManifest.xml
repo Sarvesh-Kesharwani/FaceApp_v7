@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sarvesh.faceapp_v7">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,7 +16,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/face_mask_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:requestLegacyExternalStorage="true">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +28,8 @@
         <activity android:name=".Register" />
         <activity android:name=".Permissions" />
         <activity android:name=".Unknown" />
-        <activity android:name=".Emergency" />
+        <activity android:name=".Emergency"
+            tools:ignore="Instantiatable" />
 
     </application>
 
