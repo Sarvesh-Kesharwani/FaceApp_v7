@@ -383,10 +383,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         i++;
                     }
                     Log.d("receve", "Person photoSizes are:" + String.valueOf(PersonPhotoSizes));
-                    /*printWriter.close();
-                    sin.close();
-                    mBufferIn.close();
-                    skt.close();*/
 
                     //reciving photos
                     DataInputStream dis = new DataInputStream(sin);
@@ -394,7 +390,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     i=1;
                     while (i <= NoOfPeople)
                     {
-
                         //receving one photo file
                         Log.d("receve", "Making PhotoBuffer.");
                         PersonPhotoBytes = new byte[PersonPhotoSizes.get(i-1).intValue()];
@@ -433,12 +428,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
                             //converting ReceivedPhotoBytes to bitmap
                             Log.d("receve", "Converting PhotoBytes to PhotoBitmap.");
-                            //Bitmap PersonPhotoBitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+                            Bitmap PersonPhotoBitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
 
                             //convert bitmap to file
                             Log.d("receve", "Compressing PhotoBitmap to File.");
-                            //PersonPhotoBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileout);
-                            //fileout.flush();
+                            PersonPhotoBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileout);
+                            fileout.flush();
                             Log.d("receve", "Image was wrote successfully.");
                         } catch (IOException e) {
                             e.printStackTrace();
