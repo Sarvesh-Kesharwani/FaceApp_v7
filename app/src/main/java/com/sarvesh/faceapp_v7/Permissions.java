@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -52,7 +53,7 @@ import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "192.168.43.205";//serveousercontent.com
+    public String HOST = "192.168.43.215";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -340,7 +341,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         InputStream sin = skt.getInputStream();
                         DataInputStream dis = new DataInputStream(sin);
                         BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-
                         if (!skt.isConnected()) {
                             displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
                             if (!isCancelled()) {
@@ -359,7 +359,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                           List<String> PersonNames = new ArrayList<>();
 
                           byte[] PersonPhotoBytes = null;
-                          List<byte[]> PersonImages = new ArrayList<>();
+                          List<String> PersonImages = new ArrayList<>();
 
                          while(i<=NoOfPeople)
                          {
@@ -376,17 +376,36 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                              Log.d("receve","Person photoSize is:"+PersonPhotoSize);
                             PersonPhotoBytes = new byte[PersonPhotoSize];
                             dis.readFully(PersonPhotoBytes, 0, PersonPhotoBytes.length);
-                             Log.d("receve","Person photoBytes are:"+String.valueOf(PersonPhotoBytes));
-                            //PersonImages.add(Base64.getEncoder().encodeToString(PersonPhotoBytes));
+                            Log.d("receve","Person photoBytes are:"+PersonPhotoBytes);
+
+                            File myDir = new File(Environment.getExternalStorageDirectory()+"/DCIM");
+                            if(!myDir.exists())
+                            {
+                                myDir.mkdirs();
+                                Log.d("receve", "Directory not found!");
+                                Log.d("receve", "Making Directory...");
+                            }
+                            String fileName = PersonName +".png";
+                            File imageFile = new File(myDir, fileName);
+                            Log.d("receve", "Making File at Directory...");
+                            FileOutputStream out = new FileOutputStream(imageFile);
+
+                            Bitmap data_bitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
+                            data_bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                            out.flush();
+                            //out.close();
+                            Log.d("receve","Image was wrote successfully.");
                              if(i==NoOfPeople)
                              {dis.close();}
-                            i++;
+                                i++;
+                            Log.d("receve","Iteration:"+i);
+
                         }
                         i=1;
                         while(i<=NoOfPeople)
                         {
-                            ServerCardList.add(new CardData(PersonImages.get(i - 1), PersonNames.get(i - 1), true, 1));
                             Log.d("receve","Adding...");
+                            //ServerCardList.add(new CardData(PersonImages.get(i - 1), PersonNames.get(i - 1), true, 1));
                             i++;
                         }
                      Log.d("receve","Adding to list complete.");
@@ -408,6 +427,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             }
 
     }
+
    private class SyncApp extends AsyncTask<Integer, Integer, Integer>
     {
         Socket skt;
