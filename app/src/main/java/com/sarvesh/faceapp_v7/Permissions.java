@@ -77,7 +77,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     //representing data
     public PermissionAdapter adapter;
     public RecyclerView recyclerView;
-    static List<CardData> CardList = new ArrayList<>();
+    List<CardData> CardList = new ArrayList<>();
     List<CardData> ServerCardList = new ArrayList<>();
     //Refresh with swip down
     //SwipeRefreshLayout swipeRefreshLayout;
@@ -188,7 +188,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                 }
-                adapter.notifyDataSetChanged();
+
             }
         });
 
@@ -346,13 +346,14 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             super.onPostExecute(integer);
             //CardList.clear();
                 //Correct method of Refreshing RecyclerList
+                publishProgress(90);
                 adapter = new PermissionAdapter(ServerCardList, getApplicationContext(), Permissions.this);
                 recyclerView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
-
+                publishProgress(100);
                 //bad method of Refreshing RecyclerList
                 //CardList.addAll(ServerCardList);
-               // adapter.notifyDataSetChanged();
+                //adapter.notifyDataSetChanged();
         }
 
         int NoOfPeople;
@@ -374,15 +375,18 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         }
                     }
 
+                    publishProgress(10);
                     //sending delimiter
                     Log.d("receve", "sending delimiter.");
                     printWriter.write("?RETREV");
                     printWriter.flush();
 
+                    publishProgress(20);
                     //recieve no of people
                     NoOfPeople = Integer.parseInt(mBufferIn.readLine());
                     Log.d("receve", "no of people are:" + NoOfPeople);
 
+                    publishProgress(30);
                     //prepare storage
                     int i = 1;
                     String PersonName = null;
@@ -391,6 +395,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     int PersonPhotoSize = 0;
                     PersonPhotoSizes = new ArrayList<>();
 
+                    publishProgress(40);
                     //recieving person names.
                     while (i <= NoOfPeople) {
                         PersonName = String.valueOf(mBufferIn.readLine());
@@ -399,6 +404,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     }
                     Log.d("receve", "Names are:" + PersonNames);
 
+                    publishProgress(50);
                     //receving photo sizes.
                     i=1;
                     while (i <= NoOfPeople) {
@@ -444,8 +450,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     e.printStackTrace();
                 }
             }
+            publishProgress(70);
             AddServerData(ServerCardList,NoOfPeople);
-
+            publishProgress(80);
         }
     }
 
@@ -689,7 +696,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-    public void UpdateData(int id, boolean status, byte[] photoBlob, String name, int synced) {
+    public boolean UpdateData(int id, boolean status, byte[] photoBlob, String name, int synced) {
         int statusInt;
         if (status)
             statusInt = 1;
@@ -705,6 +712,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         } else {
             displayShortToast("Something went wrong with updating local DB!");
         }
+        return updateData;
     }
 
     public void DeleteData(int id) {
