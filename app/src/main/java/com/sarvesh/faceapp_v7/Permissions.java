@@ -321,6 +321,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
         @Override
         protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            //CardList.clear();
+            CardList.addAll(ServerCardList);
+            adapter.notifyDataSetChanged();
 
         }
 
@@ -395,7 +399,13 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     DataInputStream dis = new DataInputStream(sin);
 
                     byte[] data = new byte[PersonPhotoSizes.get(i - 1).intValue()];
-                    dis.readFully(data, 0, data.length);
+                    try{
+                        dis.readFully(data, 0, data.length);
+                    } catch (IOException e) {
+                        Log.d("receve", "Failed to retrieve image.");
+                        e.printStackTrace();
+                    }
+
                     Log.d("receve", "Reading of Photo " + i + " is Completed.");
                     ServerCardList.add(new CardData(data,PersonNames.get(i-1),true,1));
                     Log.d("receve", "Saved Photo "+ i +" to DB.");
@@ -408,6 +418,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 }
             }
             AddServerData(ServerCardList,NoOfPeople);
+
         }
     }
     private class SyncApp extends AsyncTask<Integer, Integer, Integer> {
