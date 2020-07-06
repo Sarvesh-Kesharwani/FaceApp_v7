@@ -42,6 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -285,7 +286,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     }
 
     private class GrabCards extends AsyncTask<Integer, Integer, Integer> {
-        Socket skt;
+        Socket skt, skt1;
         PrintWriter printWriter;
         String ToastMessage;
 
@@ -323,6 +324,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
         }
 
+        int NoOfPeople;
+        List<String> PersonNames;
+        List<Integer> PersonPhotoSizes;
+
         void GrabCardsfun() {
             while (skt == null) {
                 try {
@@ -330,8 +335,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     printWriter = new PrintWriter(skt.getOutputStream());
                     InputStream sin = skt.getInputStream();
                     BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-                    DataInputStream dis = new DataInputStream(sin);
-                    FileOutputStream fileout;
 
                     if (!skt.isConnected()) {
                         displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
@@ -346,19 +349,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     printWriter.flush();
 
                     //recieve no of people
-                    int NoOfPeople = Integer.parseInt(mBufferIn.readLine());
+                    NoOfPeople = Integer.parseInt(mBufferIn.readLine());
                     Log.d("receve", "no of people are:" + NoOfPeople);
 
                     //prepare storage
                     int i = 1;
                     String PersonName = null;
-                    List<String> PersonNames = new ArrayList<>();
+                    PersonNames = new ArrayList<>();
 
                     int PersonPhotoSize = 0;
-                    List<Integer> PersonPhotoSizes = new ArrayList<>();
-
-                    byte[] PersonPhotoBytes = null;
-                    List<String> PersonImages = new ArrayList<>();
+                    PersonPhotoSizes = new ArrayList<>();
 
                     //recieving person names.
                     while (i <= NoOfPeople) {
@@ -369,7 +369,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     Log.d("receve", "Names are:" + PersonNames);
 
                     //receving photo sizes.
-                    i = 1;
+                    i=1;
                     while (i <= NoOfPeople) {
                         PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
                         PersonPhotoSizes.add(new Integer(PersonPhotoSize));
@@ -377,119 +377,39 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     }
                     Log.d("receve", "Person photoSizes are:" + String.valueOf(PersonPhotoSizes));
 
-                    //reciving photos
-                    Log.d("receve", "Waiting for photo...");
-                    ServerCardList.clear();
-                    i = 1;
-                    int offset = 0;
-
-                    while (i <= NoOfPeople) {
-                        //receving one photo file
-                        Log.d("receve", "Making PhotoBuffer.");
-                        PersonPhotoBytes = new byte[PersonPhotoSizes.get(i - 1).intValue()];
-                        Log.d("receve", "Buffer size to store this photo is:"+PersonPhotoSizes.get(i - 1).intValue());
-
-                        Log.d("receve", "Recieving Photo from Server in PhotoBuffer.");
-                        byte[] PhotoBuffer = new byte[1024];
-                        int NoOfByteRead = 0;
-                        while(NoOfByteRead < PersonPhotoBytes.length)
-                        {
-                            Log.d("receve", "lopp started...........");
-                            Log.d("receve", "NoOfByteRead: "+NoOfByteRead);
-                            Log.d("receve", "Left Bytes to read is: "+(PersonPhotoBytes.length-NoOfByteRead));
-                            //Log.d("receve", "PhotoBufferLength: "+PhotoBuffer.length);
-
-                            NoOfByteRead += dis.read(PhotoBuffer, 0, Math.min(PhotoBuffer.length, PersonPhotoBytes.length-NoOfByteRead));
-                            Log.d("receve", "NoOfBytesRead for one photo are: "+NoOfByteRead);
-                           /* try{
-                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                                outputStream.write(PhotoBuffer);
-                                PersonPhotoBytes = outputStream.toByteArray();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }*/
-                        }
-                        Log.d("receve", "NoOfTotalBytesRead for one photo are: "+NoOfByteRead);
-
-                        //offset+=PersonPhotoBytes.length-1;
-                        Log.d("receve", "Photo Stroing in DataBase............");
-
-                        ServerCardList.add(new CardData(PersonPhotoBytes, PersonNames.get(i - 1), true, 1));
-
-
-
-
-
-
-
-
-
-                /*        //making file directory
-                        Log.d("receve", "Checking Directory...");
-                        File myDir = new File(Environment.getExternalStorageDirectory() + "/DCIM");//Environment.getExternalStorageDirectory() + "/DCIM"
-                        if (!myDir.exists()) {
-                            Log.d("receve", "Directory not found!");
-                            Log.d("receve", "Making Directory...");
-                            myDir.mkdirs();
-                        }
-                        Log.d("receve", "Directory is already existing.");
-
-                        //making file name
-                        Log.d("receve", "Making FileName.");
-                        String fileName = String.valueOf(PersonNames.get(i - 1)) + ".png";
-                        Log.d("receve", "File Name is: " + fileName);
-
-                        try { //making file with fileDir & fileName
-                            Log.d("receve", "Making File at Directory...");
-                            File imageFile = new File(myDir, fileName);
-                            if (imageFile == null) {
-                                Log.d("receve", "ImageFile is Null!");
-                                break;
-                            }
-                            //putting file in fos
-                            Log.d("receve", "Putting file in FOS.");
-                            fileout = new FileOutputStream(imageFile);
-
-                            //converting ReceivedPhotoBytes to bitmap
-                            Log.d("receve", "Converting PhotoBytes to PhotoBitmap.");
-                            Bitmap PersonPhotoBitmap = BitmapFactory.decodeByteArray(PersonPhotoBytes, 0, PersonPhotoBytes.length);
-
-                            //convert bitmap to file
-                            Log.d("receve", "Compressing PhotoBitmap to File.");
-                            PersonPhotoBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileout);
-                            fileout.flush();
-                            Log.d("receve", "Image was wrote successfully.");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-*/
-
-
-
-
-
-                        if (i == NoOfPeople) {
-                            dis.close();
-                            skt.close();
-                            Log.d("receve", "Connection Closed Successfully.");
-                        }
-                        Log.d("receve", "Iteration: " + i + " Completed.");
-                        i++;
-                    }
-                    Log.d("receve", "Adding to LocalDB....");
-                    AddServerData(ServerCardList, NoOfPeople);
-                    Log.d("receve", "Adding to LocalDB Completed.");
+                    printWriter.close();
+                    mBufferIn.close();
+                    skt.close();
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+
+            int i = 1;
+            while (skt1 == null || i <= NoOfPeople) {
+                try {
+                    skt1 = new Socket(HOST, Port);
+                    InputStream sin = skt1.getInputStream();
+                    DataInputStream dis = new DataInputStream(sin);
+
+                    byte[] data = new byte[PersonPhotoSizes.get(i - 1).intValue()];
+                    dis.readFully(data, 0, data.length);
+                    Log.d("receve", "Reading of Photo " + i + " is Completed.");
+                    ServerCardList.add(new CardData(data,PersonNames.get(i-1),true,1));
+                    Log.d("receve", "Saved Photo "+ i +" to DB.");
+                    i++;
+                    dis.close();
+                    skt1.close();
+                } catch (IOException e) {
+                    System.out.println("Fail");
+                    e.printStackTrace();
+                }
+            }
+            AddServerData(ServerCardList,NoOfPeople);
         }
-
     }
-
     private class SyncApp extends AsyncTask<Integer, Integer, Integer> {
         Socket skt;
         PrintWriter printWriter;
