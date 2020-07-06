@@ -5,8 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.ListAdapter;
 
 import androidx.annotation.Nullable;
 
@@ -106,7 +109,12 @@ public class DatabaseHandler extends SQLiteOpenHelper
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(Col_3,photo);
+
+        Bitmap tempBitmap = BitmapFactory.decodeByteArray(photo,0,photo.length);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        tempBitmap.compress(Bitmap.CompressFormat.PNG,50,buffer);
+
+        contentValues.put(Col_3,buffer.toByteArray());
         contentValues.put(Col_2,name);
         contentValues.put(Col_4,status);
         contentValues.put(Col_5,synced);

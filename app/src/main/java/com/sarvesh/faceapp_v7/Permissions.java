@@ -52,11 +52,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "192.168.43.205";//serveousercontent.com
+    public String HOST = "192.168.43.215";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -174,24 +176,28 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         clearAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor Localdb = mDatabaseHandler.getData();
-                while(Localdb.moveToNext())
-                {
-                    try{
-                        //remove cards from DB one-by-one
-                        mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //update recycler list with new (EMPTY) ArrayList of type CARD
-                    adapter = new PermissionAdapter(new ArrayList<CardData>(), getApplicationContext(), Permissions.this);
-                    recyclerView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
-
+                clearAllCards();
             }
         });
 
+    }
+
+    public void clearAllCards()
+    {
+        mDatabaseHandler = new DatabaseHandler(Permissions.this);
+        Cursor Localdb = mDatabaseHandler.getData();
+        while (Localdb.moveToNext()) {
+            try {
+                //remove cards from DB one-by-one
+                mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        //update recycler list with new (EMPTY) ArrayList of type CARD
+        adapter = new PermissionAdapter(new ArrayList<CardData>(), getApplicationContext(), Permissions.this);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -345,15 +351,16 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             //CardList.clear();
-                //Correct method of Refreshing RecyclerList
-                publishProgress(90);
-                adapter = new PermissionAdapter(ServerCardList, getApplicationContext(), Permissions.this);
-                recyclerView.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
-                publishProgress(100);
-                //bad method of Refreshing RecyclerList
-                //CardList.addAll(ServerCardList);
-                //adapter.notifyDataSetChanged();
+            //Correct method of Refreshing RecyclerList
+            publishProgress(90);
+            CardList.addAll(ServerCardList);
+            adapter = new PermissionAdapter(CardList, getApplicationContext(), Permissions.this);
+            recyclerView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+            publishProgress(100);
+            //bad method of Refreshing RecyclerList
+            //CardList.addAll(ServerCardList);
+            //adapter.notifyDataSetChanged();
         }
 
         int NoOfPeople;
@@ -406,7 +413,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
                     publishProgress(50);
                     //receving photo sizes.
-                    i=1;
+                    i = 1;
                     while (i <= NoOfPeople) {
                         PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
                         PersonPhotoSizes.add(new Integer(PersonPhotoSize));
@@ -432,7 +439,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     DataInputStream dis = new DataInputStream(sin);
 
                     byte[] data = new byte[PersonPhotoSizes.get(i - 1).intValue()];
-                    try{
+                    try {
                         dis.readFully(data, 0, data.length);
                     } catch (IOException e) {
                         Log.d("receve", "Failed to retrieve image.");
@@ -440,8 +447,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     }
 
                     Log.d("receve", "Reading of Photo " + i + " is Completed.");
-                    ServerCardList.add(new CardData(data,PersonNames.get(i-1),true,1));
-                    Log.d("receve", "Saved Photo "+ i +" to DB.");
+                    ServerCardList.add(new CardData(data, PersonNames.get(i - 1), true, 1));
+                    Log.d("receve", "Saved Photo " + i + " to DB.");
                     i++;
                     dis.close();
                     skt1.close();
@@ -451,7 +458,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 }
             }
             publishProgress(70);
-            AddServerData(ServerCardList,NoOfPeople);
+            AddServerData(ServerCardList, NoOfPeople);
             publishProgress(80);
         }
     }
@@ -728,13 +735,13 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     public void AddServerData(List<CardData> ServerCardlist, int NoOfPeople) {
         int i = 1;
 
-        int statusInt;
-        if (ServerCardlist.get(i - 1).PersonPermissionStatus)
-            statusInt = 1;
-        else
-            statusInt = 0;
-
         while (i <= NoOfPeople) {
+            int statusInt;
+            if (ServerCardlist.get(i - 1).PersonPermissionStatus)
+                statusInt = 1;
+            else
+                statusInt = 0;
+
             boolean insertData = mDatabaseHandler.addServerData(ServerCardlist.get(i - 1).PersonPhoto, ServerCardList.get(i - 1).PersonName, statusInt, ServerCardList.get(i - 1).PermissionDataSynced);
             if (insertData) {
                 Log.d("receve", "Server Data Successfully Inserted Locally.");
@@ -743,7 +750,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             }
             i++;
             Log.d("receve", "Server Iteration: " + i);
-            //adapter.notifyDataSetChanged();
         }
     }
 
@@ -755,6 +761,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            mDatabaseHandler = new DatabaseHandler(Permissions.this);
             Cursor Localdb = mDatabaseHandler.getData();
             Localdb.moveToPosition(viewHolder.getAdapterPosition());
             mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
