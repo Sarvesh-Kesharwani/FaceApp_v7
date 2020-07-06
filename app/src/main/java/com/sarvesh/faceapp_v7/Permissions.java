@@ -54,7 +54,7 @@ import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "192.168.43.205";//serveousercontent.com
+    public String HOST = "192.168.43.215";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -399,7 +399,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
                         Log.d("receve", "Photo Stroing in DataBase............");
                         ServerCardList.add(new CardData(PersonPhotoBytes, PersonNames.get(i - 1), true, 1));
-
+                        //AddServerData(PersonPhotoBytes, PersonNames.get(i - 1), true, 1);//******************************************
                       //making file directory
                         Log.d("receve", "Checking Directory...");
                         File myDir = new File(Environment.getDownloadCacheDirectory(),"Person_Photos");//Environment.getExternalStorageDirectory() + "/DCIM"
@@ -447,6 +447,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         Log.d("receve", "Iteration:" + i + "Completed.");
                         i++;
                     }
+
+                    Log.d("receve", "Adding to LocalDB....");
+                    AddServerData(ServerCardList,NoOfPeople);
+                    Log.d("receve", "Adding to LocalDB Completed.");
+
+
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -756,22 +762,32 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-    public void AddServerData(byte[] photo, String name, boolean status, int synced)
+    public void AddServerData(List<CardData> ServerCardlist,int NoOfPeople)
     {
+        int i=1;
+
+
         int statusInt;
-        if(status)
+        if(ServerCardlist.get(i-1).PersonPermissionStatus)
             statusInt = 1;
         else
             statusInt = 0;
 
-        boolean insertData = mDatabaseHandler.addServerData(photo, name, statusInt, synced);
+        while(i<=NoOfPeople)
+        {
+            boolean insertData = mDatabaseHandler.addServerData(ServerCardlist.get(i-1).PersonPhoto, ServerCardList.get(i-1).PersonName, statusInt, ServerCardList.get(i-1).PermissionDataSynced);
+            if(insertData){
+                Log.d("receve", "Server Data Successfully Inserted Locally.");
+            }
+            else{
+                Log.d("receve", "Something went wrong with Server-Local-DB!");
+            }
+            Log.d("receve", "Server Iteration: "+i);
+            i++;
+            Log.d("receve", "Server Iteration: "+i);
+        }
 
-        if(insertData){
-            displayLongToast("Server Data Successfully Inserted Locally.");
-        }
-        else{
-            displayLongToast("Something went wrong with Server-Local-DB!");
-        }
+
     }
 
     ItemTouchHelper.SimpleCallback itemTouchSimpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
@@ -787,7 +803,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
                 CardList.remove(viewHolder.getAdapterPosition());
                 adapter.notifyDataSetChanged();
-
         }
     };
 }
