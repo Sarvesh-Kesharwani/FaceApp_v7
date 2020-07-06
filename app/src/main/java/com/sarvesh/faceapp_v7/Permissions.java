@@ -66,7 +66,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
     //Refresh to grab data from server
     ImageButton refreshButton;
-
+    ImageButton clearAllButton;
     //progress bar
     ProgressBar progressBar;
     public boolean ProgressComplete = false;
@@ -77,7 +77,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     //representing data
     public PermissionAdapter adapter;
     public RecyclerView recyclerView;
-    List<CardData> CardList = new ArrayList<>();
+    static List<CardData> CardList = new ArrayList<>();
     List<CardData> ServerCardList = new ArrayList<>();
     //Refresh with swip down
     //SwipeRefreshLayout swipeRefreshLayout;
@@ -167,6 +167,28 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 } else {
                     displayLongToast("Connect to Internet...");
                 }
+            }
+        });
+
+        clearAllButton = findViewById(R.id.clearAllButton);
+        clearAllButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Cursor Localdb = mDatabaseHandler.getData();
+                while(Localdb.moveToNext())
+                {
+                    try{
+                        //remove cards from DB one-by-one
+                        mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //update recycler list with new (EMPTY) ArrayList of type CARD
+                    adapter = new PermissionAdapter(new ArrayList<CardData>(), getApplicationContext(), Permissions.this);
+                    recyclerView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -323,9 +345,14 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             //CardList.clear();
-            CardList.addAll(ServerCardList);
-            adapter.notifyDataSetChanged();
+                //Correct method of Refreshing RecyclerList
+                adapter = new PermissionAdapter(ServerCardList, getApplicationContext(), Permissions.this);
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
 
+                //bad method of Refreshing RecyclerList
+                //CardList.addAll(ServerCardList);
+               // adapter.notifyDataSetChanged();
         }
 
         int NoOfPeople;
@@ -421,6 +448,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
         }
     }
+
     private class SyncApp extends AsyncTask<Integer, Integer, Integer> {
         Socket skt;
         PrintWriter printWriter;
