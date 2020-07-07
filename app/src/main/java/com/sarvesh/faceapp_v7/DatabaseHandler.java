@@ -14,7 +14,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.almworks.sqlite4java.SQLiteConnection;
+import com.almworks.sqlite4java.SQLiteException;
+import com.almworks.sqlite4java.SQLiteStatement;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,6 +41,10 @@ public class DatabaseHandler extends SQLiteOpenHelper
     private static final String Col_3 = "PHOTO";
     private static final String Col_4 = "STATUS";
     private static final String Col_5 = "SYNCED";
+
+    SQLiteConnection sqLiteConnection=null;
+    SQLiteStatement sqLiteStatement=null;
+
 
     public DatabaseHandler(@Nullable Context context)
     {
@@ -181,7 +190,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String query = "SELECT "+ Col_1 + ", length(Col_3)  FROM " + TABLE_NAME + " WHERE  length(Col_3) > 1000000 ";
+        String query = "SELECT "+ Col_1 + ", length(PHOTO) FROM " + TABLE_NAME + " WHERE  length(PHOTO) > 1000000 ";
         Cursor TargetedRows = db.rawQuery(query, null);
         int TargetRowId;
         int TargetBlobSize;
@@ -192,15 +201,15 @@ public class DatabaseHandler extends SQLiteOpenHelper
         while(TargetedRows.moveToNext())
         {
             TargetRowId = TargetedRows.getInt(TargetedRows.getColumnIndex("ID"));
-            TargetBlobSize = TargetedRows.getBlob(TargetedRows.getColumnIndex("PHOTO")).length;
+            TargetBlobSize = TargetedRows.getInt(1);
             int ReadBlobSize = 0;
             byte[] OnePhotoBytes = new byte[TargetBlobSize];
 
             while(ReadBlobSize < TargetBlobSize)
             {
-                String bringBlob = "SELECT substr(" + Col_3 + ", 1, " + Math.min(1000000, TargetBlobSize-ReadBlobSize) + ") FROM " + TABLE_NAME + "WHERE "+  Col_1+ " = " + TargetRowId;
+                String bringBlob = "SELECT substr(" + Col_3 + ", 1, " + Math.min(1000000, TargetBlobSize-ReadBlobSize) + ") FROM " + TABLE_NAME + " WHERE "+  Col_1+ " = " + TargetRowId;
                 Cursor temp_Cursor = db.rawQuery(bringBlob,null);
-                String BlobPartString = temp_Cursor.getString(temp_Cursor.getColumnIndex("PHOTO"));
+                String BlobPartString = temp_Cursor.getString(temp_Cursor.getColumnIndexOrThrow("substr(PHOTO, 1, 1000000)")+1);
                 temp_Cursor.close();
                 ReadBlobSize += BlobPartString.length();
                 byte[] tempBytes = new byte[BlobPartString.length()];
@@ -222,6 +231,40 @@ public class DatabaseHandler extends SQLiteOpenHelper
     {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_NAME;
+        Cursor data = db.rawQuery(query, null);
+        return data;
+    }
+
+    public byte[] get4Data(int id, Context context) {
+        try
+        {
+            File databaseFile = context.getDatabasePath("RpiDb.db");
+            sqLiteConnection=new SQLiteConnection(databaseFile);
+            sqLiteConnection.open();
+            sqLiteStatement=sqLiteConnection.prepare("SELECT PHOTO FROM members_data WHERE id="+id);
+            //sqLiteStatement.bind(1, id);
+            sqLiteStatement.step();
+
+            return sqLiteStatement.columnBlob(0);
+
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        } finally
+        {
+            if(sqLiteStatement!=null)
+                sqLiteStatement.dispose();
+            if(sqLiteConnection!=null)
+                sqLiteConnection.dispose();
+        }
+
+        return null;
+    }
+
+
+    public Cursor getCursorExceptBlob()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT ID , NAME , STATUS , SYNCED  FROM " + TABLE_NAME;
         Cursor data = db.rawQuery(query, null);
         return data;
     }

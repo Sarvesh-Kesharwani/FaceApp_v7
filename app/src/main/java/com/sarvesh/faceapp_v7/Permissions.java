@@ -2,7 +2,12 @@ package com.sarvesh.faceapp_v7;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -23,9 +28,11 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.almworks.sqlite4java.SQLiteConnection;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -36,6 +43,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
@@ -69,6 +77,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     DatabaseHandler mDatabaseHandler;
     //DownlodCould
     boolean CloudSyncComplete = false;
+
+    SQLiteConnection sqLiteConnection=null;
+    SQLiteStatement sqLiteStatement=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +136,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         mDatabaseHandler = new DatabaseHandler(this);
         //RecyclerView Code
         try {
-            CardList = getData();
+            CardList = get4Data();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -204,6 +215,55 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         while (data.moveToNext()) {
             String name = data.getString(data.getColumnIndex("NAME"));
             byte[] photo_image = data.getBlob(data.getColumnIndex("PHOTO"));
+
+            boolean status = false;
+            if (data.getInt(data.getColumnIndex("STATUS")) == 1)
+                status = true;
+            else if (data.getInt(data.getColumnIndex("STATUS")) == 0)
+                status = false;
+            else
+                Log.d("status", "INvalid status input!");
+            int Synced = data.getInt(data.getColumnIndex("SYNCED"));
+
+            //displayShortToast("Data Retreived Successfully From LocalDB.");
+            list.add(new CardData(photo_image, name, status, Synced));
+        }
+        return list;
+    }
+
+    private List<CardData> get4Data() {
+        List<CardData> list = new ArrayList<>();
+        //get data from localDB
+        Cursor data = mDatabaseHandler.getCursorExceptBlob();
+
+        if (data == null) {
+            displayShortToast("database ref is empty!");
+            return null;
+        }
+        if (data.getCount() == 0) {
+            displayShortToast("No Members Found!");
+            return null;
+        }
+
+        //converting .db file into list, which will be passed to recycler view in OnCreate().
+        while (data.moveToNext()) {
+            String name = data.getString(data.getColumnIndex("NAME"));
+
+            int index = data.getInt(data.getColumnIndex("ID"));
+            Log.d("4lite","index is: "+index);
+
+            byte[] photo_image = mDatabaseHandler.get4Data(index,Permissions.this);
+
+            if(photo_image == null)
+            {
+                Resources res = getResources();
+                Drawable drawable = res.getDrawable(R.drawable.avatar);
+                Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] bitMapData = stream.toByteArray();
+                photo_image = bitMapData;
+            }
 
             boolean status = false;
             if (data.getInt(data.getColumnIndex("STATUS")) == 1)
