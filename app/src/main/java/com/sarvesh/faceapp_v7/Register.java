@@ -1,10 +1,12 @@
 package com.sarvesh.faceapp_v7;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,6 +31,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
@@ -67,6 +71,8 @@ public class Register extends AppCompatActivity {
     //database handler
     DatabaseHandler mDatabaseHandler;
 
+    private static final int CAMERA_PERMISSION_CODE = 100;
+    private static final int STORAGE_PERMISSION_CODE = 101;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -119,6 +125,8 @@ public class Register extends AppCompatActivity {
         final Button uploadPhotoButton = findViewById(R.id.uploadPhotoButton);
         uploadPhotoButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
+                checkPermission(Manifest.permission.CAMERA,
+                        CAMERA_PERMISSION_CODE);
                 /*Intent intent = new Intent(MediaStore.ACTION_PICK);
                 intent.setType("image/*");
                 startActivityForResult(intent, SELECT_PHOTO);*/
@@ -158,6 +166,79 @@ public class Register extends AppCompatActivity {
                     return false;
                 }
             });
+
+        //Ask for camera permissions
+        checkPermission(Manifest.permission.CAMERA,
+                CAMERA_PERMISSION_CODE);
+    }
+
+    // Function to check and request permission.
+    public void checkPermission(String permission, int requestCode)
+    {
+        if (ContextCompat.checkSelfPermission(Register.this, permission)
+                == PackageManager.PERMISSION_DENIED) {
+
+            // Requesting the permission
+            ActivityCompat.requestPermissions(Register.this,
+                    new String[] { permission },
+                    requestCode);
+        }
+        else {
+            Toast.makeText(Register.this,
+                    "Permission already granted",
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
+    // This function is called when the user accepts or decline the permission.
+    // Request Code is used to check which permission called this function.
+    // This request code is provided when the user is prompt for permission.
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        super
+                .onRequestPermissionsResult(requestCode,
+                        permissions,
+                        grantResults);
+
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(Register.this,
+                        "Camera Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else {
+                Toast.makeText(Register.this,
+                        "Camera Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+        else if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(Register.this,
+                        "Storage Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                Log.d("receve","Storage Permission Granted");
+
+            }
+            else {
+                Toast.makeText(Register.this,
+                        "Storage Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                Log.d("receve","Storage Permission Denied");
+
+            }
+        }
     }
 
     @Override
@@ -209,7 +290,7 @@ public class Register extends AppCompatActivity {
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }

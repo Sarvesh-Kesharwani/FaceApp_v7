@@ -1,22 +1,15 @@
 package com.sarvesh.faceapp_v7;
 
-import android.app.Person;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -30,35 +23,23 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "192.168.43.215";//serveousercontent.com
+    public String HOST = "serveousercontent.com";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -148,7 +129,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         } catch (Exception e) {
             e.printStackTrace();
         }
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar2);
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         adapter = new PermissionAdapter(CardList, getApplicationContext(), this);
@@ -239,6 +220,60 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         return list;
     }
 
+    private List<CardData> getNewData() {
+        List<CardData> list = new ArrayList<>();
+        //get data from localDB
+        CursorData cursorData = mDatabaseHandler.getNewData();
+        List<byte[]> ListOfPhotoByteArrays = cursorData.ListOfPhotoByteArrays;
+        List<Integer> ListOfPhotoIDs = cursorData.ListOfPhotoIDs;
+        Cursor data = cursorData.cursor;
+
+        if (cursorData == null) {
+            displayShortToast("database ref is empty!");
+            return null;
+        }
+
+        //converting .db file into list, which will be passed to recycler view in OnCreate().
+        while (data.moveToNext()) {
+            int i = 0;
+            boolean PhotoIsLarge = false;
+            while( i != ListOfPhotoIDs.size())
+            {
+                if(data.getInt(data.getColumnIndex("ID")) == ListOfPhotoIDs.get(i).intValue())
+                {
+                    PhotoIsLarge = true;
+                    break;
+                }
+                i++;
+            }
+            byte[] photo_image;
+            if(PhotoIsLarge == true)
+            {
+                int LargePhotoID = i;
+                photo_image = ListOfPhotoByteArrays.get(LargePhotoID);
+            }
+            else
+            {
+                photo_image = data.getBlob(data.getColumnIndex("PHOTO"));
+            }
+
+            String name = data.getString(data.getColumnIndex("NAME"));
+
+
+            boolean status = false;
+            if (data.getInt(data.getColumnIndex("STATUS")) == 1)
+                status = true;
+            else if (data.getInt(data.getColumnIndex("STATUS")) == 0)
+                status = false;
+            else
+                Log.d("status", "INvalid status input!");
+            int Synced = data.getInt(data.getColumnIndex("SYNCED"));
+
+            //displayShortToast("Data Retreived Successfully From LocalDB.");
+            list.add(new CardData(photo_image, name, status, Synced));
+        }
+        return list;
+    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -353,8 +388,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             //CardList.clear();
             //Correct method of Refreshing RecyclerList
             publishProgress(90);
-            CardList.addAll(ServerCardList);
-            adapter = new PermissionAdapter(CardList, getApplicationContext(), Permissions.this);
+            //CardList.addAll(ServerCardList);
+            adapter = new PermissionAdapter(ServerCardList, getApplicationContext(), Permissions.this);
             recyclerView.setAdapter(adapter);
             adapter.notifyDataSetChanged();
             publishProgress(100);

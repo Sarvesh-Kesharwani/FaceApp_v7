@@ -3,28 +3,25 @@ package com.sarvesh.faceapp_v7;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
+public class UnknownAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
 
     List<CardData> list;
     Context context;
-    private RecyclerViewClickInterface mOnSyncListener;
+    private UnknownRecyclerViewClickInterface mOnSyncListener;
 
-    public PermissionAdapter(List<CardData> list, Context context, RecyclerViewClickInterface mOnSyncListener)
+    public UnknownAdapter(List<CardData> list, Context context, UnknownRecyclerViewClickInterface mOnSyncListener)
     {
         this.list = list;
         this.context = context;
-        //this.mOnSyncListener = mOnSyncListener;
+        this.mOnSyncListener = mOnSyncListener;
     }
 
     @Override
@@ -34,10 +31,11 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the layout
-        View photoView = inflater.inflate(R.layout.permission_card,parent, false);//converted xml file into a view buy inflating it.
+        View photoView = inflater.inflate(R.layout.unknown_card,parent, false);//converted xml file into a view buy inflating it.
 
-        PermissionViewHolder viewHolder = new PermissionViewHolder(photoView, mOnSyncListener);//giving inflated view to viewHolder
-        return viewHolder;
+        //PermissionViewHolder viewHolder = new UnknownViewHolder(photoView, mOnSyncListener);//giving inflated view to viewHolder
+        //return viewHolder;
+        return null;
     }
 
     //now my viewHolder will set values to views inside inflated-view which my viewHolder is containing.

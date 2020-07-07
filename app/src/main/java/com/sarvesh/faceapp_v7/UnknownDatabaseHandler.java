@@ -5,39 +5,28 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.ListAdapter;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Blob;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 
-public class DatabaseHandler extends SQLiteOpenHelper
+public class UnknownDatabaseHandler extends SQLiteOpenHelper
 {
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "RpiDb.db";
+    private static final String DATABASE_NAME = "UnknownActivityDatabase.db";
     private static final String TABLE_NAME = "members_data";
 
     private static final String Col_1 = "ID";
     private static final String Col_2 = "NAME";
     private static final String Col_3 = "PHOTO";
-    private static final String Col_4 = "STATUS";
-    private static final String Col_5 = "SYNCED";
 
-    public DatabaseHandler(@Nullable Context context)
+    public UnknownDatabaseHandler(@Nullable Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -45,14 +34,12 @@ public class DatabaseHandler extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        Log.d("receve","database created.");
-        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " BLOB, " + Col_4 + " INTEGER ," + Col_5 + " INTEGER )");
+        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " BLOB ) ");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1)
     {
-        Log.d("receve","database not found and created.");
         db.execSQL(" DROP IF TABLE EXISTS " + TABLE_NAME);
         onCreate(db);
     }
@@ -69,7 +56,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return byteBuffer.toByteArray();
     }
 
-    public boolean addData(Uri photo_path, String name, int status, int synced, Context context)
+    public boolean addData(Uri photo_path, String name, Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -84,8 +71,6 @@ public class DatabaseHandler extends SQLiteOpenHelper
             contentValues.put(Col_3,imgbyte);
 
             contentValues.put(Col_2,name);
-            contentValues.put(Col_4,status);
-            contentValues.put(Col_5,synced);
             result = db.insert(TABLE_NAME, null, contentValues);
 
             if(result == -1)
@@ -109,7 +94,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         }
     }
 
-    public boolean addServerData(byte[] photo, String name, int status, int synced)
+    public boolean addServerData(byte[] photo, String name)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -125,8 +110,6 @@ public class DatabaseHandler extends SQLiteOpenHelper
         }*/
         contentValues.put(Col_3,photo);
         contentValues.put(Col_2,name);
-        contentValues.put(Col_4,status);
-        contentValues.put(Col_5,synced);
         result = db.insert(TABLE_NAME, null, contentValues);
 
         if(result == -1)
@@ -141,7 +124,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     }
 
-    public boolean updateData(int id, byte[] photoBlob, String name, int status, int synced)
+    public boolean updateData(int id, byte[] photoBlob, String name)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -149,8 +132,6 @@ public class DatabaseHandler extends SQLiteOpenHelper
         contentValues.put(Col_1,id);
         contentValues.put(Col_2,name);
         contentValues.put(Col_3,photoBlob);
-        contentValues.put(Col_4,status);
-        contentValues.put(Col_5,synced);
         result = db.update(TABLE_NAME, contentValues, "ID = ?", new String[] { String.valueOf(id) });
 
         if(result == -1)
@@ -177,47 +158,6 @@ public class DatabaseHandler extends SQLiteOpenHelper
         { return true;}
     }
 
-    public CursorData getNewData()
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String query = "SELECT "+ Col_1 + ", length(Col_3)  FROM " + TABLE_NAME + " WHERE  length(Col_3) > 1000000 ";
-        Cursor TargetedRows = db.rawQuery(query, null);
-        int TargetRowId;
-        int TargetBlobSize;
-
-        List<byte[]> ListOfPhotoByteArrays = new ArrayList<>();
-        List<Integer> ListOfPhotoIDs = new ArrayList<>();
-
-        while(TargetedRows.moveToNext())
-        {
-            TargetRowId = TargetedRows.getInt(TargetedRows.getColumnIndex("ID"));
-            TargetBlobSize = TargetedRows.getBlob(TargetedRows.getColumnIndex("PHOTO")).length;
-            int ReadBlobSize = 0;
-            byte[] OnePhotoBytes = new byte[TargetBlobSize];
-
-            while(ReadBlobSize < TargetBlobSize)
-            {
-                String bringBlob = "SELECT substr(" + Col_3 + ", 1, " + Math.min(1000000, TargetBlobSize-ReadBlobSize) + ") FROM " + TABLE_NAME + "WHERE "+  Col_1+ " = " + TargetRowId;
-                Cursor temp_Cursor = db.rawQuery(bringBlob,null);
-                String BlobPartString = temp_Cursor.getString(temp_Cursor.getColumnIndex("PHOTO"));
-                temp_Cursor.close();
-                ReadBlobSize += BlobPartString.length();
-                byte[] tempBytes = new byte[BlobPartString.length()];
-                tempBytes = BlobPartString.getBytes();
-                System.arraycopy(tempBytes, 0, OnePhotoBytes, 0, tempBytes.length);
-            }
-            ListOfPhotoByteArrays.add(OnePhotoBytes);
-            ListOfPhotoIDs.add(new Integer(TargetRowId));
-        }
-
-
-        String query1 = "SELECT * FROM " + TABLE_NAME;
-        Cursor data = db.rawQuery(query1, null);
-        //return data;
-        return new CursorData(data, ListOfPhotoByteArrays, ListOfPhotoIDs);
-    }
-
     public Cursor getData()
     {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -225,4 +165,5 @@ public class DatabaseHandler extends SQLiteOpenHelper
         Cursor data = db.rawQuery(query, null);
         return data;
     }
+
 }
