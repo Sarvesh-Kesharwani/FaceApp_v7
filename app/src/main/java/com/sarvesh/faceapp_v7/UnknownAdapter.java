@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.List;
 
 public class UnknownAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
@@ -42,9 +44,11 @@ public class UnknownAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
     @Override
     public void onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
     {
-        byte [] imageByteArray = list.get(position).PersonPhoto;
-        Bitmap imageBitmap = BitmapFactory.decodeByteArray(imageByteArray,0,imageByteArray.length);
-        viewHolder.PersonPhotoImageView.setImageBitmap(imageBitmap);
+        byte[] Photo_bytes = list.get(position).PersonPhoto;
+
+        Bitmap bitmap = BitmapFactory.decodeByteArray(Photo_bytes , 0, Photo_bytes .length);
+
+        viewHolder.PersonPhotoImageView.setImageBitmap(bitmap);
 
         viewHolder.PersonNameTextView.setText(list.get(position).PersonName);
         viewHolder.PersonPermissionStatusSwitch.setChecked(list.get(position).PersonPermissionStatus);

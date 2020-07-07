@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -35,6 +36,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -132,11 +136,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             connected = false;
         }
 
-
         mDatabaseHandler = new DatabaseHandler(this);
         //RecyclerView Code
         try {
-            CardList = get4Data();
+            CardList = getData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,164 +195,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         adapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    private List<CardData> getData() {
-        List<CardData> list = new ArrayList<>();
-        //get data from localDB
-        Cursor data = mDatabaseHandler.getData();
-
-        if (data == null) {
-            displayShortToast("database ref is empty!");
-            return null;
-        }
-        if (data.getCount() == 0) {
-            displayShortToast("No Members Found!");
-            return null;
-        }
-
-        //converting .db file into list, which will be passed to recycler view in OnCreate().
-        while (data.moveToNext()) {
-            String name = data.getString(data.getColumnIndex("NAME"));
-            byte[] photo_image = data.getBlob(data.getColumnIndex("PHOTO"));
-
-            boolean status = false;
-            if (data.getInt(data.getColumnIndex("STATUS")) == 1)
-                status = true;
-            else if (data.getInt(data.getColumnIndex("STATUS")) == 0)
-                status = false;
-            else
-                Log.d("status", "INvalid status input!");
-            int Synced = data.getInt(data.getColumnIndex("SYNCED"));
-
-            //displayShortToast("Data Retreived Successfully From LocalDB.");
-            list.add(new CardData(photo_image, name, status, Synced));
-        }
-        return list;
-    }
-
-    private List<CardData> get4Data() {
-        List<CardData> list = new ArrayList<>();
-        //get data from localDB
-        Cursor data = mDatabaseHandler.getCursorExceptBlob();
-
-        if (data == null) {
-            displayShortToast("database ref is empty!");
-            return null;
-        }
-        if (data.getCount() == 0) {
-            displayShortToast("No Members Found!");
-            return null;
-        }
-
-        //converting .db file into list, which will be passed to recycler view in OnCreate().
-        while (data.moveToNext()) {
-            String name = data.getString(data.getColumnIndex("NAME"));
-
-            int index = data.getInt(data.getColumnIndex("ID"));
-            Log.d("4lite","index is: "+index);
-
-            byte[] photo_image = mDatabaseHandler.get4Data(index,Permissions.this);
-
-            if(photo_image == null)
-            {
-                Resources res = getResources();
-                Drawable drawable = res.getDrawable(R.drawable.avatar);
-                Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] bitMapData = stream.toByteArray();
-                photo_image = bitMapData;
-            }
-
-            boolean status = false;
-            if (data.getInt(data.getColumnIndex("STATUS")) == 1)
-                status = true;
-            else if (data.getInt(data.getColumnIndex("STATUS")) == 0)
-                status = false;
-            else
-                Log.d("status", "INvalid status input!");
-            int Synced = data.getInt(data.getColumnIndex("SYNCED"));
-
-            //displayShortToast("Data Retreived Successfully From LocalDB.");
-            list.add(new CardData(photo_image, name, status, Synced));
-        }
-        return list;
-    }
-
-    private List<CardData> getNewData() {
-        List<CardData> list = new ArrayList<>();
-        //get data from localDB
-        CursorData cursorData = mDatabaseHandler.getNewData();
-        List<byte[]> ListOfPhotoByteArrays = cursorData.ListOfPhotoByteArrays;
-        List<Integer> ListOfPhotoIDs = cursorData.ListOfPhotoIDs;
-        Cursor data = cursorData.cursor;
-
-        if (cursorData == null) {
-            displayShortToast("database ref is empty!");
-            return null;
-        }
-
-        //converting .db file into list, which will be passed to recycler view in OnCreate().
-        while (data.moveToNext()) {
-            int i = 0;
-            boolean PhotoIsLarge = false;
-            while( i != ListOfPhotoIDs.size())
-            {
-                if(data.getInt(data.getColumnIndex("ID")) == ListOfPhotoIDs.get(i).intValue())
-                {
-                    PhotoIsLarge = true;
-                    break;
-                }
-                i++;
-            }
-            byte[] photo_image;
-            if(PhotoIsLarge == true)
-            {
-                int LargePhotoID = i;
-                photo_image = ListOfPhotoByteArrays.get(LargePhotoID);
-            }
-            else
-            {
-                photo_image = data.getBlob(data.getColumnIndex("PHOTO"));
-            }
-
-            String name = data.getString(data.getColumnIndex("NAME"));
 
 
-            boolean status = false;
-            if (data.getInt(data.getColumnIndex("STATUS")) == 1)
-                status = true;
-            else if (data.getInt(data.getColumnIndex("STATUS")) == 0)
-                status = false;
-            else
-                Log.d("status", "INvalid status input!");
-            int Synced = data.getInt(data.getColumnIndex("SYNCED"));
-
-            //displayShortToast("Data Retreived Successfully From LocalDB.");
-            list.add(new CardData(photo_image, name, status, Synced));
-        }
-        return list;
-    }
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void displayLongToast(String ToastMessage) {
-        Toast.makeText(Permissions.this, ToastMessage, Toast.LENGTH_LONG).show();
-    }
-
-    private void displayShortToast(String ToastMessage) {
-        Toast.makeText(Permissions.this, ToastMessage, Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     public void onSyncClick(int position) {
@@ -374,39 +221,20 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             Log.d("status", "Old Status is:" + String.valueOf(Localdb.getInt(Localdb.getInt(Localdb.getColumnIndex("STATUS")))));
             UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                     false,
-                    Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
+                    Localdb.getString(Localdb.getColumnIndex("PHOTO")),
                     Localdb.getString(Localdb.getColumnIndex("NAME")),
                     0);
         } else {
             UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                     true,
-                    Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
+                    Localdb.getString(Localdb.getColumnIndex("PHOTO")),
                     Localdb.getString(Localdb.getColumnIndex("NAME")),
                     0);
         }
     }
 
-    class MyAndroidThread implements Runnable {
-        AppCompatActivity activity;
-        String command;
 
-        public MyAndroidThread(AppCompatActivity activity, String Command) {
-            this.activity = activity;
-            command = Command;
-        }
 
-        @Override
-        public void run() {
-
-            //perform heavy task here and finally update the UI with result this way -
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getApplicationContext(), command, Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
 
     private class GrabCards extends AsyncTask<Integer, Integer, Integer> {
         Socket skt, skt1;
@@ -627,7 +455,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                         Log.d("status", "SYNCED was 0");
                                         UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                                                 false,
-                                                Localdb.getBlob(Localdb.getColumnIndex("PHOTO")),
+                                                Localdb.getString(Localdb.getColumnIndex("PHOTO")),
                                                 Localdb.getString(Localdb.getColumnIndex("NAME")),
                                                 1);
                                     }
@@ -798,7 +626,31 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-    public boolean UpdateData(int id, boolean status, byte[] photoBlob, String name, int synced) {
+
+
+    public void AddServerData(List<CardData> ServerCardlist, int NoOfPeople) {
+        int i = 1;
+
+        while (i <= NoOfPeople) {
+            int statusInt;
+            if (ServerCardlist.get(i - 1).PersonPermissionStatus)
+                statusInt = 1;
+            else
+                statusInt = 0;
+
+            boolean insertData = mDatabaseHandler.addServerData(ServerCardlist.get(i - 1).PersonPhoto, ServerCardList.get(i - 1).PersonName, statusInt, ServerCardList.get(i - 1).PermissionDataSynced, this);
+            if (insertData) {
+                Log.d("receve", "Server Data Successfully Inserted Locally.");
+            } else {
+                Log.d("receve", "Something went wrong with Server-Local-DB!");
+            }
+            i++;
+            Log.d("receve", "Server Iteration: " + i);
+        }
+
+    }
+
+    public boolean UpdateData(int id, boolean status, String photoBlob, String name, int synced) {
         int statusInt;
         if (status)
             statusInt = 1;
@@ -827,25 +679,98 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-    public void AddServerData(List<CardData> ServerCardlist, int NoOfPeople) {
-        int i = 1;
+    private List<CardData> getData() {
+        List<CardData> list = new ArrayList<>();
+        //get data from localDB
+        Cursor data = mDatabaseHandler.getData();
 
-        while (i <= NoOfPeople) {
-            int statusInt;
-            if (ServerCardlist.get(i - 1).PersonPermissionStatus)
-                statusInt = 1;
-            else
-                statusInt = 0;
-
-            boolean insertData = mDatabaseHandler.addServerData(ServerCardlist.get(i - 1).PersonPhoto, ServerCardList.get(i - 1).PersonName, statusInt, ServerCardList.get(i - 1).PermissionDataSynced);
-            if (insertData) {
-                Log.d("receve", "Server Data Successfully Inserted Locally.");
-            } else {
-                Log.d("receve", "Something went wrong with Server-Local-DB!");
-            }
-            i++;
-            Log.d("receve", "Server Iteration: " + i);
+        if (data == null) {
+            displayShortToast("database ref is empty!");
+            return null;
         }
+        if (data.getCount() == 0) {
+            displayShortToast("No Members Found!");
+            return null;
+        }
+
+        //converting .db file into list, which will be passed to recycler view in OnCreate().
+        while (data.moveToNext()) {
+            String name = data.getString(data.getColumnIndex("NAME"));
+            String photo_path = data.getString(data.getColumnIndex("PHOTO"));
+
+            boolean status = false;
+            if (data.getInt(data.getColumnIndex("STATUS")) == 1)
+                status = true;
+            else if (data.getInt(data.getColumnIndex("STATUS")) == 0)
+                status = false;
+            else
+                Log.d("status", "INvalid status input!");
+            int Synced = data.getInt(data.getColumnIndex("SYNCED"));
+
+            //displayShortToast("Data Retreived Successfully From LocalDB.");
+            File imagefile = new File(photo_path);
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(imagefile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Bitmap bm = BitmapFactory.decodeStream(fis);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bm.compress(Bitmap.CompressFormat.PNG, 0 , baos);
+            byte[] b = baos.toByteArray();
+            list.add(new CardData(b, name, status, Synced));
+        }
+        return list;
+    }
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    class MyAndroidThread implements Runnable {
+        AppCompatActivity activity;
+        String command;
+
+        public MyAndroidThread(AppCompatActivity activity, String Command) {
+            this.activity = activity;
+            command = Command;
+        }
+
+        @Override
+        public void run() {
+
+            //perform heavy task here and finally update the UI with result this way -
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), command, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void displayLongToast(String ToastMessage) {
+        Toast.makeText(Permissions.this, ToastMessage, Toast.LENGTH_LONG).show();
+    }
+
+    private void displayShortToast(String ToastMessage) {
+        Toast.makeText(Permissions.this, ToastMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     ItemTouchHelper.SimpleCallback itemTouchSimpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {

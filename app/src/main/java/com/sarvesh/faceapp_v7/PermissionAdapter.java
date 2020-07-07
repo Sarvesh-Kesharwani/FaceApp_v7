@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.File;
 import java.util.List;
 
 public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
@@ -44,10 +45,17 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
     @Override
     public void onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
     {
-        byte [] imageByteArray = list.get(position).PersonPhoto;
-        Bitmap imageBitmap = BitmapFactory.decodeByteArray(imageByteArray,0,imageByteArray.length);
-        viewHolder.PersonPhotoImageView.setImageBitmap(imageBitmap);
+        byte[] image_bytes = list.get(position).PersonPhoto;
 
+        /*File imgFile = new File(image_path);
+
+        if(imgFile.exists())
+        {
+            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            viewHolder.PersonPhotoImageView.setImageBitmap(myBitmap);
+        }*/
+        Bitmap bitmap = BitmapFactory.decodeByteArray(image_bytes, 0, image_bytes.length);
+        viewHolder.PersonPhotoImageView.setImageBitmap(bitmap);
         viewHolder.PersonNameTextView.setText(list.get(position).PersonName);
         viewHolder.PersonPermissionStatusSwitch.setChecked(list.get(position).PersonPermissionStatus);
 

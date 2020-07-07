@@ -2,12 +2,14 @@ package com.sarvesh.faceapp_v7;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.ListAdapter;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
@@ -55,7 +58,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         Log.d("receve","database created.");
-        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " BLOB, " + Col_4 + " INTEGER ," + Col_5 + " INTEGER )");
+        db.execSQL("create table " + TABLE_NAME + " ( "+ Col_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Col_2 + " TEXT, " + Col_3 + " TEXT, " + Col_4 + " INTEGER ," + Col_5 + " INTEGER )");
     }
 
     @Override
@@ -66,73 +69,56 @@ public class DatabaseHandler extends SQLiteOpenHelper
         onCreate(db);
     }
 
-    public byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
-        }
-        return byteBuffer.toByteArray();
-    }
-
-    public boolean addData(Uri photo_path, String name, int status, int synced, Context context)
+    public boolean addData(String photo_path, String name, int status, int synced, Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
-        try{
 
-            Log.d("mdatabase","uri path is:"+photo_path);
+        ContentValues contentValues = new ContentValues();
+        //contentValues.put(Col_3, String.valueOf(photo_path));
+        contentValues.put(Col_3, photo_path);
+        contentValues.put(Col_2,name);
+        contentValues.put(Col_4,status);
+        contentValues.put(Col_5,synced);
+        result = db.insert(TABLE_NAME, null, contentValues);
 
-            InputStream iStream =   context.getContentResolver().openInputStream(photo_path);
-            byte[] imgbyte = getBytes(iStream);
-
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(Col_3,imgbyte);
-
-            contentValues.put(Col_2,name);
-            contentValues.put(Col_4,status);
-            contentValues.put(Col_5,synced);
-            result = db.insert(TABLE_NAME, null, contentValues);
-
-            if(result == -1)
-            {
-                Log.d("mdatabase","result is -1");
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("mdatabase","fileIO error");
+        if(result == -1)
+        {
+            Log.d("mdatabase","result is -1");
             return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d("mdatabase","io error");
-            return false;
+        }
+        else
+        {
+            return true;
         }
     }
 
-    public boolean addServerData(byte[] photo, String name, int status, int synced)
+    public boolean addServerData(byte[] photo, String name, int status, int synced,Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        /*Bitmap tempBitmap = BitmapFactory.decodeByteArray(photo,0,photo.length);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        tempBitmap.compress(Bitmap.CompressFormat.PNG,50,buffer);
-        contentValues.put(Col_3,buffer.toByteArray());
+        ContextWrapper cw = new ContextWrapper(context.getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDatabase", Context.MODE_PRIVATE);
+        // Create imageDir
+        File photoFile = new File(directory,name + ".png");
 
-        try{buffer.close();} catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        contentValues.put(Col_3,photo);
+        if (photoFile.exists()) {
+            photoFile.delete();
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(photoFile.getPath());
+            fos.write(photo);
+            fos.close();
+        }
+        catch (java.io.IOException e) {
+            Log.e("PictureDemo", "Exception in photoCallback", e);
+        }
+
+        contentValues.put(Col_3,photoFile.getPath());
+        //contentValues.put(Col_3,photo);
         contentValues.put(Col_2,name);
         contentValues.put(Col_4,status);
         contentValues.put(Col_5,synced);
@@ -150,7 +136,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     }
 
-    public boolean updateData(int id, byte[] photoBlob, String name, int status, int synced)
+    public boolean updateData(int id, String photoBlob, String name, int status, int synced)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -186,47 +172,6 @@ public class DatabaseHandler extends SQLiteOpenHelper
         { return true;}
     }
 
-    public CursorData getNewData()
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String query = "SELECT "+ Col_1 + ", length(PHOTO) FROM " + TABLE_NAME + " WHERE  length(PHOTO) > 1000000 ";
-        Cursor TargetedRows = db.rawQuery(query, null);
-        int TargetRowId;
-        int TargetBlobSize;
-
-        List<byte[]> ListOfPhotoByteArrays = new ArrayList<>();
-        List<Integer> ListOfPhotoIDs = new ArrayList<>();
-
-        while(TargetedRows.moveToNext())
-        {
-            TargetRowId = TargetedRows.getInt(TargetedRows.getColumnIndex("ID"));
-            TargetBlobSize = TargetedRows.getInt(1);
-            int ReadBlobSize = 0;
-            byte[] OnePhotoBytes = new byte[TargetBlobSize];
-
-            while(ReadBlobSize < TargetBlobSize)
-            {
-                String bringBlob = "SELECT substr(" + Col_3 + ", 1, " + Math.min(1000000, TargetBlobSize-ReadBlobSize) + ") FROM " + TABLE_NAME + " WHERE "+  Col_1+ " = " + TargetRowId;
-                Cursor temp_Cursor = db.rawQuery(bringBlob,null);
-                String BlobPartString = temp_Cursor.getString(temp_Cursor.getColumnIndexOrThrow("substr(PHOTO, 1, 1000000)")+1);
-                temp_Cursor.close();
-                ReadBlobSize += BlobPartString.length();
-                byte[] tempBytes = new byte[BlobPartString.length()];
-                tempBytes = BlobPartString.getBytes();
-                System.arraycopy(tempBytes, 0, OnePhotoBytes, 0, tempBytes.length);
-            }
-            ListOfPhotoByteArrays.add(OnePhotoBytes);
-            ListOfPhotoIDs.add(new Integer(TargetRowId));
-        }
-
-
-        String query1 = "SELECT * FROM " + TABLE_NAME;
-        Cursor data = db.rawQuery(query1, null);
-        //return data;
-        return new CursorData(data, ListOfPhotoByteArrays, ListOfPhotoIDs);
-    }
-
     public Cursor getData()
     {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -235,37 +180,4 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return data;
     }
 
-    public byte[] get4Data(int id, Context context) {
-        try
-        {
-            File databaseFile = context.getDatabasePath("RpiDb.db");
-            sqLiteConnection=new SQLiteConnection(databaseFile);
-            sqLiteConnection.open();
-            sqLiteStatement=sqLiteConnection.prepare("SELECT PHOTO FROM members_data WHERE id="+id);
-            //sqLiteStatement.bind(1, id);
-            sqLiteStatement.step();
-
-            return sqLiteStatement.columnBlob(0);
-
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        } finally
-        {
-            if(sqLiteStatement!=null)
-                sqLiteStatement.dispose();
-            if(sqLiteConnection!=null)
-                sqLiteConnection.dispose();
-        }
-
-        return null;
-    }
-
-
-    public Cursor getCursorExceptBlob()
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT ID , NAME , STATUS , SYNCED  FROM " + TABLE_NAME;
-        Cursor data = db.rawQuery(query, null);
-        return data;
-    }
 }

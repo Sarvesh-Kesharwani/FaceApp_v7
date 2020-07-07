@@ -2,12 +2,12 @@ package com.sarvesh.faceapp_v7;
 
 public class CardData {
 
-    byte [] PersonPhoto;
+    byte[] PersonPhoto;
     String PersonName;
     boolean PersonPermissionStatus;
     int PermissionDataSynced;
 
-    CardData(byte [] personPhoto, String personName, boolean personPermissionStatus, int PermissionDataSynced)
+    CardData(byte[] personPhoto, String personName, boolean personPermissionStatus, int PermissionDataSynced)
     {
         this.PersonPhoto = personPhoto;
         this.PersonName = personName;
