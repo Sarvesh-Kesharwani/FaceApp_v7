@@ -12,11 +12,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.DiscretePathEffect;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
@@ -53,6 +55,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class Register extends AppCompatActivity {
@@ -108,7 +111,8 @@ public class Register extends AppCompatActivity {
                             //save person data to localDB
                             if(uri == null)
                                 Log.d("uri","uri is null!!!!!!");
-                            AddData(uri.getPath(),name,true, 0,getApplicationContext());
+
+                            AddData(uri, name,true, 0, getApplicationContext());
                         }
                         else
                         {displayToast("Name is too long!");}
@@ -261,7 +265,6 @@ public class Register extends AppCompatActivity {
 
                         uri = getImageUri(getApplicationContext(), selectedImage);
                     }
-
                     break;
                 case 1:
                     Log.d("photo","gallery");
@@ -290,8 +293,8 @@ public class Register extends AppCompatActivity {
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage,null,null);
         return Uri.parse(path);
     }
 
@@ -435,7 +438,7 @@ public class Register extends AppCompatActivity {
         Toast.makeText(Register.this,ToastMessage,Toast.LENGTH_LONG).show();
     }
 
-    public void AddData(String photo_uri, String name, boolean status, int synced, Context context)
+    public void AddData(Uri photo_uri, String name, boolean status, int synced, Context context)
     {
         int statusInt;
         if(status)

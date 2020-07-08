@@ -704,21 +704,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             else if (data.getInt(data.getColumnIndex("STATUS")) == 0)
                 status = false;
             else
-                Log.d("status", "INvalid status input!");
+                Log.d("status", "Invalid status input!");
             int Synced = data.getInt(data.getColumnIndex("SYNCED"));
 
-            //displayShortToast("Data Retreived Successfully From LocalDB.");
-            File imagefile = new File(photo_path);
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(imagefile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            Bitmap bm = BitmapFactory.decodeStream(fis);
+            Bitmap myBitmap = BitmapFactory.decodeFile(photo_path);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bm.compress(Bitmap.CompressFormat.PNG, 0 , baos);
+            myBitmap.compress(Bitmap.CompressFormat.JPEG, 100 , baos);
             byte[] b = baos.toByteArray();
             list.add(new CardData(b, name, status, Synced));
         }

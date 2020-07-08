@@ -6,31 +6,19 @@ import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
-import android.widget.ListAdapter;
-import android.widget.Toast;
-
 import androidx.annotation.Nullable;
-
 import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
-
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Blob;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 
 public class DatabaseHandler extends SQLiteOpenHelper
@@ -44,10 +32,6 @@ public class DatabaseHandler extends SQLiteOpenHelper
     private static final String Col_3 = "PHOTO";
     private static final String Col_4 = "STATUS";
     private static final String Col_5 = "SYNCED";
-
-    SQLiteConnection sqLiteConnection=null;
-    SQLiteStatement sqLiteStatement=null;
-
 
     public DatabaseHandler(@Nullable Context context)
     {
@@ -69,14 +53,50 @@ public class DatabaseHandler extends SQLiteOpenHelper
         onCreate(db);
     }
 
-    public boolean addData(String photo_path, String name, int status, int synced, Context context)
+    public boolean addData(Uri uri, String name, int status, int synced, Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues contentValues = new ContentValues();
-        //contentValues.put(Col_3, String.valueOf(photo_path));
-        contentValues.put(Col_3, photo_path);
+
+        try{
+            //prepare file to write on.
+            ContextWrapper cw = new ContextWrapper(context);//context..getApplicationContext()
+            File directory = cw.getDir("imageDatabase", Context.MODE_PRIVATE);
+            FileOutputStream fos = new FileOutputStream(new File(directory, name + ".png"));
+
+            //read bytes from photo_path file and save it to bytes array.
+            BufferedInputStream buf = new BufferedInputStream(context.getContentResolver().openInputStream(uri));
+            byte[] bytes = new byte[1048576];//5mb, it means max 5mb image can be read only
+            int ReadBytesSize = 0;
+            int temp = 0;
+            while(true)
+            {
+                if((temp = buf.read(bytes)) == -1)
+                {
+                    break;
+                }
+                else
+                {
+                    ReadBytesSize = temp;
+                }
+            }
+            buf.close();
+            byte[] PhotoBytes = new byte[ReadBytesSize];
+            PhotoBytes = Arrays.copyOfRange(bytes, 0, ReadBytesSize);
+
+            //save read bytes to app'local file
+            fos.write(PhotoBytes, 0, PhotoBytes.length);
+            fos.close();
+
+            //store localFile's path to database.
+            contentValues.put(Col_3, directory.getAbsolutePath() + "/" + name + ".png");
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (IOException e) {
+           e.printStackTrace();
+        }
+
         contentValues.put(Col_2,name);
         contentValues.put(Col_4,status);
         contentValues.put(Col_5,synced);
@@ -109,7 +129,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
             photoFile.delete();
         }
         try {
-            FileOutputStream fos = new FileOutputStream(photoFile.getPath());
+            FileOutputStream fos = new FileOutputStream(photoFile);
             fos.write(photo);
             fos.close();
         }
