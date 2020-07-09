@@ -2,23 +2,17 @@ package com.sarvesh.faceapp_v7;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.DiscretePathEffect;
 import android.graphics.Matrix;
-import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
@@ -39,24 +33,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class Register extends AppCompatActivity {
 
@@ -71,6 +51,10 @@ public class Register extends AppCompatActivity {
     public String name;
     public Uri uri;
 
+    //defines is user admin or else
+    public static int UserID;
+
+    ImageView NavigationDrawerPhoto;
     //database handler
     DatabaseHandler mDatabaseHandler;
 
@@ -87,11 +71,13 @@ public class Register extends AppCompatActivity {
             int value = extras.getInt("LoginProfileKey");
             if(value == 0)
             {
-                //
+                UserID = 0;
+                Log.d("receve", "Value is: "+String.valueOf(value));
             }
             else
             {
-                //
+                UserID = 1;
+                Log.d("receve", "Value is: "+String.valueOf(value));
             }
         }
 
@@ -157,7 +143,12 @@ public class Register extends AppCompatActivity {
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         navigationView = findViewById(R.id.register_navigation_view);
+        //setting navigation_header
+        if(UserID == 1)
+            {View navView = navigationView.inflateHeaderView(R.layout.navigation_header_admin);}
+
         View navView = navigationView.inflateHeaderView(R.layout.navigation_header);
+        //////
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -180,6 +171,11 @@ public class Register extends AppCompatActivity {
                         Intent intent4 = new Intent(Register.this, Emergency.class);
                         startActivity(intent4);
                         break;
+                    case R.id.nav_logout:
+                        editSharedPref();
+                        Intent intent5 = new Intent(Register.this, MainActivity.class);
+                        startActivity(intent5);
+                        break;
                     }
                     return false;
                 }
@@ -188,6 +184,14 @@ public class Register extends AppCompatActivity {
         //Ask for camera permissions
         checkPermission(Manifest.permission.CAMERA,
                 CAMERA_PERMISSION_CODE);
+    }
+
+    public void editSharedPref()
+    {
+        SharedPreferences sharedPreferences = getSharedPreferences("MySharedPreference", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedInKey", false);
+        editor.apply();
     }
 
     // Function to check and request permission.

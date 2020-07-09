@@ -3,6 +3,7 @@ package com.sarvesh.faceapp_v7;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -79,7 +80,12 @@ public class Unknown extends AppCompatActivity {
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         navigationView = findViewById(R.id.Unknown_navigation_view);
+        //setting navigation_header
+        if(Register.UserID == 1)
+        {View navView = navigationView.inflateHeaderView(R.layout.navigation_header_admin);}
+
         View navView = navigationView.inflateHeaderView(R.layout.navigation_header);
+        //////
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -100,6 +106,11 @@ public class Unknown extends AppCompatActivity {
                     case R.id.nav_emergency_toggle:
                         Intent intent4 = new Intent(Unknown.this, Emergency.class);
                         startActivity(intent4);
+                        break;
+                    case R.id.nav_logout:
+                        editSharedPref();
+                        Intent intent5 = new Intent(Unknown.this, MainActivity.class);
+                        startActivity(intent5);
                         break;
                 }
                 return false;
@@ -171,6 +182,14 @@ public class Unknown extends AppCompatActivity {
                 alertDialog();
             }
         });
+    }
+
+    public void editSharedPref()
+    {
+        SharedPreferences sharedPreferences = getSharedPreferences("MySharedPreference", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedInKey", false);
+        editor.apply();
     }
 
     private void clearAllCards()

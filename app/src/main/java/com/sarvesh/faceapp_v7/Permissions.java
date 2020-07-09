@@ -3,6 +3,7 @@ package com.sarvesh.faceapp_v7;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
@@ -89,6 +90,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         //Navigation Coding Start
         setContentView(R.layout.activity_permissions);
         toolbar = findViewById(R.id.permission_toolBar);
@@ -100,7 +102,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         navigationView = findViewById(R.id.permission_navigation_view);
+        //setting navigation_header
+        if(Register.UserID == 1)
+        {View navView = navigationView.inflateHeaderView(R.layout.navigation_header_admin);}
+
         View navView = navigationView.inflateHeaderView(R.layout.navigation_header);
+        //////
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -121,6 +128,11 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     case R.id.nav_emergency_toggle:
                         Intent intent4 = new Intent(Permissions.this, Emergency.class);
                         startActivity(intent4);
+                        break;
+                    case R.id.nav_logout:
+                        editSharedPref();
+                        Intent intent5 = new Intent(Permissions.this, MainActivity.class);
+                        startActivity(intent5);
                         break;
                 }
                 return false;
@@ -177,6 +189,14 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             }
         });
 
+    }
+
+    public void editSharedPref()
+    {
+        SharedPreferences sharedPreferences = getSharedPreferences("MySharedPreference", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedInKey", false);
+        editor.apply();
     }
 
     public void clearAllCards()

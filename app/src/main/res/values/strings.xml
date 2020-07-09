@@ -7,6 +7,7 @@
     <string name="register">Register</string>
     <string name="unknown_activity">UnknownActivites</string>
     <string name="EmergencyOpen">EmergencyOpen</string>
+    <string name="LogOut">Logout</string>
     <string name="not_allowed">NA</string>
     <string name="allowed">A</string>
     <string name="todo">TODO</string>

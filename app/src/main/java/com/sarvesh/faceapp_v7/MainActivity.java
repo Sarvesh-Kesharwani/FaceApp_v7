@@ -3,12 +3,14 @@ package com.sarvesh.faceapp_v7;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,20 +50,32 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_PERMISSION_CODE = 100;
     private static final int STORAGE_PERMISSION_CODE = 101;
 
+    //saves login session
+    public static boolean isLoggedIn = false;
+
     private EditText LoginID;
     private EditText Password;
     private Button LoginButton;
-    private ImageView LoginProfile;
 
     private String loginid = "gopeshwardas";
     private String password = "6261427485";
 
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Checking if LastLoginSession is still alive
+        loadSharedPref();
+        if(isLoggedIn)
+        {
+            Intent intent5 = new Intent(MainActivity.this, Register.class);
+            startActivity(intent5);
+        }
 
         //Ask for all permissions when app is started any'th time.
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -70,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         LoginID = findViewById(R.id.loginID);
         Password = findViewById(R.id.loginPassword);
         LoginButton = findViewById(R.id.loginButton);
-        LoginProfile = findViewById(R.id.LoginPageProfilePhoto);
 
         LoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,11 +99,19 @@ public class MainActivity extends AppCompatActivity {
                         user = 0;
                     }
                 }
+
                 /////////////////////////////////////////////////////////////
+
                 if(tempLoginID.equals("Admin")) {
                     if (tempPasssword.equals("Admin123$")) {
                         user = 1;
                     }
+                }
+
+                //setting login session.
+                if(user != -1)
+                {
+                    editSharedPref(true);
                 }
 
                 switch(user)
@@ -112,8 +133,23 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
 
+    public void editSharedPref(boolean what)
+    {
+        //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = getSharedPreferences("MySharedPreference", MODE_PRIVATE);
+        mEditor = sharedPreferences.edit();
+        mEditor.putBoolean("isLoggedInKey", what);
+        mEditor.apply();
+    }
+
+    public void loadSharedPref()
+    {
+        //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = getSharedPreferences("MySharedPreference", MODE_PRIVATE);
+        isLoggedIn = sharedPreferences.getBoolean("isLoggedInKey", false);
     }
 
     // Function to check and request permission.

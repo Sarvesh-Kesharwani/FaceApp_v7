@@ -4,7 +4,7 @@
     <item
         android:id="@+id/nav_register"
         android:icon="@drawable/ic_face_black_24dp"
-        android:title="@string/register"/>
+        android:title="@string/register" />
 
     <item
         android:id="@+id/nav_permissions"
@@ -20,4 +20,10 @@
         android:id="@+id/nav_emergency_toggle"
         android:icon="@drawable/ic_lock_open_black_24dp"
         android:title="@string/EmergencyOpen"/>
+
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/ic_lock_open_black_24dp"
+        android:title="@string/LogOut"/>
+
 </menu>
