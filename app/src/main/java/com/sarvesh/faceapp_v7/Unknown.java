@@ -3,6 +3,8 @@ package com.sarvesh.faceapp_v7;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -26,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -37,7 +40,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Unknown extends AppCompatActivity implements UnknownRecyclerViewClickInterface {
+public class Unknown extends AppCompatActivity {
 
     public String HOST = "192.168.43.205";//serveousercontent.com
     public int Port = 1998;
@@ -59,17 +62,16 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
     DatabaseHandler mDatabaseHandler;
     private boolean ProgressComplete = false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Navigation Coding Start
-        setContentView(R.layout.activity_permissions);
-        toolbar = findViewById(R.id.permission_toolBar);
-        toolbar.setTitle("Permissions");
+        setContentView(R.layout.activity_unknown);
+        toolbar = findViewById(R.id.Unknown_toolbar);
+        toolbar.setTitle("Unknonwn Activites");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        drawerLayout = this.findViewById(R.id.permission_drawer_layout);
+        drawerLayout = this.findViewById(R.id.unknonw_drawer_layout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(Unknown.this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
@@ -113,17 +115,25 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
 
 
         mDatabaseHandler = new DatabaseHandler(this);
+
         //RecyclerView Code
         try {
-            //UnknownCardList = getData();
+            //grabing cards from server.
+            if (connected) {
+                GrabUnknownCards GrabUnownCards = new GrabUnknownCards();
+                GrabUnownCards.execute();
+            } else {
+                displayLongToast("Connect to Internet...");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         progressBar = (ProgressBar) findViewById(R.id.progressBar2);
 
-        unknown_recycler_view = (RecyclerView) findViewById(R.id.recycler_view);
-        //adapter = new PermissionAdapter(Unknown_CardData, getApplicationContext(), this);
-        //new ItemTouchHelper(itemTouchSimpleCallback).attachToRecyclerView(unknown_recycler_view);
+        unknown_recycler_view = (RecyclerView) findViewById(R.id.unknown_recycler_view);
+        adapter = new UnknownAdapter(UnknownCardList, getApplicationContext());
+        new ItemTouchHelper(itemTouchSimpleCallback).attachToRecyclerView(unknown_recycler_view);
         unknown_recycler_view.setAdapter(adapter);
         unknown_recycler_view.setLayoutManager(new LinearLayoutManager(Unknown.this));
 
@@ -135,8 +145,8 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
                 //send data to server
                 if (connected) {
                     Log.d("receve", "grabUnknownCards called.");
-                    /*GrabUnknownCards grabCards = new GrabUnknownCards();
-                    grabCards.execute();*/
+                    GrabUnknownCards grabCards = new GrabUnknownCards();
+                    grabCards.execute();
                 } else {
                     displayLongToast("Connect to Internet...");
                 }
@@ -152,79 +162,34 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void displayLongToast(String ToastMessage) {
-        Toast.makeText(Unknown.this, ToastMessage, Toast.LENGTH_LONG).show();
-    }
-
-    private void displayShortToast(String ToastMessage) {
-        Toast.makeText(Unknown.this, ToastMessage, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onSyncClick(int position) {
-        //displayLongToast("Updating to server.");
-        //send data to server
-        if (connected) {
-            GrabUnknownCards GrabUnownCards = new GrabUnknownCards(position);
-            GrabUnownCards.execute(new Integer(position));
-        } else {
-            displayLongToast("Connect to Internet...");
-        }
-    }
-
-    private class GrabUnknownCards extends AsyncTask<Integer, Integer, Integer> {
-        Socket skt;
+    private class GrabUnknownCards extends AsyncTask<Integer, Integer, Void> {
+        Socket skt, skt1;
         PrintWriter printWriter;
         String ToastMessage;
 
         boolean Error = false;
         String ErrorMessage;
-        int mPosition;
-
-        public GrabUnknownCards(int position) {
-            mPosition = position;
-        }
-
-
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressBar.setMax(100);
             progressBar.setProgress(0);
-            ProgressComplete = false;
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            Log.d("status", "Progress is:" + String.valueOf(values[0]));
+            Log.d("status", "Progress is:" + values[0]);
             progressBar.setProgress(values[0]);
             if (Error)
                 displayShortToast(ErrorMessage);
         }
 
         @Override
-        protected Integer doInBackground(Integer... Params) {
-            Integer param1 = Params[0];
-            int mCardPosition = param1.intValue();
-
+        protected Void doInBackground(Integer... Params) {
             try {
-               // GrabUnknownfun(mCardPosition);
+                GrabUnknownfun();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -232,8 +197,8 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
         }
 
         @Override
-        protected void onPostExecute(Integer integer) {
-            super.onPostExecute(integer);
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
             displayShortToast(ToastMessage);
             if (progressBar.getProgress() == 100) {
                 Log.d("status", "postexecute Progress is compelete.");
@@ -241,112 +206,125 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
             }
         }
 
-     /*   void GrabUnknownfun(int CardPosition) {
-            while (skt == null) {
-                try {
-                    skt = new Socket(HOST, Port);
-                    printWriter = new PrintWriter(skt.getOutputStream());
-
-                    if (!skt.isConnected()) {
-                        displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
-                        if (!isCancelled()) {
-                            cancel(true);
-                        }
-                    }
-
-                    publishProgress(30);
-                    //prepare storage
-                    int i = 1;
-                    String PersonName = null;
-                    PersonNames = new ArrayList<>();
-
-                    int PersonPhotoSize = 0;
-                    PersonPhotoSizes = new ArrayList<>();
-
-                    publishProgress(40);
-                    //recieving person names.
-                    while (i <= NoOfPeople) {
-                        PersonName = String.valueOf(mBufferIn.readLine());
-                        PersonNames.add(PersonName);
-                        i++;
-                    }
-                    Log.d("receve", "Names are:" + PersonNames);
-
-                    publishProgress(50);
-                    //receving photo sizes.
-                    i = 1;
-                    while (i <= NoOfPeople) {
-                        PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
-                        PersonPhotoSizes.add(new Integer(PersonPhotoSize));
-                        i++;
-                    }
-                    Log.d("receve", "Person photoSizes are:" + String.valueOf(PersonPhotoSizes));
-
-                    printWriter.close();
-                    mBufferIn.close();
-                    skt.close();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            publishProgress(10);
-            //sending delimiter
-            Log.d("receve", "sending delimiter.");
-            printWriter.write("?UNKNON");
-            printWriter.flush();
-
-            publishProgress(20);
-            int i = 1;
-            int NoOfPeople = 10;
-            while (skt == null || i <= NoOfPeople) {
-                try {
-                    skt = new Socket(HOST, Port);
-                    InputStream sin = skt.getInputStream();
-                    DataInputStream dis = new DataInputStream(sin);
-
-                    byte[] data = new byte[PersonPhotoSizes.get(i - 1).intValue()];
+            int NoOfPhotos;
+            List<String> PersonNames;
+            List<Integer> PersonPhotoSizes;
+            private void GrabUnknownfun()
+            {
+                while (skt == null) {
                     try {
-                        dis.readFully(data, 0, data.length);
+                        publishProgress(20);
+                        skt = new Socket(HOST, Port);
+                        printWriter = new PrintWriter(skt.getOutputStream());
+                        BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+
+                        if (!skt.isConnected()) {
+                            displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
+                            if (!isCancelled()) {
+                                cancel(true);
+                            }
+                        }
+                        publishProgress(30);
+
+                        //sending delimiter
+                        Log.d("receve", "sending delimiter.");
+                        printWriter.write("?UNKNON");
+                        printWriter.flush();
+
+                        //recieve no of people
+                        NoOfPhotos = Integer.parseInt(mBufferIn.readLine());
+                        Log.d("receve", "no of people are:" + NoOfPhotos);
+
+                        publishProgress(40);
+                        //recieving file names.
+                        int i = 1;
+                        String PersonName = null;
+                        PersonNames = new ArrayList<>();
+                        while (i <= NoOfPhotos) {
+                            PersonName = String.valueOf(mBufferIn.readLine());
+                            PersonNames.add(PersonName);
+                            i++;
+                        }
+                        Log.d("receve", "Names are:" + PersonNames);
+                        publishProgress(50);
+
+
+                        //receving photo sizes.
+                        int PersonPhotoSize = 0;
+                        PersonPhotoSizes = new ArrayList<>();
+                        i = 1;
+                        while (i <= NoOfPhotos) {
+                            PersonPhotoSize = Integer.parseInt(mBufferIn.readLine());
+                            PersonPhotoSizes.add(PersonPhotoSize);
+                            i++;
+                        }
+                        Log.d("receve", "Person photoSizes are:" + PersonPhotoSizes);
+                        publishProgress(60);
+
+                        printWriter.close();
+                        mBufferIn.close();
+                        skt.close();
                     } catch (IOException e) {
-                        Log.d("receve", "Failed to retrieve image.");
                         e.printStackTrace();
                     }
-
-                    Log.d("receve", "Reading of Photo " + i + " is Completed.");
-                    ServerCardList.add(new CardData(data, PersonNames.get(i - 1), true, 1));
-                    Log.d("receve", "Saved Photo " + i + " to DB.");
-                    i++;
-                    dis.close();
-                    skt1.close();
-                } catch (IOException e) {
-                    System.out.println("Fail");
-                    e.printStackTrace();
                 }
+
+                publishProgress(70);
+                int i = 1;
+                int NoOfPhotos = 10;
+                while (skt1 == null || i <= NoOfPhotos) {
+                    try {
+                        skt1 = new Socket(HOST, Port);
+                        InputStream sin = skt1.getInputStream();
+                        DataInputStream dis = new DataInputStream(sin);
+
+                        byte[] data = new byte[PersonPhotoSizes.get(i - 1)];
+                        try {
+                            dis.readFully(data, 0, data.length);
+                        } catch (IOException e) {
+                            Log.d("receve", "Failed to retrieve image.");
+                            e.printStackTrace();
+                        }
+
+                        Log.d("receve", "Reading of Photo " + i + " is Completed.");
+                        UnknownCardList.add(new Unknown_CardData(data, PersonNames.get(i - 1)));
+                        Log.d("receve", "Saved Photo " + i + " to DB.");
+                        i++;
+                        dis.close();
+                        skt1.close();
+                    } catch (IOException e) {
+                        System.out.println("Fail");
+                        e.printStackTrace();
+                    }
+                }
+                publishProgress(70);
+                publishProgress(80);
+        }
+}
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        @Override
+        public void onBackPressed() {
+            super.onBackPressed();
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+            if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+                return true;
             }
-            publishProgress(70);
-            AddServerData(ServerCardList, NoOfPeople);
-            publishProgress(80);
-        }*/
-
-        public void clearAllCards() {
-            //update recycler list with new (EMPTY) ArrayList of type CARD
-            adapter = new UnknownAdapter(new ArrayList<CardData>(), getApplicationContext(), Unknown.this);
-            unknown_recycler_view.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+            return super.onOptionsItemSelected(item);
         }
 
-        private List<CardData> getData() {
-            List<CardData> list = new ArrayList<>();
-
-            //displayShortToast("Data Retreived Successfully From LocalDB.");
-           //list.add(new Unknown_CardData(photo_image, name));
-            return list;
+        private void displayLongToast(String ToastMessage) {
+            Toast.makeText(Unknown.this, ToastMessage, Toast.LENGTH_LONG).show();
         }
 
-
+        private void displayShortToast(String ToastMessage) {
+            Toast.makeText(Unknown.this, ToastMessage, Toast.LENGTH_SHORT).show();
+        }
 
         ItemTouchHelper.SimpleCallback itemTouchSimpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
@@ -362,9 +340,6 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
                 mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
                 UnknownCardList.remove(viewHolder.getAdapterPosition());
                 adapter.notifyDataSetChanged();
-            }
-        };
-
-    }
-
+                }
+            };
 }

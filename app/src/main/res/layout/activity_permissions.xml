@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/permission_drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true"
-    android:id="@+id/permission_drawer_layout"
     tools:context=".MainActivity">
 
     <RelativeLayout
@@ -39,15 +39,15 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/refreshButton"
+                    android:id="@+id/Permission_Data_Synced"
                     android:layout_width="62dp"
                     android:layout_height="54dp"
                     android:layout_marginEnd="16dp"
+                    android:contentDescription="@string/todo"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_baseline_cloud_download_24"
-                    android:contentDescription="@string/todo" />
+                    app:srcCompat="@drawable/ic_baseline_cloud_download_24" />
 
                 <ImageButton
                     android:id="@+id/clearAllButton"
@@ -87,8 +87,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                </androidx.recyclerview.widget.RecyclerView>
+                    android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
 
             </LinearLayout>
 

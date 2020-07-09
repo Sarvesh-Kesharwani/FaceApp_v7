@@ -1,14 +1,12 @@
 package com.sarvesh.faceapp_v7;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -32,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -39,6 +38,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -46,12 +46,13 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "serveousercontent.com";//serveousercontent.com
+    public String HOST = "192.168.43.205";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -151,7 +152,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(Permissions.this));
 
-        refreshButton = findViewById(R.id.refreshButton);
+        refreshButton = findViewById(R.id.Permission_Data_Synced);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -184,7 +185,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         while (Localdb.moveToNext()) {
             try {
                 //remove cards from DB one-by-one
-                mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
+                mDatabaseHandler.deleteDataAndPhoto(this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -231,10 +232,11 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     Localdb.getString(Localdb.getColumnIndex("NAME")),
                     0);
         }
+
+        /*adapter = new PermissionAdapter(new ArrayList<CardData>(), getApplicationContext(), this);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();*/
     }
-
-
-
 
     private class GrabCards extends AsyncTask<Integer, Integer, Integer> {
         Socket skt, skt1;
@@ -451,7 +453,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                     Cursor Localdb = mDatabaseHandler.getData();
                                     Localdb.moveToPosition(mPosition);
 
-                                    if (Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0) {
+                                    if (Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0)
+                                    {
                                         Log.d("status", "SYNCED was 0");
                                         UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                                                 false,
@@ -493,8 +496,36 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     //retreving name from LocalDB
                     String PersonName = Localdb.getString(Localdb.getColumnIndex("NAME"));
                     Log.d("status", "PersonName is:" + PersonName);
+
+                    byte[] PhotobyteArray = new byte[0];
                     //retreving photoByteArray from LocalDB
-                    byte[] PhotobyteArray = Localdb.getBlob(Localdb.getColumnIndex("PHOTO"));
+                    try{
+                        //prepare file to write on.
+                        File photoFile = new File(Localdb.getString(Localdb.getColumnIndex("PHOTO")));
+                        FileInputStream fis = new FileInputStream(photoFile);
+
+                        //read bytes from photo_path file and save it to bytes array.
+                        byte[] bytes = new byte[1048576];//5mb space
+                        int ReadBytesSize = 0;
+                        int temp = 0;
+                        while(true)
+                        {
+                            if((temp = fis.read(bytes)) == -1)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                ReadBytesSize = temp;
+                            }
+                        }
+                        PhotobyteArray = new byte[ReadBytesSize];
+                        PhotobyteArray = Arrays.copyOfRange(bytes, 0, ReadBytesSize);
+                    } catch (FileNotFoundException e){
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     publishProgress(20);
 
                     //if person is allowed
@@ -601,6 +632,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         Log.d("status", "shutting down output");
                         skt.shutdownOutput();
                         publishProgress(80);
+
                         //receving name received ACK.
                         Log.d("status", "recieving ACK");
                         String ACK;
@@ -626,8 +658,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         }
     }
 
-
-
     public void AddServerData(List<CardData> ServerCardlist, int NoOfPeople) {
         int i = 1;
 
@@ -650,7 +680,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
     }
 
-    public boolean UpdateData(int id, boolean status, String photoBlob, String name, int synced) {
+    public boolean UpdateData(int id, boolean status, String photo_path, String name, int synced) {
         int statusInt;
         if (status)
             statusInt = 1;
@@ -658,7 +688,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             statusInt = 0;
 
 
-        boolean updateData = mDatabaseHandler.updateData(id, photoBlob, name, statusInt, synced);
+        boolean updateData = mDatabaseHandler.updateData(id, photo_path, name, statusInt, synced);
 
         if (updateData) {
             displayShortToast("Data Successfully Updated Locally.");
@@ -669,8 +699,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         return updateData;
     }
 
-    public void DeleteData(int id) {
-        boolean updateData = mDatabaseHandler.deleteData(id);
+    public void DeleteDataAndPhoto(int id) {
+        boolean updateData = mDatabaseHandler.deleteDataAndPhoto(this);
 
         if (updateData) {
             displayLongToast("Data Locally Deleted Successfully.");
@@ -709,7 +739,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
 
             Bitmap myBitmap = BitmapFactory.decodeFile(photo_path);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            myBitmap.compress(Bitmap.CompressFormat.JPEG, 100 , baos);
+            myBitmap.compress(Bitmap.CompressFormat.PNG, 100 , baos);
             byte[] b = baos.toByteArray();
             list.add(new CardData(b, name, status, Synced));
         }

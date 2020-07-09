@@ -1,10 +1,7 @@
 package com.sarvesh.faceapp_v7;
-import android.bluetooth.le.PeriodicAdvertisingParameters;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;

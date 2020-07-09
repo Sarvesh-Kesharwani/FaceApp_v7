@@ -10,24 +10,21 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.List;
 
-public class UnknownAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
+public class UnknownAdapter extends RecyclerView.Adapter<UnknownViewHolder> {
 
-    List<CardData> list;
+    List<Unknown_CardData> list;
     Context context;
-    private UnknownRecyclerViewClickInterface mOnSyncListener;
 
-    public UnknownAdapter(List<CardData> list, Context context, UnknownRecyclerViewClickInterface mOnSyncListener)
+    public UnknownAdapter(List<Unknown_CardData> list, Context context)
     {
         this.list = list;
         this.context = context;
-        this.mOnSyncListener = mOnSyncListener;
     }
 
     @Override
-    public PermissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public UnknownViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -35,29 +32,19 @@ public class UnknownAdapter extends RecyclerView.Adapter<PermissionViewHolder> {
         // Inflate the layout
         View photoView = inflater.inflate(R.layout.unknown_card,parent, false);//converted xml file into a view buy inflating it.
 
-        //PermissionViewHolder viewHolder = new UnknownViewHolder(photoView, mOnSyncListener);//giving inflated view to viewHolder
-        //return viewHolder;
-        return null;
+        UnknownViewHolder viewHolder = new UnknownViewHolder(photoView);//giving inflated view to viewHolder
+        return viewHolder;
     }
 
     //now my viewHolder will set values to views inside inflated-view which my viewHolder is containing.
     @Override
-    public void onBindViewHolder(final PermissionViewHolder viewHolder, final int position)
+    public void onBindViewHolder(final UnknownViewHolder viewHolder, final int position)
     {
-        byte[] Photo_bytes = list.get(position).PersonPhoto;
-
+        byte[] Photo_bytes = list.get(position).Unknown_Person_Photo;
         Bitmap bitmap = BitmapFactory.decodeByteArray(Photo_bytes , 0, Photo_bytes .length);
+        viewHolder.CapturedImage_ImageView.setImageBitmap(bitmap);
 
-        viewHolder.PersonPhotoImageView.setImageBitmap(bitmap);
-
-        viewHolder.PersonNameTextView.setText(list.get(position).PersonName);
-        viewHolder.PersonPermissionStatusSwitch.setChecked(list.get(position).PersonPermissionStatus);
-
-        if(list.get(position).PermissionDataSynced == 1)
-
-            viewHolder.PermissionSyncButton.setVisibility(View.GONE);
-        else
-            viewHolder.PermissionSyncButton.setVisibility(View.VISIBLE);
+        viewHolder.Time_TextView.setText(list.get(position).Image_Capture_Time);
     }
 
     @Override

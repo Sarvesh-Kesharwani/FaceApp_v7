@@ -100,14 +100,6 @@ public class UnknownDatabaseHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        /*Bitmap tempBitmap = BitmapFactory.decodeByteArray(photo,0,photo.length);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        tempBitmap.compress(Bitmap.CompressFormat.PNG,50,buffer);
-        contentValues.put(Col_3,buffer.toByteArray());
-
-        try{buffer.close();} catch (IOException e) {
-            e.printStackTrace();
-        }*/
         contentValues.put(Col_3,photo);
         contentValues.put(Col_2,name);
         result = db.insert(TABLE_NAME, null, contentValues);

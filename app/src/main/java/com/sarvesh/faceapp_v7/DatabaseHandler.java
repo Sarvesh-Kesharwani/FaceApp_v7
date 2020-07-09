@@ -113,16 +113,14 @@ public class DatabaseHandler extends SQLiteOpenHelper
         }
     }
 
-    public boolean addServerData(byte[] photo, String name, int status, int synced,Context context)
+    public boolean addServerData(byte[] photo, String name, int status, int synced, Context context)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
         ContextWrapper cw = new ContextWrapper(context.getApplicationContext());
-        // path to /data/data/yourapp/app_data/imageDir
         File directory = cw.getDir("imageDatabase", Context.MODE_PRIVATE);
-        // Create imageDir
         File photoFile = new File(directory,name + ".png");
 
         if (photoFile.exists()) {
@@ -156,14 +154,14 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     }
 
-    public boolean updateData(int id, String photoBlob, String name, int status, int synced)
+    public boolean updateData(int id, String photo_path, String name, int status, int synced)
     {
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(Col_1,id);
         contentValues.put(Col_2,name);
-        contentValues.put(Col_3,photoBlob);
+        contentValues.put(Col_3,photo_path);
         contentValues.put(Col_4,status);
         contentValues.put(Col_5,synced);
         result = db.update(TABLE_NAME, contentValues, "ID = ?", new String[] { String.valueOf(id) });
@@ -179,10 +177,49 @@ public class DatabaseHandler extends SQLiteOpenHelper
         }
     }
 
+    public boolean deleteDataAndPhoto(Context context)
+    {
+        //delete row from database.
+        long result1 = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        //delete files from app's local cache.
+        Cursor cursor = this.getData();
+        String NameGettingDeleted;
+        while(cursor.moveToNext())
+        {
+            NameGettingDeleted = cursor.getString(cursor.getColumnIndex("NAME"));
+            ContextWrapper cw = new ContextWrapper(context.getApplicationContext());
+            File directory = cw.getDir("imageDatabase", Context.MODE_PRIVATE);
+            File photoFile = new File(directory,NameGettingDeleted + ".png");
+            if (photoFile.exists()) {
+                boolean result = photoFile.delete();
+                if(result == true)
+                    Log.d("receve","Database and files deleted successfully.");
+                else
+                {
+                    Log.d("receve","Failed to delete row from database and the files!");
+                }
+            }
+
+            //delete row from database.
+            result1 = db.delete(TABLE_NAME,"NAME = ?", new String[] { NameGettingDeleted });
+
+            if(result1 == -1)
+            { Log.d("mdatabase","result is -1");
+                return false;}
+            else
+            { return true;}
+        }
+        return true;
+    }
+
     public boolean deleteData(int id)
     {
+        //delete row from database.
         long result = 0;
         SQLiteDatabase db = this.getWritableDatabase();
+
         result = db.delete(TABLE_NAME,"ID = ?", new String[] { String.valueOf(id) });
 
         if(result == -1)

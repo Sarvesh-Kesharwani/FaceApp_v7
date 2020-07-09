@@ -19,13 +19,13 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
 
     List<CardData> list;
     Context context;
-    private RecyclerViewClickInterface mOnSyncListener;
+    public RecyclerViewClickInterface mOnSyncListener;
 
     public PermissionAdapter(List<CardData> list, Context context, RecyclerViewClickInterface mOnSyncListener)
     {
         this.list = list;
         this.context = context;
-        //this.mOnSyncListener = mOnSyncListener;
+        this.mOnSyncListener = mOnSyncListener;
     }
 
     @Override
@@ -60,7 +60,6 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionViewHolder
         viewHolder.PersonPermissionStatusSwitch.setChecked(list.get(position).PersonPermissionStatus);
 
         if(list.get(position).PermissionDataSynced == 1)
-
             viewHolder.PermissionSyncButton.setVisibility(View.GONE);
         else
             viewHolder.PermissionSyncButton.setVisibility(View.VISIBLE);

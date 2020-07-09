@@ -1,22 +1,20 @@
 package com.sarvesh.faceapp_v7;
 
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 public class UnknownViewHolder extends RecyclerView.ViewHolder{
 
-    ImageView PersonPhotoImageView;
-    TextView PersonNameTextView;
+    ImageView CapturedImage_ImageView;
+    TextView Time_TextView;
 
-    UnknownViewHolder(View itemView, final UnknownRecyclerViewClickInterface recyclerViewClickInterface)
+    UnknownViewHolder(View itemView)
     {
         super(itemView);
-        PersonPhotoImageView = itemView.findViewById(R.id.Person_image);
-        PersonNameTextView = itemView.findViewById(R.id.Person_name);
+        CapturedImage_ImageView = itemView.findViewById(R.id.captured_unknown_person);
+        Time_TextView = itemView.findViewById(R.id.time_of_capture);
     }
 }
