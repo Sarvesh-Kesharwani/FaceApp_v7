@@ -19,7 +19,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
@@ -37,19 +36,18 @@ import java.util.List;
 
 public class Emergency extends  AppCompatActivity{
 
-    public String HOST = "serveousercontent.com";//serveousercontent.com192.168.43.205
+    public String HOST = "192.168.43.205";//serveousercontent.com192.168.43.205
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
-    private Toolbar toolbar;
 
     //Refresh to grab data from server
     Button OpenGateButton;
     Button CloseGateButton;
     Button TimedOpenCloseButton;
-    ImageView DoorImageView;
+    ImageView ClosedDoorImageView;
 
     ProgressBar progressBar;
     //intenet
@@ -65,8 +63,6 @@ public class Emergency extends  AppCompatActivity{
 
         //Navigation Coding Start
         setContentView(R.layout.activity_emergency);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawerLayout = this.findViewById(R.id.permission_drawer_layout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(Emergency.this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
@@ -119,6 +115,8 @@ public class Emergency extends  AppCompatActivity{
             connected = false;
         }
 
+        ClosedDoorImageView = findViewById(R.id.closed_door_imageView);
+
         OpenGateButton = findViewById(R.id.open_button);
         CloseGateButton = findViewById(R.id.close_button);
         TimedOpenCloseButton = findViewById(R.id.timed_open_button);
@@ -126,34 +124,52 @@ public class Emergency extends  AppCompatActivity{
         OpenGateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GateActionCode = 1;
-                EmergenyActions emergenyActions = new EmergenyActions();
-                emergenyActions.execute(GateActionCode);
+                if(GateActionCode == -1)
+                {
+                    ClosedDoorImageView.setVisibility(View.GONE);
+                    GateActionCode = 1;
+                    EmergenyActions emergenyActions = new EmergenyActions();
+                    emergenyActions.execute();
+                }
+                else
+                    displayShortToast("Wait till last operation is completed!");
             }
         });
 
         CloseGateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GateActionCode = 2;
-                EmergenyActions emergenyActions = new EmergenyActions();
-                emergenyActions.execute(GateActionCode);
+                if(GateActionCode == -1)
+                {
+                    ClosedDoorImageView.setVisibility(View.VISIBLE);
+                    GateActionCode = 2;
+                    EmergenyActions emergenyActions = new EmergenyActions();
+                    emergenyActions.execute();
+                }
+                else
+                    displayShortToast("Wait till last operation is completed!");
             }
         });
 
         TimedOpenCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GateActionCode = 3;
-                EmergenyActions emergenyActions = new EmergenyActions();
-                emergenyActions.execute(GateActionCode);
+                if(GateActionCode == -1)
+                {
+                    ClosedDoorImageView.setVisibility(View.GONE);
+                    GateActionCode = 3;
+                    EmergenyActions emergenyActions = new EmergenyActions();
+                    emergenyActions.execute();
+                }
+                else
+                    displayShortToast("Wait till last operation is completed!");
             }
         });
 }
 
 
 private class EmergenyActions extends AsyncTask<Integer, Integer, Integer> {
-    Socket skt1, skt2, skt3;
+    Socket skt1;
     PrintWriter printWriter;
     String PreActionMessage, PostActionMessage;
 
@@ -172,10 +188,23 @@ private class EmergenyActions extends AsyncTask<Integer, Integer, Integer> {
 
     @Override
     protected Integer doInBackground(Integer... Params) {
-        int gate_action_code = Params[0];
         try {
-            if(gate_action_code == 1)
-            {OpenGateButton();}
+            switch(GateActionCode)
+            {
+                case 1:
+                    OpenGate();
+                    break;
+                case 2:
+                    CloseGate();
+                    break;
+                case 3:
+                    TimedOpenGate();
+                    break;
+                default:
+                    displayShortToast("Wait till last operation is completed!");
+                    Log.d("receve","Another backgournd_process is using gate!");
+                    break;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,7 +214,18 @@ private class EmergenyActions extends AsyncTask<Integer, Integer, Integer> {
     @Override
     protected void onPostExecute(Integer integer) {
         super.onPostExecute(integer);
+
+        if(GateActionCode == 3)
+        {
+            ClosedDoorImageView.setVisibility(View.VISIBLE);
+        }
+        GateActionCode = -1; //opening real-gate (resource) lock
+
+        displayShortToast(PreActionMessage);
+        displayShortToast(PostActionMessage);
+
         publishProgress(100);
+
     }
 
     void OpenGate() {
@@ -215,7 +255,6 @@ private class EmergenyActions extends AsyncTask<Integer, Integer, Integer> {
 
                 PreActionMessage = mBufferIn.readLine();
                 PostActionMessage = mBufferIn.readLine();
-                publishProgress(100);
 
                 printWriter.close();
                 mBufferIn.close();
@@ -249,13 +288,12 @@ private class EmergenyActions extends AsyncTask<Integer, Integer, Integer> {
                 printWriter.write("?EMEGNC");
                 printWriter.flush();
 
-                printWriter.write("OPEN_GATE");
+                printWriter.write("CLOSEGATE");
                 printWriter.flush();
                 publishProgress(50);
 
                 PreActionMessage = mBufferIn.readLine();
                 PostActionMessage = mBufferIn.readLine();
-                publishProgress(100);
 
                 printWriter.close();
                 mBufferIn.close();
@@ -289,7 +327,7 @@ private class EmergenyActions extends AsyncTask<Integer, Integer, Integer> {
                 printWriter.write("?EMEGNC");
                 printWriter.flush();
 
-                printWriter.write("OPEN_GATE");
+                printWriter.write("TIMEDOPEN");
                 printWriter.flush();
                 publishProgress(50);
 
