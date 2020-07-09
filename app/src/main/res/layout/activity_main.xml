@@ -42,8 +42,7 @@
                 app:layout_constraintHorizontal_bias="0.496"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.519"
-                tools:text="gopeshwardas" />
+                app:layout_constraintVertical_bias="0.519" />
 
             <EditText
                 android:id="@+id/loginPassword"
@@ -52,7 +51,6 @@
                 android:ems="10"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:text="6261427485"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.496"
