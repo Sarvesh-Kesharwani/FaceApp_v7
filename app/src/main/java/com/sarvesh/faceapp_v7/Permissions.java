@@ -84,9 +84,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     //DownlodCould
     boolean CloudSyncComplete = false;
 
-    SQLiteConnection sqLiteConnection=null;
-    SQLiteStatement sqLiteStatement=null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -216,7 +213,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
-
 
     @Override
     public void onSyncClick(int position) {
