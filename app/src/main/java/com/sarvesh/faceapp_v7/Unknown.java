@@ -1,6 +1,7 @@
 package com.sarvesh.faceapp_v7;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -42,7 +44,7 @@ import java.util.List;
 
 public class Unknown extends AppCompatActivity {
 
-    public String HOST = "192.168.43.205";//serveousercontent.com
+    public String HOST = "192.168.43.215";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -50,6 +52,7 @@ public class Unknown extends AppCompatActivity {
     private NavigationView navigationView;
     private Toolbar toolbar;
 
+    private ImageButton freeServerButton;
     ImageButton refreshButton;
     ImageButton clearAllButton;
     ProgressBar progressBar;
@@ -113,7 +116,7 @@ public class Unknown extends AppCompatActivity {
             connected = false;
         }
 
-
+        freeServerButton = findViewById(R.id.Free_Server);
         mDatabaseHandler = new DatabaseHandler(this);
 
         //RecyclerView Code
@@ -157,9 +160,45 @@ public class Unknown extends AppCompatActivity {
         clearAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //clearAllCards();
+                clearAllCards();
             }
         });
+
+        freeServerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog();
+            }
+        });
+    }
+
+    private void clearAllCards()
+    {
+        adapter = new UnknownAdapter(new ArrayList<Unknown_CardData>(), getApplicationContext());
+        unknown_recycler_view.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+    private void alertDialog() {
+        AlertDialog.Builder dialog=new AlertDialog.Builder(this);
+        dialog.setMessage("All unknown-activity photos will be deleted permanently!");
+        dialog.setTitle("Are you sure?");
+        dialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                        Toast.makeText(getApplicationContext(),"Operation is being performed...",Toast.LENGTH_LONG).show();
+                        FreeServer freeServer = new FreeServer();
+                        freeServer.execute();
+                    }
+                });
+        dialog.setNegativeButton("cancel",new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(),"Operation Canceled.",Toast.LENGTH_LONG).show();
+            }
+        });
+        AlertDialog alertDialog=dialog.create();
+        alertDialog.show();
     }
 
     private class GrabUnknownCards extends AsyncTask<Integer, Integer, Void> {
@@ -218,13 +257,6 @@ public class Unknown extends AppCompatActivity {
                         skt = new Socket(HOST, Port);
                         printWriter = new PrintWriter(skt.getOutputStream());
                         BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-
-                        if (!skt.isConnected()) {
-                            displayLongToast("Can't connect to server! Reopen Permission Tab or Restart The App");
-                            if (!isCancelled()) {
-                                cancel(true);
-                            }
-                        }
                         publishProgress(30);
 
                         //sending delimiter
@@ -245,6 +277,12 @@ public class Unknown extends AppCompatActivity {
                         PersonNames = new ArrayList<>();
                         while (i <= NoOfPhotos) {
                             PersonName = String.valueOf(mBufferIn.readLine());
+                            try{
+                                PersonName = PersonName.replace(".jpg","");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Log.d("receve","replacing .jpg with empty char failed in app.");
+                            }
                             PersonNames.add(PersonName);
                             i++;
                         }
@@ -304,6 +342,76 @@ public class Unknown extends AppCompatActivity {
         }
 }
 
+    private class FreeServer extends AsyncTask<Integer, Integer, Void> {
+        Socket skt;
+        PrintWriter printWriter;
+        String ToastMessage;
+
+        boolean Error = false;
+        String ErrorMessage;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setMax(100);
+            progressBar.setProgress(0);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            Log.d("status", "Progress is:" + values[0]);
+            progressBar.setProgress(values[0]);
+            if (Error)
+                displayShortToast(ErrorMessage);
+        }
+
+        @Override
+        protected Void doInBackground(Integer... Params) {
+            try {
+                FreeServerfun();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            displayShortToast(ToastMessage);
+        }
+
+        private void FreeServerfun() {
+            while (skt == null) {
+                try {
+                    publishProgress(20);
+                    skt = new Socket(HOST, Port);
+                    printWriter = new PrintWriter(skt.getOutputStream());
+                    BufferedReader mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+
+                    //sending delimiter
+                    Log.d("receve", "sending delimiter.");
+                    printWriter.write("?FREESV");
+                    printWriter.flush();
+                    Log.d("receve", "FREESV Sent.");
+
+                    publishProgress(80);
+
+                    //recieving ACK
+                    ToastMessage = mBufferIn.readLine();
+                    Log.d("receve",ToastMessage);
+                    publishProgress(100);
+
+                    printWriter.close();
+                    mBufferIn.close();
+                    skt.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         @Override
@@ -336,10 +444,6 @@ public class Unknown extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                mDatabaseHandler = new DatabaseHandler(Unknown.this);
-                Cursor Localdb = mDatabaseHandler.getData();
-                Localdb.moveToPosition(viewHolder.getAdapterPosition());
-                mDatabaseHandler.deleteData(Localdb.getInt(Localdb.getColumnIndex("ID")));
                 UnknownCardList.remove(viewHolder.getAdapterPosition());
                 adapter.notifyDataSetChanged();
                 }
