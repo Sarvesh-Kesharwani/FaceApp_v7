@@ -199,11 +199,12 @@ public class Unknown extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            displayShortToast(ToastMessage);
-            if (progressBar.getProgress() == 100) {
-                Log.d("status", "postexecute Progress is compelete.");
-                ProgressComplete = true;
-            }
+            displayShortToast("Data Retrieved Successfully.");
+            adapter = new UnknownAdapter(UnknownCardList, getApplicationContext());
+            publishProgress(90);
+            unknown_recycler_view.setAdapter(adapter);
+            publishProgress(100);
+            adapter.notifyDataSetChanged();
         }
 
             int NoOfPhotos;
@@ -230,6 +231,8 @@ public class Unknown extends AppCompatActivity {
                         Log.d("receve", "sending delimiter.");
                         printWriter.write("?UNKNON");
                         printWriter.flush();
+                        Log.d("receve", "UNKNON Sent.");
+
 
                         //recieve no of people
                         NoOfPhotos = Integer.parseInt(mBufferIn.readLine());
@@ -246,6 +249,7 @@ public class Unknown extends AppCompatActivity {
                             i++;
                         }
                         Log.d("receve", "Names are:" + PersonNames);
+                        Log.d("receve","No of Photos in PersonNameList is: "+ PersonName.length());
                         publishProgress(50);
 
 
@@ -271,7 +275,6 @@ public class Unknown extends AppCompatActivity {
 
                 publishProgress(70);
                 int i = 1;
-                int NoOfPhotos = 10;
                 while (skt1 == null || i <= NoOfPhotos) {
                     try {
                         skt1 = new Socket(HOST, Port);
@@ -285,7 +288,7 @@ public class Unknown extends AppCompatActivity {
                             Log.d("receve", "Failed to retrieve image.");
                             e.printStackTrace();
                         }
-
+                        publishProgress(80);
                         Log.d("receve", "Reading of Photo " + i + " is Completed.");
                         UnknownCardList.add(new Unknown_CardData(data, PersonNames.get(i - 1)));
                         Log.d("receve", "Saved Photo " + i + " to DB.");
@@ -297,8 +300,7 @@ public class Unknown extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-                publishProgress(70);
-                publishProgress(80);
+
         }
 }
 
