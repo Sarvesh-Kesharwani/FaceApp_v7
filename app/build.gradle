@@ -22,6 +22,7 @@ android {
     }
 
     sourceSets {
+
         main {
             jniLibs.srcDirs += ['C:/Users/Sarvesh_Kesharwani/AndroidStudioProjects/FaceApp_v7/app/libs']
         }

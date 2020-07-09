@@ -53,7 +53,7 @@ import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "192.168.43.205";//serveousercontent.com
+    public String HOST = "serveousercontent.com";//serveousercontent.com192.168.43.205
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -216,8 +216,6 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
-
-
 
 
     @Override

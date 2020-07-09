@@ -102,7 +102,6 @@ public class Register extends AppCompatActivity {
                         if(nameText.getText().length() < 100)
                         {
                             //disable navigationBar
-                            //drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                             name = nameText.getText().toString();
                             nameText.setText("");//reset text
                             photoImage.setImageResource(R.drawable.avatar);//reset imageview
@@ -293,6 +292,8 @@ public class Register extends AppCompatActivity {
                         {
                             Bitmap RotatedBitmap = getCorrectlyOrientedImage(Register.this,uri);
                             photoImage.setImageBitmap(RotatedBitmap);
+
+                            uri = getImageUri(getApplicationContext(), RotatedBitmap);
                         }
                         else
                         {
@@ -311,7 +312,7 @@ public class Register extends AppCompatActivity {
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage,null,null);
         return Uri.parse(path);
     }

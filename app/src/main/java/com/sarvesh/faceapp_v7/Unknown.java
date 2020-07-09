@@ -45,7 +45,7 @@ import java.util.List;
 
 public class Unknown extends AppCompatActivity {
 
-    public String HOST = "192.168.43.215";//serveousercontent.com
+    public String HOST = "serveousercontent.com";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
