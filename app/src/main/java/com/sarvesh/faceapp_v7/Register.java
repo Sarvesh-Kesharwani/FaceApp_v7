@@ -82,6 +82,19 @@ public class Register extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            int value = extras.getInt("LoginProfileKey");
+            if(value == 0)
+            {
+                //
+            }
+            else
+            {
+                //
+            }
+        }
+
         //Local Database
         mDatabaseHandler = new DatabaseHandler(this);
 
@@ -144,6 +157,7 @@ public class Register extends AppCompatActivity {
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         navigationView = findViewById(R.id.register_navigation_view);
+        View navView = navigationView.inflateHeaderView(R.layout.navigation_header);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override

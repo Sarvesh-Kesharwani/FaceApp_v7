@@ -79,6 +79,7 @@ public class Unknown extends AppCompatActivity {
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         navigationView = findViewById(R.id.Unknown_navigation_view);
+        View navView = navigationView.inflateHeaderView(R.layout.navigation_header);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
