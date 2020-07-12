@@ -36,7 +36,7 @@ import java.util.List;
 
 public class Emergency extends  AppCompatActivity{
 
-    public String HOST = "192.168.43.205";//serveousercontent.com192.168.43.205
+    public String HOST = "serveousercontent.com";//serveousercontent.com 192.168.43.205
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -50,6 +50,7 @@ public class Emergency extends  AppCompatActivity{
     ImageView ClosedDoorImageView;
 
     ProgressBar progressBar;
+
     //intenet
     boolean connected = false;
 
@@ -59,10 +60,10 @@ public class Emergency extends  AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        progressBar = (ProgressBar) findViewById(R.id.emegency_progressBar);
-
         //Navigation Coding Start
         setContentView(R.layout.activity_emergency);
+        progressBar = findViewById(R.id.emegency_progressBar);
+
         drawerLayout = this.findViewById(R.id.permission_drawer_layout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(Emergency.this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
@@ -259,8 +260,6 @@ private class EmergenyActions extends AsyncTask<Integer, Integer, Integer> {
                 printWriter.close();
                 mBufferIn.close();
                 skt1.close();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }

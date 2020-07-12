@@ -40,8 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
-    public String HOST = "serveousercontent.com";//serveousercontent.com
-    public int Port = 1998;
     private WifiManager wifiManager;
 
     // Defining Permission codes.
