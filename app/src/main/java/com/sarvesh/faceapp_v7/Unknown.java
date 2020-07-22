@@ -251,6 +251,7 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
 
         Unknown_CardData temp = (Unknown_CardData) UnknownCardList.get(position);
         intent.putExtra("FullImage", temp.Unknown_Person_Photo);
+        intent.putExtra("FullImageName", temp.Image_Capture_Time);
         Log.d("full","ImageSavedToInstance.");
         startActivity(intent);
     }
