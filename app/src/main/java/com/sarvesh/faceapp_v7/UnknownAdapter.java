@@ -16,11 +16,13 @@ public class UnknownAdapter extends RecyclerView.Adapter<UnknownViewHolder> {
 
     List<Unknown_CardData> list;
     Context context;
+    public UnknownRecyclerViewClickInterface mOnFullScreenClickListner;
 
-    public UnknownAdapter(List<Unknown_CardData> list, Context context)
+    public UnknownAdapter(List<Unknown_CardData> list, Context context, UnknownRecyclerViewClickInterface mOnFullScreenClickListner)
     {
         this.list = list;
         this.context = context;
+        this.mOnFullScreenClickListner = mOnFullScreenClickListner;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class UnknownAdapter extends RecyclerView.Adapter<UnknownViewHolder> {
         // Inflate the layout
         View photoView = inflater.inflate(R.layout.unknown_card,parent, false);//converted xml file into a view buy inflating it.
 
-        UnknownViewHolder viewHolder = new UnknownViewHolder(photoView);//giving inflated view to viewHolder
+        UnknownViewHolder viewHolder = new UnknownViewHolder(photoView, mOnFullScreenClickListner);//giving inflated view to viewHolder
         return viewHolder;
     }
 

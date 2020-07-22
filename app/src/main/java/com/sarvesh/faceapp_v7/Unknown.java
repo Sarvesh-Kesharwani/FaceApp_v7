@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,9 +44,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Unknown extends AppCompatActivity {
+import static com.sarvesh.faceapp_v7.Register.UserID;
 
-    public String HOST = "serveousercontent.com";//serveousercontent.com
+public class Unknown extends AppCompatActivity implements UnknownRecyclerViewClickInterface {
+
+    public String HOST = "192.168.43.64";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -53,7 +56,7 @@ public class Unknown extends AppCompatActivity {
     private NavigationView navigationView;
     private Toolbar toolbar;
 
-    private ImageButton freeServerButton;
+    public static ImageButton freeServerButton;
     ImageButton refreshButton;
     ImageButton clearAllButton;
     ProgressBar progressBar;
@@ -62,7 +65,7 @@ public class Unknown extends AppCompatActivity {
 
     public UnknownAdapter adapter;
     public RecyclerView unknown_recycler_view;
-    List<Unknown_CardData> UnknownCardList = new ArrayList<>();
+    List UnknownCardList = new ArrayList<Unknown_CardData>();
     DatabaseHandler mDatabaseHandler;
     private boolean ProgressComplete = false;
 
@@ -81,7 +84,7 @@ public class Unknown extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
         navigationView = findViewById(R.id.Unknown_navigation_view);
         //setting navigation_header
-        if(Register.UserID == 1)
+        if(UserID == 1)
         {View navView = navigationView.inflateHeaderView(R.layout.navigation_header_admin);}
 
         View navView = navigationView.inflateHeaderView(R.layout.navigation_header);
@@ -147,7 +150,7 @@ public class Unknown extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar2);
 
         unknown_recycler_view = (RecyclerView) findViewById(R.id.unknown_recycler_view);
-        adapter = new UnknownAdapter(UnknownCardList, getApplicationContext());
+        adapter = new UnknownAdapter(UnknownCardList, getApplicationContext(), this);
         new ItemTouchHelper(itemTouchSimpleCallback).attachToRecyclerView(unknown_recycler_view);
         unknown_recycler_view.setAdapter(adapter);
         unknown_recycler_view.setLayoutManager(new LinearLayoutManager(Unknown.this));
@@ -182,7 +185,28 @@ public class Unknown extends AppCompatActivity {
                 alertDialog();
             }
         });
+
+        if(UserID == 0)
+        {freeServerButton.setVisibility(View.GONE);}
+        else
+        {freeServerButton.setVisibility(View.VISIBLE);}
     }
+
+   /* @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //outState.putParcelableArrayList("tempList", UnknownCardList);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        UnknownCardList = savedInstanceState.getParcelableArrayList("tempLIst");
+
+        adapter = new UnknownAdapter(new ArrayList<Unknown_CardData>(), getApplicationContext(), this);
+        unknown_recycler_view.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }*/
 
     public void editSharedPref()
     {
@@ -194,7 +218,7 @@ public class Unknown extends AppCompatActivity {
 
     private void clearAllCards()
     {
-        adapter = new UnknownAdapter(new ArrayList<Unknown_CardData>(), getApplicationContext());
+        adapter = new UnknownAdapter(new ArrayList<Unknown_CardData>(), getApplicationContext(), this);
         unknown_recycler_view.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
@@ -220,6 +244,17 @@ public class Unknown extends AppCompatActivity {
         AlertDialog alertDialog=dialog.create();
         alertDialog.show();
     }
+
+    @Override
+    public void onFullScreenClick(int position) {
+        Intent intent = new Intent(this, FullScreenView.class);
+
+        Unknown_CardData temp = (Unknown_CardData) UnknownCardList.get(position);
+        intent.putExtra("FullImage", temp.Unknown_Person_Photo);
+        Log.d("full","ImageSavedToInstance.");
+        startActivity(intent);
+    }
+
 
     private class GrabUnknownCards extends AsyncTask<Integer, Integer, Void> {
         Socket skt, skt1;
@@ -259,7 +294,7 @@ public class Unknown extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             displayShortToast("Data Retrieved Successfully.");
-            adapter = new UnknownAdapter(UnknownCardList, getApplicationContext());
+            adapter = new UnknownAdapter(UnknownCardList, getApplicationContext(), Unknown.this);
             publishProgress(90);
             unknown_recycler_view.setAdapter(adapter);
             publishProgress(100);

@@ -31,6 +31,7 @@
         <activity android:name=".Unknown" />
         <activity android:name=".Emergency"
             tools:ignore="Instantiatable" />
+        <activity android:name=".FullScreenView"/>
 
     </application>
 

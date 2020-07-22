@@ -53,7 +53,7 @@ import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "serveousercontent.com";//serveousercontent.com192.168.43.205
+    public String HOST = "192.168.43.64";//serveousercontent.com192.168.43.205
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -248,9 +248,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     0);
         }
 
-        /*adapter = new PermissionAdapter(new ArrayList<CardData>(), getApplicationContext(), this);
+        adapter = new PermissionAdapter(new ArrayList<CardData>(), getApplicationContext(), this);
         recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();*/
+        adapter.notifyDataSetChanged();
     }
 
     private class GrabCards extends AsyncTask<Integer, Integer, Integer> {
