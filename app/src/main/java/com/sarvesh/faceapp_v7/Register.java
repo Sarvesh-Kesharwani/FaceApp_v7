@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +48,7 @@ public class Register extends AppCompatActivity {
     public ImageView photoImage;
     public int SELECT_PHOTO = 1;
 
+    public ToggleButton ToogleRegister;
     //received user data.
     public String name;
     public Uri uri;
@@ -183,6 +185,16 @@ public class Register extends AppCompatActivity {
         //Ask for camera permissions
         checkPermission(Manifest.permission.CAMERA,
                 CAMERA_PERMISSION_CODE);
+
+
+        ToogleRegister = findViewById(R.id.toggleRegisterButton);
+        ToogleRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Register.this, RegisterVehicle.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void editSharedPref()

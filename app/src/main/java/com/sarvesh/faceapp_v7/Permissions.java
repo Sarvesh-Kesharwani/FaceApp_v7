@@ -248,9 +248,9 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     0);
         }
 
-        adapter = new PermissionAdapter(new ArrayList<CardData>(), getApplicationContext(), this);
+        adapter = new PermissionAdapter(CardList, getApplicationContext(), this);
         recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemChanged(position,null);
     }
 
     private class GrabCards extends AsyncTask<Integer, Integer, Integer> {

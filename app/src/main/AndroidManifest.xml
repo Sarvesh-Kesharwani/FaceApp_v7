@@ -32,6 +32,11 @@
         <activity android:name=".Emergency"
             tools:ignore="Instantiatable" />
         <activity android:name=".FullScreenView"/>
+        <activity android:name=".RegisterVehicle"/>
+        <activity android:name=".RegisteredVehicles"/>
+
+
+
 
     </application>
 
