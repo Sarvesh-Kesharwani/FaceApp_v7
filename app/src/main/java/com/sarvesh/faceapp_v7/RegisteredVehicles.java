@@ -215,13 +215,13 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
             UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                     Localdb.getString(Localdb.getColumnIndex("NUMBER")),
                     Localdb.getString(Localdb.getColumnIndex("NAME")),
-                    false,
+                    0,
                     0);
         } else {
             UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                     Localdb.getString(Localdb.getColumnIndex("NUMBER")),
                     Localdb.getString(Localdb.getColumnIndex("NAME")),
-                    true,
+                    1,
                     0);
         }
 
@@ -430,8 +430,7 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                                     Cursor Localdb = mDatabaseHandler.getData();
                                     Localdb.moveToPosition(mPosition);
 
-                                    if (Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0)
-                                    {
+                                    if (Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0) {
                                         Log.d("status", "SYNCED was 0");
                                         UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                                                 Localdb.getString(Localdb.getColumnIndex("NUMBER")),
@@ -628,6 +627,7 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                     e.printStackTrace();
                 }
             }
+        }
     }
 
     public void AddServerData(List<Vehicle_CardData> ServerCardlist, int NoOfVehicles) {
@@ -673,7 +673,7 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
     }
 
     public void DeleteDataAndPhoto(int id) {
-        boolean updateData = mDatabaseHandler.deleteDataAndPhoto(this);
+        boolean updateData = mDatabaseHandler.deleteDataLocally(this);
 
         if (updateData) {
             displayLongToast("Data Locally Deleted Successfully.");

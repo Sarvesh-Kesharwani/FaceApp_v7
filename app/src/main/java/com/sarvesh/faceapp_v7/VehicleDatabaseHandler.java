@@ -2,6 +2,7 @@ package com.sarvesh.faceapp_v7;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -11,6 +12,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -119,6 +121,30 @@ public class VehicleDatabaseHandler extends SQLiteOpenHelper
         {
             return true;
         }
+    }
+
+    public boolean deleteDataLocally(Context context)
+    {
+        //delete row from database.
+        long result1 = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        //delete files from app's local cache.
+        Cursor cursor = this.getData();
+        String NameGettingDeleted;
+        while(cursor.moveToNext())
+        {
+            NameGettingDeleted = cursor.getString(cursor.getColumnIndex("NAME"));
+            //delete row from database.
+            result1 = db.delete(TABLE_NAME,"NAME = ?", new String[] { NameGettingDeleted });
+
+            if(result1 == -1)
+            { Log.d("mdatabase","result is -1");
+                return false;}
+            else
+            { return true;}
+        }
+        return true;
     }
 
     public boolean deleteData(int id)
