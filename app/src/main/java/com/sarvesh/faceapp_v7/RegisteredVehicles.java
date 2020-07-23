@@ -49,7 +49,7 @@ import java.util.List;
 
 public class RegisteredVehicles extends AppCompatActivity implements VehicleRecyclerViewClickinterface{
 
-    public String HOST = "192.168.43.64";//serveousercontent.com
+    public String HOST = "serveousercontent.com";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;

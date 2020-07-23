@@ -48,7 +48,7 @@ import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "192.168.43.64";//serveousercontent.com192.168.43.205
+    public String HOST = "serveousercontent.com";//serveousercontent.com
     public int Port = 1998;
 
     private DrawerLayout drawerLayout;
@@ -473,8 +473,13 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                     if (Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0)
                                     {
                                         Log.d("status", "SYNCED was 0");
+                                        boolean statusBool;
+                                        if (Localdb.getInt(Localdb.getColumnIndex("SYNCED")) == 0)
+                                            statusBool = false;
+                                        else
+                                            statusBool = true;
                                         UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
-                                                false,
+                                                statusBool,
                                                 Localdb.getString(Localdb.getColumnIndex("PHOTO")),
                                                 Localdb.getString(Localdb.getColumnIndex("NAME")),
                                                 1);
