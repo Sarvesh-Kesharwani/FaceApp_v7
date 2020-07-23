@@ -347,6 +347,9 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                     Log.d("receve", "VehNames are:" + String.valueOf(VehNames));
 
                     displayShortToast(String.valueOf(mBufferIn.readLine()));
+                    publishProgress(70);
+                    AddServerData(ServerCardList, NoOfVehicles);
+                    publishProgress(80);
 
                     printWriter.close();
                     mBufferIn.close();
@@ -358,32 +361,7 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                 }
             }
 
-            int i = 1;
-            while (skt1 == null || i <= NoOfVehicles) {
-                try {
-                    skt1 = new Socket(HOST, Port);
-                    InputStream sin = skt1.getInputStream();
-                    DataInputStream dis = new DataInputStream(sin);
 
-                    byte[] data = new byte[PersonPhotoSizes.get(i - 1).intValue()];
-                    try {
-                        dis.readFully(data, 0, data.length);
-                    } catch (IOException e) {
-                        Log.d("receve", "Failed to retrieve image.");
-                        e.printStackTrace();
-                    }
-
-
-                    dis.close();
-                    skt1.close();
-                } catch (IOException e) {
-                    System.out.println("Fail");
-                    e.printStackTrace();
-                }
-            }
-            publishProgress(70);
-            AddServerData(ServerCardList, NoOfPeople);
-            publishProgress(80);
         }
     }
 
@@ -439,7 +417,7 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                 ProgressComplete = true;
             }
 
-            //update databse to hide sync_button
+            //update database to hide sync_button
             Log.d("status", "setting sync button to 0");
             if (ProgressComplete == true) {
                 //RefreshRecyclerView
@@ -456,9 +434,9 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                                     {
                                         Log.d("status", "SYNCED was 0");
                                         UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
-                                                false,
-                                                Localdb.getString(Localdb.getColumnIndex("PHOTO")),
+                                                Localdb.getString(Localdb.getColumnIndex("NUMBER")),
                                                 Localdb.getString(Localdb.getColumnIndex("NAME")),
+                                                Localdb.getInt(Localdb.getColumnIndex("STATUS")),
                                                 1);
                                     }
 
@@ -495,41 +473,15 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                     publishProgress(10);
 
                     //retreving name from LocalDB
-                    String PersonName = Localdb.getString(Localdb.getColumnIndex("NAME"));
-                    Log.d("status", "PersonName is:" + PersonName);
+                    String VehicleName = Localdb.getString(Localdb.getColumnIndex("NAME"));
+                    Log.d("status", "VehicleName is:" + VehicleName);
 
-                    byte[] PhotobyteArray = new byte[0];
-                    //retreving photoByteArray from LocalDB
-                    try{
-                        //prepare file to write on.
-                        File photoFile = new File(Localdb.getString(Localdb.getColumnIndex("PHOTO")));
-                        FileInputStream fis = new FileInputStream(photoFile);
+                    String VehicleNumber = Localdb.getString(Localdb.getColumnIndex("NUMBER"));
+                    Log.d("status", "VehicleNumber is:" + VehicleNumber);
 
-                        //read bytes from photo_path file and save it to bytes array.
-                        byte[] bytes = new byte[1048576];//5mb space
-                        int ReadBytesSize = 0;
-                        int temp = 0;
-                        while(true)
-                        {
-                            if((temp = fis.read(bytes)) == -1)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                ReadBytesSize = temp;
-                            }
-                        }
-                        PhotobyteArray = new byte[ReadBytesSize];
-                        PhotobyteArray = Arrays.copyOfRange(bytes, 0, ReadBytesSize);
-                    } catch (FileNotFoundException e){
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     publishProgress(20);
 
-                    //if person is allowed
+                    //if vehicle is allowed
                     if (Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 1)//////////////////////**************
                     {
                         Log.d("status", "person is allowed sending name&photo.");
@@ -537,62 +489,81 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
 
                         //sending name_length and name
                         //retreving bytes from personName
-                        byte[] nameBytes = PersonName.getBytes();
-                        int nameBytesLength = nameBytes.length;//no of charaters in the name
-                        String nameBytesLengthString = Integer.toString(nameBytesLength);
+                        byte[] numberBytes = VehicleNumber.getBytes();
+                        int numberBytesLength = numberBytes.length;//no of charaters in the name
+                        String numberBytesLengthString = Integer.toString(numberBytesLength);
                         publishProgress(30);
 
                         //sending name length
-                        if (nameBytesLength < 100) {
+                        if (numberBytesLength < 100) {
                             //sending update delimiter
-                            printWriter.write("?UPDATE");
+                            printWriter.write("?VCLUPD");
                             printWriter.flush();
 
-                            if (nameBytesLength <= 9) {
-                                printWriter.write('0' + nameBytesLengthString);
+                            if (numberBytesLength <= 9) {
+                                printWriter.write('0' + numberBytesLengthString);
                                 printWriter.flush();
                             } else {
-                                printWriter.write(nameBytesLengthString);
+                                printWriter.write(numberBytesLengthString);
                                 printWriter.flush();
                             }
 
                             //sending name
-                            printWriter.write(PersonName);
+                            printWriter.write(VehicleNumber);
                             printWriter.flush();
-                        } else {
-                            ToastMessage = "Name is too long!";
-                            continue;
-                        }
-                        publishProgress(60);
 
-                        //sending photo_length and photo_file
-                        //sending photo size
-                        printWriter.write(String.valueOf(PhotobyteArray.length) + '$');
-                        printWriter.flush();
-                        //sending photo file
-                        dos.write(PhotobyteArray, 0, PhotobyteArray.length);
-                        dos.flush();
-                        publishProgress(70);
-                        //receving name& photo received ACK.
-                        mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
-                        Log.d("status", "shutting down output");
-                        skt.shutdownOutput();
-                        Log.d("status", "recieving ACK");
-                        String ACK;
-                        String ResultMessage;
-                        publishProgress(80);
-                        if (skt.isOutputShutdown()) {
-                            ACK = mBufferIn.readLine();
-                            if (ACK.equals("?SYNC_DONE")) {
-                                publishProgress(100);//indiacates that process is complete and hide the syncButton otherwise not
-                                ResultMessage = mBufferIn.readLine();
-                                ToastMessage = ResultMessage;
+                            //sending name_length and name
+                            //retreving bytes from personName
+                            byte[] nameBytes = VehicleName.getBytes();
+                            int nameBytesLength = nameBytes.length;//no of charaters in the name
+                            String nameBytesLengthString = Integer.toString(nameBytesLength);
+                            publishProgress(30);
+
+                            //sending name length
+                            if (nameBytesLength < 100) {
+                                //sending update delimiter
+                                printWriter.write("?VCLUPD");
+                                printWriter.flush();
+
+                                if (nameBytesLength <= 9) {
+                                    printWriter.write('0' + nameBytesLengthString);
+                                    printWriter.flush();
+                                } else {
+                                    printWriter.write(nameBytesLengthString);
+                                    printWriter.flush();
+                                }
+
+                                //sending name
+                                printWriter.write(VehicleName);
+                                printWriter.flush();
+
+                            } else {
+                                ToastMessage = "Name is too long!";
+                                continue;
                             }
-                        } else
-                            Log.d("status", "Output isn't down!");
-                        skt.close();
-                    }
+                            publishProgress(60);
+                            publishProgress(70);
 
+                            //receving name & number received ACK.
+                            mBufferIn = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+                            Log.d("status", "shutting down output");
+                            skt.shutdownOutput();
+                            Log.d("status", "recieving ACK");
+                            String ACK;
+                            String ResultMessage;
+                            publishProgress(80);
+                            if (skt.isOutputShutdown()) {
+                                ACK = mBufferIn.readLine();
+                                if (ACK.equals("?SYNC_DONE")) {
+                                    publishProgress(100);//indiacates that process is complete and hide the syncButton otherwise not
+                                    ResultMessage = mBufferIn.readLine();
+                                    ToastMessage = ResultMessage;
+                                }
+                            } else
+                                Log.d("status", "Output isn't down!");
+                            skt.close();
+                        }
+                    }
                     //if person is not allowed
                     else if (Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 0)///////////////////**************
                     {
@@ -600,25 +571,25 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
 
                         //sending name_length and name
                         //retreving bytes from personName
-                        byte[] nameBytes = PersonName.getBytes();
-                        int nameBytesLength = nameBytes.length;//no of charaters in the name
-                        String nameBytesLengthString = Integer.toString(nameBytesLength);
+                        byte[] numberBytes = VehicleNumber.getBytes();
+                        int numberBytesLength = numberBytes.length;//no of charaters in the name
+                        String numberBytesLengthString = Integer.toString(numberBytesLength);
                         publishProgress(30);
 
                         //sending name length
-                        if (nameBytesLength < 100) {
-                            printWriter.write("?DELETE");
+                        if (numberBytesLength < 100) {
+                            printWriter.write("?VCLDEL");
                             printWriter.flush();
 
-                            if (nameBytesLength <= 9) {
-                                printWriter.write('0' + nameBytesLengthString);
+                            if (numberBytesLength <= 9) {
+                                printWriter.write('0' + numberBytesLengthString);
                                 printWriter.flush();
                             } else {
-                                printWriter.write(nameBytesLengthString);
+                                printWriter.write(numberBytesLengthString);
                                 printWriter.flush();
                             }
                             //sending name
-                            printWriter.write(PersonName);
+                            printWriter.write(VehicleNumber);
                             printWriter.flush();
                             publishProgress(50);
                         } else {
@@ -651,25 +622,25 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                         skt.close();
                     } else
                         Log.d("status", "Invalid status input!");
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
                 } catch (IOException e) {
-                    System.out.println("Fail");
                     e.printStackTrace();
                 }
             }
-        }
     }
 
-    public void AddServerData(List<CardData> ServerCardlist, int NoOfPeople) {
+    public void AddServerData(List<Vehicle_CardData> ServerCardlist, int NoOfVehicles) {
         int i = 1;
 
-        while (i <= NoOfPeople) {
+        while (i <= NoOfVehicles) {
             int statusInt;
-            if (ServerCardlist.get(i - 1).PersonPermissionStatus)
+            if (ServerCardlist.get(i - 1).vehicleStatus)
                 statusInt = 1;
             else
                 statusInt = 0;
 
-            boolean insertData = mDatabaseHandler.addServerData(ServerCardlist.get(i - 1).PersonPhoto, ServerCardList.get(i - 1).PersonName, statusInt, ServerCardList.get(i - 1).PermissionDataSynced, this);
+            boolean insertData = mDatabaseHandler.addServerData(ServerCardlist.get(i - 1).number, ServerCardList.get(i - 1).name, statusInt, ServerCardList.get(i - 1).vehicleSynced);
             if (insertData) {
                 Log.d("receve", "Server Data Successfully Inserted Locally.");
             } else {
@@ -681,15 +652,16 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
 
     }
 
-    public boolean UpdateData(int id, String number, String name,  boolean status, int synced) {
-        int statusInt;
+    public boolean UpdateData(int id, String number, String name,  int status, int synced) {
+
+        /*int statusInt;
         if (status)
             statusInt = 1;
         else
-            statusInt = 0;
+            statusInt = 0;*/
 
 
-        boolean updateData = mDatabaseHandler.updateData(id, number, name, statusInt, synced);
+        boolean updateData = mDatabaseHandler.updateData(id, number, name, status, synced);
 
         if (updateData) {
             displayShortToast("Data Successfully Updated Locally.");
