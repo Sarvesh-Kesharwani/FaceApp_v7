@@ -48,7 +48,7 @@ public class Register extends AppCompatActivity {
     public ImageView photoImage;
     public int SELECT_PHOTO = 1;
 
-    public ToggleButton ToogleRegister;
+    public Button ToogleRegister;
     //received user data.
     public String name;
     public Uri uri;

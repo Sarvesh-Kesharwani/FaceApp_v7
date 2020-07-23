@@ -46,6 +46,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -222,7 +223,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             SyncApp syncApp = new SyncApp(position);
             syncApp.execute(new Integer(position));
         } else {
-            displayLongToast("Connect to Internet...");
+            displayLongToast("Please Connect to Internet...");
         }
     }
 
@@ -248,9 +249,12 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                     0);
         }
 
-        adapter = new PermissionAdapter(CardList, getApplicationContext(), this);
+        /*adapter = new PermissionAdapter(CardList, getApplicationContext(), this);
         recyclerView.setAdapter(adapter);
-        adapter.notifyItemChanged(position,null);
+        adapter.notifyItemChanged(position);*/
+
+        startActivity(new Intent(this, Permissions.class));
+        finish();
     }
 
     private class GrabCards extends AsyncTask<Integer, Integer, Integer> {
@@ -479,6 +483,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                                     }
 
                                     adapter.notifyItemChanged(mPosition);
+                                    startActivity(new Intent(getApplicationContext(), Permissions.class));
                                 }
                             });
                             Thread.sleep(300);
@@ -489,6 +494,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                 }.start();
 
             }
+            finish();
         }
 
         void SyncAppfun(int CardPosition) {

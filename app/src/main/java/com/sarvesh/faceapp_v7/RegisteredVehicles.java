@@ -12,5 +12,6 @@ public class RegisteredVehicles extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_vehicles);
+
     }
 }
