@@ -39,7 +39,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/Permission_Data_Synced"
+                    android:id="@+id/Vehicle_Data_Synced"
                     android:layout_width="62dp"
                     android:layout_height="54dp"
                     android:layout_marginEnd="16dp"

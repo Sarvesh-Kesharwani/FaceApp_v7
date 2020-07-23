@@ -161,7 +161,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(Permissions.this));
 
-        refreshButton = findViewById(R.id.Permission_Data_Synced);
+        refreshButton = findViewById(R.id.Vehicle_Data_Synced);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

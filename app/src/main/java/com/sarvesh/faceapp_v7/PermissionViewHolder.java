@@ -16,10 +16,10 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder{
     PermissionViewHolder(View itemView, final RecyclerViewClickInterface recyclerViewClickInterface)
     {
         super(itemView);
-        PersonPhotoImageView = itemView.findViewById(R.id.VehicleNameTextView);
-        PersonNameTextView = itemView.findViewById(R.id.VehicleNumberTextView);
-        PersonPermissionStatusSwitch = itemView.findViewById(R.id.Permission_Status_switch);
-        PermissionSyncButton = itemView.findViewById(R.id.Permission_Data_Synced);
+        PersonPhotoImageView = itemView.findViewById(R.id.VehicleImageView);
+        PersonNameTextView = itemView.findViewById(R.id.VehicleNameTextView);
+        PersonPermissionStatusSwitch = itemView.findViewById(R.id.Vehicle_Status_switch);
+        PermissionSyncButton = itemView.findViewById(R.id.Vehicle_Data_Synced);
 
         PermissionSyncButton.setOnClickListener(new View.OnClickListener() {
             @Override

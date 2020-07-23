@@ -15,10 +15,10 @@ public class VehicleViewHolder extends RecyclerView.ViewHolder{
     VehicleViewHolder(View itemView, final VehicleRecyclerViewClickinterface recyclerViewClickInterface)
     {
         super(itemView);
-        VehicleNumberTextView = itemView.findViewById(R.id.VehicleNumberTextView);
+        VehicleNumberTextView = itemView.findViewById(R.id.VehicleImageView);
         VehicleNameTextView = itemView.findViewById(R.id.VehicleNameTextView);
-        VehiclePermissionStatusSwitch = itemView.findViewById(R.id.VehiclePermission_Status_switch);
-        VehicleSyncButton = itemView.findViewById(R.id.VehiclePermission_Data_Synced);
+        VehiclePermissionStatusSwitch = itemView.findViewById(R.id.Vehicle_Status_switch);
+        VehicleSyncButton = itemView.findViewById(R.id.Vehicle_Data_Synced);
 
         VehicleSyncButton.setOnClickListener(new View.OnClickListener() {
             @Override

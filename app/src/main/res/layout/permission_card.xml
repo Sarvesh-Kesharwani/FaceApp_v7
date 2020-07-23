@@ -19,18 +19,18 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/VehicleNumberTextView"
+                android:id="@+id/VehicleNameTextView"
                 android:layout_width="182dp"
                 android:layout_height="29dp"
                 android:hint="Name"
-                app:layout_constraintBottom_toTopOf="@+id/Permission_Status_switch"
-                app:layout_constraintEnd_toStartOf="@+id/Permission_Data_Synced"
+                app:layout_constraintBottom_toTopOf="@+id/Vehicle_Status_switch"
+                app:layout_constraintEnd_toStartOf="@+id/Vehicle_Data_Synced"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/VehicleNameTextView"
+                app:layout_constraintStart_toEndOf="@+id/VehicleImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Switch
-                android:id="@+id/VehiclePermission_Status_switch"
+                android:id="@+id/Vehicle_Status_switch"
                 android:layout_width="180dp"
                 android:layout_height="32dp"
                 android:drawableTint="#18CBE3"
@@ -38,21 +38,18 @@
                 android:textOff="@string/not_allowed"
                 android:textOn="@string/allowed"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/Permission_Data_Synced"
-                app:layout_constraintHorizontal_bias="0.692"
-                app:layout_constraintStart_toEndOf="@+id/VehicleNameTextView"
-                app:layout_constraintTop_toBottomOf="@+id/VehicleNumberTextView"
-                app:layout_constraintVertical_bias="0.304" />
+                app:layout_constraintEnd_toStartOf="@+id/Vehicle_Data_Synced"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/VehicleImageView"
+                app:layout_constraintTop_toBottomOf="@+id/VehicleNameTextView" />
 
             <ImageView
-                android:id="@+id/VehicleNameTextView"
+                android:id="@+id/VehicleImageView"
                 android:layout_width="92dp"
                 android:layout_height="95dp"
-                android:layout_marginStart="6dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="17dp"
+                android:layout_marginStart="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/VehicleNumberTextView"
+                app:layout_constraintEnd_toStartOf="@+id/VehicleNameTextView"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -60,15 +57,14 @@
                 app:srcCompat="@drawable/avatar1" />
 
             <ImageButton
-                android:id="@+id/VehiclePermission_Data_Synced"
+                android:id="@+id/Vehicle_Data_Synced"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/VehicleNumberTextView"
+                app:layout_constraintStart_toEndOf="@+id/VehicleNameTextView"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.508"
                 app:srcCompat="@drawable/ic_baseline_cached_24" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

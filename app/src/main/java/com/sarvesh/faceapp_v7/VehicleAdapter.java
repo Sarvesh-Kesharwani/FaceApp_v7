@@ -33,7 +33,7 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the layout
-        View photoView = inflater.inflate(R.layout.vehicle_card,parent, false);//converted xml file into a view by inflating it.
+        View photoView = inflater.inflate(R.layout.vehicle_card, parent, false);//converted xml file into a view by inflating it.
 
         VehicleViewHolder viewHolder = new VehicleViewHolder(photoView, mOnSyncListener);//giving inflated view to viewHolder
         return viewHolder;

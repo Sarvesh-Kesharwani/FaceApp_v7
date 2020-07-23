@@ -18,19 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/VehicleNumberTextView"
-                android:layout_width="217dp"
-                android:layout_height="35dp"
-                android:hint="Number"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/Permission_Status_switch"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/VehicleNameTextView" />
-
             <Switch
-                android:id="@+id/Permission_Status_switch"
+                android:id="@+id/Vehicle_Status_switch"
                 android:layout_width="56dp"
                 android:layout_height="29dp"
                 android:drawableTint="#18CBE3"
@@ -38,36 +27,44 @@
                 android:textOff="@string/not_allowed"
                 android:textOn="@string/allowed"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/Permission_Data_Synced"
+                app:layout_constraintEnd_toStartOf="@+id/Vehicle_Data_Synced"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/VehicleNumberTextView"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.509" />
+                app:layout_constraintStart_toEndOf="@+id/VehicleImageView"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/VehicleNameTextView"
+                android:id="@+id/VehicleImageView"
                 android:layout_width="215dp"
                 android:layout_height="33dp"
                 android:hint="Name"
-                app:layout_constraintBottom_toTopOf="@+id/VehicleNumberTextView"
-                app:layout_constraintEnd_toStartOf="@+id/Permission_Status_switch"
-                app:layout_constraintHorizontal_bias="0.531"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/Vehicle_Status_switch"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/VehicleNameTextView"
                 app:srcCompat="@drawable/avatar1" />
 
             <ImageButton
-                android:id="@+id/Permission_Data_Synced"
+                android:id="@+id/Vehicle_Data_Synced"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/Permission_Status_switch"
+                app:layout_constraintStart_toEndOf="@+id/Vehicle_Status_switch"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
                 app:srcCompat="@drawable/ic_baseline_cached_24" />
+
+            <TextView
+                android:id="@+id/VehicleNameTextView"
+                android:layout_width="217dp"
+                android:layout_height="35dp"
+                android:hint="Number"
+                app:layout_constraintBottom_toTopOf="@+id/VehicleImageView"
+                app:layout_constraintEnd_toStartOf="@+id/Vehicle_Status_switch"
+                app:layout_constraintHorizontal_bias="0.522"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
