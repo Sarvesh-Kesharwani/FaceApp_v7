@@ -80,10 +80,10 @@ public class VehicleDatabaseHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(Col_3,number);
-        contentValues.put(Col_2,name);
-        contentValues.put(Col_2,status);
-        contentValues.put(Col_2,IsSynced);
+        contentValues.put(Col_2,number);
+        contentValues.put(Col_3,name);
+        contentValues.put(Col_3,status);
+        contentValues.put(Col_4,IsSynced);
 
         result = db.insert(TABLE_NAME, null, contentValues);
 
@@ -105,10 +105,10 @@ public class VehicleDatabaseHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(Col_1,id);
-        contentValues.put(Col_2,name);
-        contentValues.put(Col_3,number);
-        contentValues.put(Col_3,status);
-        contentValues.put(Col_3,synced);
+        contentValues.put(Col_2,number);
+        contentValues.put(Col_3,name);
+        contentValues.put(Col_4,status);
+        contentValues.put(Col_5,synced);
 
         result = db.update(TABLE_NAME, contentValues, "ID = ?", new String[] { String.valueOf(id) });
 

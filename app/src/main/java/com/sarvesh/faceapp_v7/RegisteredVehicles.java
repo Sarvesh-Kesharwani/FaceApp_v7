@@ -173,6 +173,8 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                 clearAllCards();
             }
         });
+
+        mDatabaseHandler = new VehicleDatabaseHandler(this);
     }
 
     public void editSharedPref()
@@ -210,7 +212,7 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
 
         Cursor Localdb = mDatabaseHandler.getData();
         Localdb.moveToPosition(position);
-        if (Localdb.getInt(Localdb.getColumnIndex("STATUS")) == 1) {
+        if (Localdb.getInt(Localdb.getColumnIndexOrThrow("STATUS")) == 1) {
             Log.d("status", "Old Status is:" + String.valueOf(Localdb.getInt(Localdb.getInt(Localdb.getColumnIndex("STATUS")))));
             UpdateData(Localdb.getInt(Localdb.getColumnIndex("ID")),
                     Localdb.getString(Localdb.getColumnIndex("NUMBER")),
@@ -347,10 +349,6 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                     Log.d("receve", "VehNames are:" + String.valueOf(VehNames));
 
                     displayShortToast(String.valueOf(mBufferIn.readLine()));
-                    publishProgress(70);
-                    AddServerData(ServerCardList, NoOfVehicles);
-                    publishProgress(80);
-
                     printWriter.close();
                     mBufferIn.close();
                     skt.close();
@@ -360,7 +358,9 @@ public class RegisteredVehicles extends AppCompatActivity implements VehicleRecy
                     e.printStackTrace();
                 }
             }
-
+            publishProgress(70);
+            AddServerData(ServerCardList, NoOfVehicles);
+            publishProgress(80);
 
         }
     }
