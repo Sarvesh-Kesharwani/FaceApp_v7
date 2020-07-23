@@ -4,14 +4,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,15 +28,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,6 +107,10 @@ public class Unknown extends AppCompatActivity implements UnknownRecyclerViewCli
                         editSharedPref();
                         Intent intent5 = new Intent(Unknown.this, MainActivity.class);
                         startActivity(intent5);
+                        break;
+                    case R.id.nav_vehicles:
+                        Intent intent6 = new Intent(Unknown.this, RegisteredVehicles.class);
+                        startActivity(intent6);
                         break;
                 }
                 return false;

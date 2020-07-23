@@ -14,7 +14,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.705" />
+        app:layout_constraintVertical_bias="0.517" />
+
+    <EditText
+        android:id="@+id/VehicleNameEditTextView"
+        android:layout_width="249dp"
+        android:layout_height="52dp"
+        android:hint="Enter Name"
+        app:layout_constraintBottom_toTopOf="@+id/AddVehicleNumberButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/VehicleNumberEditTextView"
+        app:layout_constraintVertical_bias="0.39" />
 
     <Button
         android:id="@+id/AddVehicleNumberButton"

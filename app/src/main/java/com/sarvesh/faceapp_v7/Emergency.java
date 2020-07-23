@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -100,6 +101,10 @@ public class Emergency extends  AppCompatActivity{
                     case R.id.nav_logout:
                         Intent intent5 = new Intent(Emergency.this, MainActivity.class);
                         startActivity(intent5);
+                        break;
+                    case R.id.nav_vehicles:
+                        Intent intent6 = new Intent(Emergency.this, RegisteredVehicles.class);
+                        startActivity(intent6);
                         break;
                 }
                 return false;

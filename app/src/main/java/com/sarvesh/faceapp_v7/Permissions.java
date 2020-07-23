@@ -1,11 +1,9 @@
 package com.sarvesh.faceapp_v7;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -28,10 +26,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.almworks.sqlite4java.SQLiteConnection;
 import com.google.android.material.navigation.NavigationView;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -39,14 +35,12 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -132,6 +126,10 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
                         Intent intent5 = new Intent(Permissions.this, MainActivity.class);
                         startActivity(intent5);
                         break;
+                    case R.id.nav_vehicles:
+                        Intent intent6 = new Intent(Permissions.this, RegisteredVehicles.class);
+                        startActivity(intent6);
+                        break;
                 }
                 return false;
             }
@@ -179,7 +177,7 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
             }
         });
 
-        clearAllButton = findViewById(R.id.clearAllButton);
+        clearAllButton = findViewById(R.id.registeredVehicle_clearAllButton);
         clearAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

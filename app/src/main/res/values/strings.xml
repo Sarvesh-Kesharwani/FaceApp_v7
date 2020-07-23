@@ -12,4 +12,5 @@
     <string name="not_allowed">NA</string>
     <string name="allowed">A</string>
     <string name="todo">TODO</string>
+    <string name="vehicles">Vehicles</string>
 </resources>

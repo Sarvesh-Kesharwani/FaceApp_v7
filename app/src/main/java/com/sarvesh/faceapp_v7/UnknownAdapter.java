@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 public class UnknownAdapter extends RecyclerView.Adapter<UnknownViewHolder> {

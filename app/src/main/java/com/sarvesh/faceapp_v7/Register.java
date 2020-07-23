@@ -177,6 +177,10 @@ public class Register extends AppCompatActivity {
                         Intent intent5 = new Intent(Register.this, MainActivity.class);
                         startActivity(intent5);
                         break;
+                    case R.id.nav_vehicles:
+                        Intent intent6 = new Intent(Register.this, RegisteredVehicles.class);
+                        startActivity(intent6);
+                        break;
                     }
                     return false;
                 }

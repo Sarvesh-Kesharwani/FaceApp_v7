@@ -16,8 +16,8 @@ public class PermissionViewHolder extends RecyclerView.ViewHolder{
     PermissionViewHolder(View itemView, final RecyclerViewClickInterface recyclerViewClickInterface)
     {
         super(itemView);
-        PersonPhotoImageView = itemView.findViewById(R.id.Person_image);
-        PersonNameTextView = itemView.findViewById(R.id.Person_name);
+        PersonPhotoImageView = itemView.findViewById(R.id.VehicleNameTextView);
+        PersonNameTextView = itemView.findViewById(R.id.VehicleNumberTextView);
         PersonPermissionStatusSwitch = itemView.findViewById(R.id.Permission_Status_switch);
         PermissionSyncButton = itemView.findViewById(R.id.Permission_Data_Synced);
 

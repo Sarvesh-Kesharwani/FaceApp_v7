@@ -22,8 +22,12 @@
         android:title="@string/EmergencyOpen"/>
 
     <item
+        android:id="@+id/nav_vehicles"
+        android:icon="@drawable/ic_baseline_directions_car_24"
+        android:title="@string/vehicles" />
+    <item
         android:id="@+id/nav_logout"
-        android:icon="@drawable/ic_lock_open_black_24dp"
-        android:title="@string/LogOut"/>
+        android:icon="@drawable/ic_baseline_exit_to_app_24"
+        android:title="@string/LogOut" />
 
 </menu>

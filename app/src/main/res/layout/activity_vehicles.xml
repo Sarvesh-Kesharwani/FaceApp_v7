@@ -31,7 +31,6 @@
                     android:layout_width="387dp"
                     android:layout_height="43dp"
                     android:layout_marginStart="5dp"
-                    android:text="Registered Vehicles"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -53,7 +52,7 @@
                     app:srcCompat="@drawable/ic_baseline_cloud_download_24" />
 
                 <ImageButton
-                    android:id="@+id/clearAllButton"
+                    android:id="@+id/registeredVehicle_clearAllButton"
                     android:layout_width="62dp"
                     android:layout_height="54dp"
                     android:layout_marginEnd="84dp"
