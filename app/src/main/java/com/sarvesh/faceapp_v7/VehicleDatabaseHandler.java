@@ -21,7 +21,7 @@ import java.io.InputStream;
 public class VehicleDatabaseHandler extends SQLiteOpenHelper
 {
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "VehicleDatabase.db";
+    private static final String DATABASE_NAME = "RpiDb.db";
     private static final String TABLE_NAME = "Vehicle_Data";
 
     private static final String Col_1 = "ID";
@@ -82,8 +82,8 @@ public class VehicleDatabaseHandler extends SQLiteOpenHelper
 
         contentValues.put(Col_2,number);
         contentValues.put(Col_3,name);
-        contentValues.put(Col_3,status);
-        contentValues.put(Col_4,IsSynced);
+        contentValues.put(Col_4,status);
+        contentValues.put(Col_5,IsSynced);
 
         result = db.insert(TABLE_NAME, null, contentValues);
 
@@ -123,20 +123,19 @@ public class VehicleDatabaseHandler extends SQLiteOpenHelper
         }
     }
 
-    public boolean deleteDataLocally(Context context)
+    public boolean deleteDataAndPhoto(Context context)
     {
         //delete row from database.
         long result1 = 0;
         SQLiteDatabase db = this.getWritableDatabase();
 
-        //delete files from app's local cache.
         Cursor cursor = this.getData();
         String NameGettingDeleted;
         while(cursor.moveToNext())
         {
-            NameGettingDeleted = cursor.getString(cursor.getColumnIndex("NAME"));
             //delete row from database.
-            result1 = db.delete(TABLE_NAME,"NAME = ?", new String[] { NameGettingDeleted });
+            NameGettingDeleted = cursor.getString(cursor.getColumnIndex("NUMBER"));
+            result1 = db.delete(TABLE_NAME,"NUMBER = ?", new String[] { NameGettingDeleted });
 
             if(result1 == -1)
             { Log.d("mdatabase","result is -1");

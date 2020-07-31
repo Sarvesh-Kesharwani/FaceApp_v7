@@ -41,8 +41,8 @@ import static com.sarvesh.faceapp_v7.Register.UserID;
 
 public class Unknown extends AppCompatActivity implements UnknownRecyclerViewClickInterface {
 
-    public String HOST = "serveousercontent.com";//serveousercontent.com
-    public int Port = 1998;
+    public String HOST = "telebit.cloud";//serveousercontent.com
+    public int Port = 9839;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;

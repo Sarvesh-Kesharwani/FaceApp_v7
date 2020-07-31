@@ -37,8 +37,8 @@ import java.util.List;
 
 public class Emergency extends  AppCompatActivity{
 
-    public String HOST = "serveousercontent.com";//serveousercontent.com 192.168.43.205
-    public int Port = 1998;
+    public String HOST = "telebit.cloud";//serveousercontent.com 192.168.43.205
+    public int Port = 9839;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;

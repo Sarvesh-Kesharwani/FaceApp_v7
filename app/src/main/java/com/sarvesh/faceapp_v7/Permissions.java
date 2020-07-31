@@ -48,9 +48,8 @@ import java.util.List;
 
 public class Permissions extends AppCompatActivity implements RecyclerViewClickInterface {
 
-    public String HOST = "serveousercontent.com";//serveousercontent.com
-    public int Port = 1998;
-
+    public String HOST = "telebit.cloud";//serveousercontent.com
+    public int Port = 9839;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
@@ -199,6 +198,8 @@ public class Permissions extends AppCompatActivity implements RecyclerViewClickI
     {
         mDatabaseHandler = new DatabaseHandler(Permissions.this);
         Cursor Localdb = mDatabaseHandler.getData();
+        if(Localdb == null)
+            displayShortToast("Database is Empty!");
         while (Localdb.moveToNext()) {
             try {
                 //remove cards from DB one-by-one
